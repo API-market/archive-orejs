@@ -5,17 +5,17 @@ orejs is helper library (written in Javascript) to provide simple high-level acc
 ### Constructor (EOSConfig)
 * Constructs eosJs instance using EOSConfig
 
-#### eosJs instance 
+#### eosJs instance (exposed as a property on OreJS)
 
 ### createOreWallet (userWalletPassword)  => oreWalletName, encryptedWalletPassword)
-* create a new user account on the ORE network with wallet and associate it with a user’s identity
+create a new user account on the ORE network with wallet and associate it with a user’s identity
 * Create EOS Wallet 
-* Generate userOreWalletName - using datetime pattern (yymmddhhmmssm) 
-* Generate wallet => new wallet password -> encrypt with userWalletPassword => encryptedWalletPassword
-* Create and import keypair (public and private)
+* * Generate userOreWalletName - using datetime pattern (yymmddhhmmssm) 
+* * Generate wallet => new wallet password -> encrypt with userWalletPassword => encryptedWalletPassword
+* * Create and import keypair (public and private)
 * userOreAccountName same as userOreWalletName
 * Create EOS Account
-* (userOreAccountName,  ore_eosio as creator account, owner:wallet public key, active:wallet public key)
+* * (userOreAccountName,  ore_eosio as creator account, owner:wallet public key, active:wallet public key)
 * Return userOreWalletName
 
 ### getOreWallet (oreAccountName) - returns cpuBalance, [instruments]
@@ -35,6 +35,7 @@ orejs is helper library (written in Javascript) to provide simple high-level acc
 Note: this requires an index on the rights collection (to filter right names)
 
 ### saveInstrument (Instrument) 
+* Confirms that issuer in Instrument matches signature of transaction
 * Creates an instrument token, populate with params, save to issuer account
 * Saves endpoints to endpoints_published
 
@@ -45,23 +46,14 @@ Note: this requires an index on the rights collection (to filter right names)
 ### signString (string) => signedString
 
 ### unlockWallet (eosWalletPassword) 
-* Call eosjs.unlockWallet????
+* Call eosjs.unlockWallet???? - This should not be necessary on EOS
 
-## Todo: Handle methods for plug-ins
-* Client Flow
+## Client Library Flow
 * Client needs an access token to talk to hosted API
 * Client has wallet info: from keyfile (oreAccountName, encryptedWalletPassword) app secret: userWalletPassword => eosWalletPassword
 * Instantiates OreJS using eosConfig 
-* ???? Client unlocks wallet orejs.unlockWallet(eosWalletPassword)
 * Call orejs.findInstruments(oreAccountName, activeOnly:true, args:{category:’apiMarket.apiVoucher’, rightName:’xxxx’}) => [apiVouchers]
-* Choose one voucher - use cheapest priced and then with the one that has the earliest endDate
-* Call verifier.issueAccessToken()  
-
-## Verifier
-ContractName: Verifier
-
-### issueAccessToken
-
-## Tester
-
-### tester.getTestResults()  …. (example)
+* Choose one voucher - rules to select between vouchers: use cheapest priced and then with the one that has the earliest endDate
+* Call cpuContract.approve(oreAccountName, cpuAmount) to designate amount to allow payment in cpu for the api call (from priceInCPU in the apiVoucher’s right for the specific endpoint desired)
+* Call Verifier contract eos.contract(‘verifier’).then(verifierContract =>      verifierContract.issueAccessToken(apiVoucherId)) =>  url, accessToken
+* Makes request to url with accessToken marked ore-authorization in header and returns results
