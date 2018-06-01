@@ -1,13 +1,13 @@
 function getInstruments(oreAccountName, category = undefined) {
   // Calls instrument byHolder(oreAccountName)
   // Filters instruments by category (if provided)
-  // return [instruments]
+  return [] // instruments
 }
 
 function findInstruments(oreAccountName, activeOnly, category = undefined, right_name = undefined) {
   // Where args is search criteria could include (category, rights_name)
   // Note: this requires an index on the rights collection (to filter right names)
-  // return [instruments]
+  return [] // instruments
 }
 
 function saveInstrument (instrument) {
