@@ -2,8 +2,10 @@
   "name": "orejs",
   "version": "0.0.0",
   "description": "orejs is helper library (written in Javascript) to provide simple high-level access to the ore-protocol. Orejs uses eosJS as a wrapper to the EOS blockchain",
-  "main": "./dist/index.js",
-  "scripts": {},
+  "main": "./src/index.js",
+  "scripts": {
+    "example": "node example"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/api.market/orejs.git"
@@ -15,5 +17,7 @@
   },
   "homepage": "https://github.com/api.market/orejs#readme",
   "devDependencies": {},
-  "dependencies": {}
+  "dependencies": {
+    "eosjs": "^13.1.0"
+  }
 }
