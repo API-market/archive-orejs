@@ -19,8 +19,8 @@
   "devDependencies": {},
   "dependencies": {
     "base32.js": "^0.1.0",
+    "crypto-js": "^3.1.9-1",
     "eosjs": "^13.1.0",
-    "eosjs-keygen": "^1.3.2",
-    "openpgp": "^3.0.11"
+    "eosjs-keygen": "^1.3.2"
   }
 }
