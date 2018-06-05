@@ -4,6 +4,8 @@ const CryptoJS = require("crypto-js");
 
 const ACCOUNT_NAME_MAX_LENGTH = 12
 
+/* Private */
+
 function generateAccountName(encoding = {type: 'rfc4648', lc: true}){
   // account names are generated based on the current unix timestamp
   // account names MUST be base32 encoded, and be < 13 characters, in compliance with the EOS standard
@@ -15,18 +17,6 @@ function generateAccountName(encoding = {type: 'rfc4648', lc: true}){
   const idx = encodedTimestamp.length - ACCOUNT_NAME_MAX_LENGTH
 
   return encodedTimestamp.substr(idx, ACCOUNT_NAME_MAX_LENGTH)
-}
-
-async function createOreAccount(publicKey, oreAccountName = generateAccountName()) {
-  // create a new user account on the ORE network with wallet and associate it with a user’s identity
-  await this.eos.newaccount({
-    creator: 'eosio',
-    name: oreAccountName,
-    owner: publicKey,
-    active: publicKey
-  })
-
-  return oreAccountName
 }
 
 function encrypt(unencrypted, password) {
@@ -42,8 +32,23 @@ function decrypt(encrypted, password) {
   return unencrypted
 }
 
+/* Public */
+
+async function createOreAccount(publicKey, oreAccountName = generateAccountName()) {
+  // create a new user account on the ORE network with wallet and associate it with a user’s identity
+  await this.eos.newaccount({
+    creator: 'eosio',
+    name: oreAccountName,
+    owner: publicKey,
+    active: publicKey
+  })
+
+  return oreAccountName
+}
+
 async function createOreWallet(walletPassword) {
   // Generate wallet => new wallet password -> encrypt with userWalletPassword => encryptedWalletPassword
+  // TODO Check for existing wallets
   const keys = await Keygen.generateMasterKeys()
   const oreAccountName = await createOreAccount.bind(this)(keys.publicKeys.active)
 
@@ -64,11 +69,12 @@ async function getOreWallet(oreAccountName) {
 async function unlockOreWallet(walletPassword) {
   const masterPrivateKey = await decrypt(this.encryptedWalletPassword, walletPassword)
   const keys = Keygen.generateMasterKeys(masterPrivateKey)
-  
+
   return keys
 }
 
 module.exports = {
+  createOreAccount,
   createOreWallet,
   getOreWallet,
   unlockOreWallet
