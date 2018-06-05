@@ -37,7 +37,7 @@ function decrypt(encrypted, password) {
 async function createOreAccount(publicKey, oreAccountName = generateAccountName()) {
   // create a new user account on the ORE network with wallet and associate it with a user’s identity
   await this.eos.newaccount({
-    creator: 'eosio',
+    creator: process.env.AUTH_ACCOUNT_NAME,
     name: oreAccountName,
     owner: publicKey,
     active: publicKey
@@ -48,16 +48,16 @@ async function createOreAccount(publicKey, oreAccountName = generateAccountName(
 
 async function createOreWallet(walletPassword) {
   // Generate wallet => new wallet password -> encrypt with userWalletPassword => encryptedWalletPassword
-  // TODO Check for existing wallets
+  // TODO Check for existing wallets, for name collisions
   const keys = await Keygen.generateMasterKeys()
   const oreAccountName = await createOreAccount.bind(this)(keys.publicKeys.active)
 
-  this.encryptedWalletPassword = await encrypt(keys.masterPrivateKey, walletPassword)
+  this.encryptedWalletPassword = encrypt(keys.masterPrivateKey, walletPassword).toString()
 
-  return oreAccountName
+  return {oreAccountName, encryptedWalletPassword: this.encryptedWalletPassword}
 }
 
-async function getOreWallet(oreAccountName) {
+async function getOreAccount(oreAccountName) {
   //const cpuBalance = this.getCpuBalance(oreAccountName, walletName)
   //const instruments = this.getInstruments(oreAccountName)
   const account = await this.eos.getAccount(oreAccountName)
@@ -67,7 +67,7 @@ async function getOreWallet(oreAccountName) {
 }
 
 async function unlockOreWallet(walletPassword) {
-  const masterPrivateKey = await decrypt(this.encryptedWalletPassword, walletPassword)
+  const masterPrivateKey = decrypt(this.encryptedWalletPassword, walletPassword).toString()
   const keys = Keygen.generateMasterKeys(masterPrivateKey)
 
   return keys
@@ -76,6 +76,6 @@ async function unlockOreWallet(walletPassword) {
 module.exports = {
   createOreAccount,
   createOreWallet,
-  getOreWallet,
+  getOreAccount,
   unlockOreWallet
 }
