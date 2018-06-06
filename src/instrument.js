@@ -4,21 +4,23 @@ function getInstruments(oreAccountName, category = undefined) {
   return [] // instruments
 }
 
-function findInstruments(oreAccountName, activeOnly, category = undefined, right_name = undefined) {
+function findInstruments(oreAccountName, activeOnly = true, category = undefined, rightName = undefined) {
   // Where args is search criteria could include (category, rights_name)
   // Note: this requires an index on the rights collection (to filter right names)
   return [] // instruments
 }
 
-function saveInstrument (instrument) {
+function saveInstrument(instrument) {
   // Confirms that issuer in Instrument matches signature of transaction
   // Creates an instrument token, populate with params, save to issuer account
   // Saves endpoints to endpoints_published
+  return {} // instrument
 }
 
 function exerciseInstrument(offerInstrumentId) {
   // Call the endpoint in the instrument, adding the options params (defined in the instrument), and passing in the considerations (required list of instruments)
   // Save the resulting instruments with current user set as holder
+  return {} // instrument
 }
 
 module.exports = {
