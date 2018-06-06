@@ -15,7 +15,7 @@ class Orejs {
 
   constructEos(config) {
     this.config = config
-    this.eos = Eos.Localnet(this.config)
+    this.eos = Object.assign(Eos.modules, Eos.Localnet(this.config))
   }
 }
 

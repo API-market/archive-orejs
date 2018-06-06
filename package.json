@@ -19,6 +19,7 @@
   "devDependencies": {},
   "dependencies": {
     "base32.js": "^0.1.0",
+    "bignumber.js": "^7.2.1",
     "crypto-js": "^3.1.9-1",
     "dotenv": "^6.0.0",
     "eosjs": "^13.1.0",
