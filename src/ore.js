@@ -54,7 +54,6 @@ async function createOreAccountWithKeys(ownerPublicKey, activePublicKey, oreAcco
 /* Public */
 
 async function createOreAccount(password) {
-  // Generate wallet => new wallet password -> encrypt with userWalletPassword => encryptedWalletPassword
   // TODO Check for existing wallets, for name collisions
   const keys = await Keygen.generateMasterKeys()
   const oreAccountName = await createOreAccountWithKeys.bind(this)(keys.publicKeys.owner, keys.publicKeys.active)

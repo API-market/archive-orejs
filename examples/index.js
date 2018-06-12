@@ -6,7 +6,7 @@ dotenv.config()
 module.exports = {
   orejs: new Orejs({
     chainId: process.env.CHAIN_ID,
-    httpEndpoint: process.env.EOS_URI,
+    httpEndpoint: process.env.ORE_NETWORK_URI,
     keyProvider: process.env.ORE_AUTH_ACCOUNT_KEY,
     oreAuthAccountName: process.env.ORE_AUTH_ACCOUNT_NAME,
     sign: true
