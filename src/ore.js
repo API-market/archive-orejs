@@ -57,9 +57,9 @@ async function createOreWallet(walletPassword) {
   // Generate wallet => new wallet password -> encrypt with userWalletPassword => encryptedWalletPassword
   // TODO Check for existing wallets, for name collisions
   const keys = await Keygen.generateMasterKeys()
-  const oreAccountName = await createOreAccount.bind(this)(keys.publicKeys.owner, keys.publicKeys.active)
+  const oreAccountName = await this.createOreAccount(keys.publicKeys.owner, keys.publicKeys.active)
 
-  encryptKeys.bind(this)(keys, walletPassword)
+  this.encryptKeys(keys, walletPassword)
 
   return {oreAccountName, keys: keys}
 }
