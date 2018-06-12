@@ -1,5 +1,6 @@
 Eos = require('eosjs')
 const cpu = require('./cpu')
+const eos = require('./eos')
 const instrument = require('./instrument')
 const ore = require('./ore')
 
@@ -9,6 +10,7 @@ class Orejs {
 
     /* Mixins */
     Object.assign(this, cpu)
+    Object.assign(this, eos)
     Object.assign(this, instrument)
     Object.assign(this, ore)
   }

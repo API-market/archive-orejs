@@ -1,15 +1,14 @@
 const {orejs, walletPassword} = require("./index")
 
-orejs.createOreWallet(walletPassword).then(wallet => {
-  console.log("Wallet Created:", wallet)
+orejs.createOreAccount(walletPassword).then(account => {
+  console.log("Account Created:", account)
 
-  // Get the newly created EOS wallet...
-  orejs.getOreAccount(wallet.oreAccountName).then(account => {
-    console.log("Account:", account)
-  })
+  // Create a wallet, and add the new account...
+  orejs.createOreWallet(walletPassword, account.oreAccountName, account.privateKeys.owner, account.privateKeys.active).then(wallet => {
+    console.log("Wallet:", wallet)
 
-  // Get newly created keys from the wallet
-  orejs.unlockOreWallet(walletPassword).then(keys => {
-    console.log("Keys:", keys)
+    orejs.unlockOreWallet(walletName, walletPassword).then(keys => {
+      console.log("Wallet", walletName, "unlocked:", keys)
+    })
   })
 })

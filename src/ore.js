@@ -32,50 +32,63 @@ function decrypt(encrypted, password) {
   return unencrypted
 }
 
-/* Public */
+function encryptKeys(keys, password) {
+  this.encryptedWalletPassword = encrypt(keys.masterPrivateKey, password).toString()
+  keys.masterPrivateKey = this.encryptedWalletPassword
+  keys.privateKeys.owner = encrypt(keys.privateKeys.owner, password).toString()
+  keys.privateKeys.active = encrypt(keys.privateKeys.active, password).toString()
+}
 
-async function createOreAccount(publicKey, oreAccountName = generateAccountName()) {
+async function createOreAccountWithKeys(ownerPublicKey, activePublicKey, oreAccountName = generateAccountName()) {
   // create a new user account on the ORE network with wallet and associate it with a user’s identity
   await this.eos.newaccount({
-    creator: process.env.AUTH_ACCOUNT_NAME,
+    creator: this.config.oreAuthAccountName,
     name: oreAccountName,
-    owner: publicKey,
-    active: publicKey
+    owner: ownerPublicKey,
+    active: activePublicKey
   })
 
   return oreAccountName
 }
 
-async function createOreWallet(walletPassword) {
-  // Generate wallet => new wallet password -> encrypt with userWalletPassword => encryptedWalletPassword
+/* Public */
+
+async function createOreAccount(password) {
   // TODO Check for existing wallets, for name collisions
   const keys = await Keygen.generateMasterKeys()
-  const oreAccountName = await createOreAccount.bind(this)(keys.publicKeys.active)
+  const oreAccountName = await createOreAccountWithKeys.bind(this)(keys.publicKeys.owner, keys.publicKeys.active)
 
-  this.encryptedWalletPassword = encrypt(keys.masterPrivateKey, walletPassword).toString()
+  encryptKeys.bind(this)(keys, password)
 
-  return {oreAccountName, encryptedWalletPassword: this.encryptedWalletPassword}
+  return { oreAccountName, privateKeys: keys.privateKeys, publicKeys: keys.publicKeys }
 }
 
-async function getOreAccount(oreAccountName) {
-  //const cpuBalance = this.getCpuBalance(oreAccountName, walletName)
+async function createOreWallet(password, oreAccountName, encryptedAccountOwnerPrivateKey, encryptedAccountActivePrivateKey) {
+  //Create EOS Wallet
+  //userOreWalletName same as userOreAccountName
+
+  //Decrypt encryptedAccountOwnerPrivateKey and encryptedAccountActivePrivateKey using userWalletPassword
+  //Import both owner and acrtive keypairs (public and private)
+  //Encrypt newWalletPassword with userAccountPassword => encryptedWalletPassword
+  return { oreAccountName, encryptedWalletPassword }
+}
+
+async function getOreAccountContents(oreAccountName) {
+  //const cpuBalance = this.getCpuBalance(oreAccountName)
   //const instruments = this.getInstruments(oreAccountName)
   const account = await this.eos.getAccount(oreAccountName)
 
   return account
-  //return [walletName, [cpuBalance, instruments]]
+  //return { cpuBalance, instruments }
 }
 
-async function unlockOreWallet(walletPassword) {
-  const masterPrivateKey = decrypt(this.encryptedWalletPassword, walletPassword).toString()
-  const keys = Keygen.generateMasterKeys(masterPrivateKey)
-
-  return keys
+async function unlockOreWallet(name, password) {
+  return [] // keys
 }
 
 module.exports = {
   createOreAccount,
   createOreWallet,
-  getOreAccount,
+  getOreAccountContents,
   unlockOreWallet
 }
