@@ -1,3 +1,7 @@
+// Creates a random EOS account, just like the marketplace does...
+
+// Usage: $ node ore/account_create_random
+
 const {orejs, walletPassword} = require("./index")
 
 orejs.createOreAccount(walletPassword).then(account => {
