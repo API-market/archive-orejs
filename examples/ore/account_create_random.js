@@ -2,9 +2,9 @@
 
 // Usage: $ node ore/account_create_random
 
-const {orejs, walletPassword} = require("./index")
+let orejs = require("../index").orejs()
 
-orejs.createOreAccount(walletPassword).then(account => {
+orejs.createOreAccount(process.env.WALLET_PASSWORD).then(account => {
   console.log("Account Created:", account)
 
   // Get the newly created EOS account...

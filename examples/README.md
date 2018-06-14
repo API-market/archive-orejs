@@ -5,12 +5,24 @@ In here, you'll find...
 
 ## Usage
 
-First, be in the right directory, and copy the .env.example to .env, and fill in the appropriate values.
-You'll need to have the api-market/ore-protocol repository checked out, and add the directory path to your .env...
+You'll need to have a couple repos checked out, in order to take full advantage of the examples herein...
+
+* [eosio/eos](https://github.com/EOSIO/eos)
+* [api-market/ore-protocol](https://github.com/API-market/ore-protocol)
+
+You'll also need to install the javascript libraries from the package.json in the top-level directory...
+
+```
+npm install
+```
+
+From the examples directory, copy the .env.example to .env, and fill in the appropriate values...
 
 ```
 $ cd examples && cp .env.example .env
 ```
+
+Be sure to change `TOKEN_CONTRACT_DIR` to match your local ore-protocol directory
 
 ### From Genesis
 
