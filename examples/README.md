@@ -8,7 +8,7 @@ In here, you'll find...
 First, be in the right directory, and copy the .env.example to .env, and fill in the appropriate values...
 
 ```
-$ cd example && cp .env.example .env
+$ cd examples && cp .env.example .env
 ```
 
 ### From Genesis
