@@ -9,13 +9,27 @@ let orejs = require("../index").orejs()
 
 ACCOUNTS = {
   'orejs': {keys: undefined},
+  'apiowner': {keys: undefined},
+  'apiuser': {keys: undefined},
   'ore.cpu': {
     keys: undefined,
-    contractDir: process.env.TOKEN_CONTRACT_DIR
+    contract: 'token_eos20'
   },
   'ore.ore': {
     keys: undefined,
-    contractDir: process.env.TOKEN_CONTRACT_DIR
+    contract: 'token_eos20'
+  },
+  'ore.instr': {
+    keys: undefined,
+    contract: 'ore.instrument'
+  },
+  'ore.rights': {
+    keys: undefined,
+    contract: 'ore.rights_registry'
+  },
+  'apim.manager': {
+    keys: undefined,
+    contract: 'apim.manager'
   }
 }
 
@@ -46,9 +60,10 @@ ACCOUNTS = {
 
       importKeysCommands += `cleos wallet import ${accountData.keys.privateKeys.owner} -n orejs\n`
       importKeysCommands += `cleos wallet import ${accountData.keys.privateKeys.active} -n orejs\n\n`
-      if (accountData.contractDir) {
-        deployContractsCommands += `cleos set contract ${accountName} ${accountData.contractDir} -p ${accountName}@active\n`
-        deployContractsCommands += `cleos set abi ${accountName} ${accountData.contractDir}/token_eos20.abi -p ${accountName}@active\n\n`
+      if (accountData.contract) {
+        const contract = `${process.env.CONTRACTS_DIR}/${accountData.contract}`
+        deployContractsCommands += `cleos set contract ${accountName} ${contract} -p ${accountName}@active\n`
+        deployContractsCommands += `cleos set abi ${accountName} ${contract}/${accountData.contract}.abi -p ${accountName}@active\n\n`
       }
     } catch(err) {
     }
