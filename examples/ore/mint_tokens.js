@@ -17,9 +17,6 @@ TOKENS = [
   console.log("Connecting to chain:", info.chain_id, "...")
   process.env.CHAIN_ID = info.chain_id
 
-  // Reinitialize the orejs library, with the appropriate chain id...
-  orejs = require("../index").orejs()
-
   // Read the most recently generated account names and keys from the temp json file...
   let accounts = JSON.parse(fs.readFileSync('./tmp/keys.json'))
   //console.log("Account Data:", JSON.stringify(accounts))
