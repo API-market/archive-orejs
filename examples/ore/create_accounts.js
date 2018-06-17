@@ -50,7 +50,6 @@ ACCOUNTS = {
   // Generate accounts with keys...
   for (accountName in ACCOUNTS) {
     try {
-      console.log("-------> Creating account:", accountName)
       let accountData = ACCOUNTS[accountName]
       accountData.keys = await Keygen.generateMasterKeys()
 
@@ -61,10 +60,11 @@ ACCOUNTS = {
         active: accountData.keys.publicKeys.active
       })
 
+      importKeysCommands += `echo \"-------> Import keys for ${accountName}\" \n`
       importKeysCommands += `cleos wallet import ${accountData.keys.privateKeys.owner} -n orejs\n`
       importKeysCommands += `cleos wallet import ${accountData.keys.privateKeys.active} -n orejs\n\n`
       if (accountData.contractName) {
-        console.log("-------> Will deploy contract:", accountData.contractName)
+        deployContractsCommands += `echo \"-------> Deploy contract for ${accountName}\" \n`
         deployContractsCommands += `cleos set contract ${accountName} ${contractDir}/${accountData.contractName} -p ${accountName}@active\n`
         deployContractsCommands += `cleos set abi ${accountName} ${contractDir}/${accountData.contractName}/${accountData.contractName}.abi -p ${accountName}@active\n\n`
       }
