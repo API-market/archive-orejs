@@ -6,17 +6,34 @@
 const fs = require("fs")
 const {Keystore, Keygen} = require('eosjs-keygen')
 let orejs = require("../index").orejs()
+const contractDir = process.env.TOKEN_CONTRACT_DIR
 
 ACCOUNTS = {
   'orejs': {keys: undefined},
   'ore.cpu': {
     keys: undefined,
-    contractDir: process.env.TOKEN_CONTRACT_DIR
+    contractName: 'token_eos20'
   },
   'ore.ore': {
     keys: undefined,
-    contractDir: process.env.TOKEN_CONTRACT_DIR
-  }
+    contractName: 'token_eos20'
+  },
+  'ore.instr': {
+    keys: undefined,
+    contractName: 'ore.token_instrument'
+  },
+  'ore.rights': {
+    keys: undefined,
+    contractName: 'ore.rights_registry'
+  },
+  'ore.usagelog': {
+    keys: undefined,
+    contractName: 'ore.usage_log'
+  },
+  'apim.manager': {
+    keys: undefined,
+    contractName: 'apim.manager'
+  },
 }
 
 ;(async function () {
@@ -33,7 +50,7 @@ ACCOUNTS = {
   // Generate accounts with keys...
   for (accountName in ACCOUNTS) {
     try {
-      console.log("Creating account:", accountName)
+      console.log("-------> Creating account:", accountName)
       let accountData = ACCOUNTS[accountName]
       accountData.keys = await Keygen.generateMasterKeys()
 
@@ -46,9 +63,10 @@ ACCOUNTS = {
 
       importKeysCommands += `cleos wallet import ${accountData.keys.privateKeys.owner} -n orejs\n`
       importKeysCommands += `cleos wallet import ${accountData.keys.privateKeys.active} -n orejs\n\n`
-      if (accountData.contractDir) {
-        deployContractsCommands += `cleos set contract ${accountName} ${accountData.contractDir} -p ${accountName}@active\n`
-        deployContractsCommands += `cleos set abi ${accountName} ${accountData.contractDir}/token_eos20.abi -p ${accountName}@active\n\n`
+      if (accountData.contractName) {
+        console.log("-------> Will deploy contract:", accountData.contractName)
+        deployContractsCommands += `cleos set contract ${accountName} ${contractDir}/${accountData.contractName} -p ${accountName}@active\n`
+        deployContractsCommands += `cleos set abi ${accountName} ${contractDir}/${accountData.contractName}/${accountData.contractName}.abi -p ${accountName}@active\n\n`
       }
     } catch(err) {
     }
