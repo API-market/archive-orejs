@@ -20,7 +20,7 @@ ACCOUNTS = {
   },
   'ore.instr': {
     keys: undefined,
-    contractName: 'ore.token_instrument'
+    contractName: 'ore.instrument'
   },
   'ore.rights': {
     keys: undefined,
