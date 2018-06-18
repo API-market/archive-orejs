@@ -6,6 +6,7 @@
 const fs = require("fs")
 const {Keystore, Keygen} = require('eosjs-keygen')
 let orejs = require("../index").orejs()
+const contractDir = process.env.TOKEN_CONTRACT_DIR
 
 ACCOUNTS = {
   'orejs': {keys: undefined},
@@ -13,23 +14,27 @@ ACCOUNTS = {
   'apiuser': {keys: undefined},
   'ore.cpu': {
     keys: undefined,
-    contract: 'token_eos20'
+    contractName: 'token_eos20'
   },
   'ore.ore': {
     keys: undefined,
-    contract: 'token_eos20'
+    contractName: 'token_eos20'
   },
   'ore.instr': {
     keys: undefined,
-    contract: 'ore.instrument'
+    contractName: 'ore.instrument'
   },
   'ore.rights': {
     keys: undefined,
-    contract: 'ore.rights_registry'
+    contractName: 'ore.rights_registry'
+  },
+  'ore.usagelog': {
+    keys: undefined,
+    contractName: 'ore.usage_log'
   },
   'apim.manager': {
     keys: undefined,
-    contract: 'apim.manager'
+    contractName: 'apim.manager'
   }
 }
 
@@ -47,7 +52,6 @@ ACCOUNTS = {
   // Generate accounts with keys...
   for (accountName in ACCOUNTS) {
     try {
-      console.log("Creating account:", accountName)
       let accountData = ACCOUNTS[accountName]
       accountData.keys = await Keygen.generateMasterKeys()
 
@@ -58,12 +62,13 @@ ACCOUNTS = {
         active: accountData.keys.publicKeys.active
       })
 
+      importKeysCommands += `echo \"-------> Import keys for ${accountName}\" \n`
       importKeysCommands += `cleos wallet import ${accountData.keys.privateKeys.owner} -n orejs\n`
       importKeysCommands += `cleos wallet import ${accountData.keys.privateKeys.active} -n orejs\n\n`
-      if (accountData.contract) {
-        const contract = `${process.env.CONTRACTS_DIR}/${accountData.contract}`
-        deployContractsCommands += `cleos set contract ${accountName} ${contract} -p ${accountName}@active\n`
-        deployContractsCommands += `cleos set abi ${accountName} ${contract}/${accountData.contract}.abi -p ${accountName}@active\n\n`
+      if (accountData.contractName) {
+        deployContractsCommands += `echo \"-------> Deploy contract for ${accountName}\" \n`
+        deployContractsCommands += `cleos set contract ${accountName} ${contractDir}/${accountData.contractName} -p ${accountName}@active\n`
+        deployContractsCommands += `cleos set abi ${accountName} ${contractDir}/${accountData.contractName}/${accountData.contractName}.abi -p ${accountName}@active\n\n`
       }
     } catch(err) {
     }
