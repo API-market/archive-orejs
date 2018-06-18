@@ -55,7 +55,7 @@ const OFFERS = [
 
   let options = {authorization: `${accountName}@active`}
   let contract = await orejs.eos.contract(contractName, options)
-  await contract.publishapi(accountName, 'goodapi', OFFERS, options)
+  await contract.publishapi(accountName, 'goodapi', OFFERS, "", 0, 0, options)
 
   //cleos get table apim.manager apim.manager offers
   const offers = await orejs.eos.getTableRows({
