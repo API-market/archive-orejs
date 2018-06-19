@@ -66,7 +66,7 @@ async function getAllTableRowsFiltered(params, filter){
 }
 
 function filterRows(rows, filter){
-  if(!filter) rows;
+  if(!filter) return rows;
 
   let result = [];
 
