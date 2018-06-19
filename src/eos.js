@@ -25,17 +25,18 @@ function tableKey(oreAccountName) {
   return new BigNumber(this.eos.format.encodeName(oreAccountName, false))
 }
 
-async function getAllTableRows(code, scope, table, filter, page_size=20) {
+async function getAllTableRows(params = {}) {
 
-    var more = true;
-
-    var results = [];
-    var page = 0;
+    var code = params.code;
+    var scope = params.scope || params.code;
+    var table = params.table;
+    var filter = params.filter;
+    var page_size = params.page_size || 20;
 
     async function getPage(page) {
         var result = [];
 
-        var resp = await this.eos.getTableRows({
+        var resp = await eos.getTableRows({
             code: code,
             scope: scope,
             table: table,
@@ -44,14 +45,14 @@ async function getAllTableRows(code, scope, table, filter, page_size=20) {
             json: true,
         });
 
-        for(var r in resp.rows){
+        for(var r in resp.rows) {
             var row = resp.rows[r];
 
             var fits_filter = true;
-            if(filter){
-                if(typeof filter === 'function'){
+            if(filter) {
+                if(typeof filter === 'function') {
                     fits_filter = filter(row);
-                }else{
+                } else {
                     for (var f in filter) {
                         if (filter[f] != row[f]) fits_filter = false;
                     }
@@ -66,11 +67,15 @@ async function getAllTableRows(code, scope, table, filter, page_size=20) {
         return {more: resp.more, rows: result};
     }
 
+    var more = true;
+    var results = [];
+    var page = 0;
+
     do{
         var result = await getPage(page++);
         more = result.more;
         results = results.concat(result.rows);
-    }while(more);
+    } while(more);
 
     return results;
 }
