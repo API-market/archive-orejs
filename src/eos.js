@@ -26,13 +26,12 @@ function tableKey(oreAccountName) {
 }
 
 async function getTableRowsPage(params, page) {
+  let code = params.code;
+  let scope = params.scope || params.code;
+  let table = params.table;
+  let page_size = params.page_size || 20;
 
-  var code = params.code;
-  var scope = params.scope || params.code;
-  var table = params.table;
-  var page_size = params.page_size || 20;
-
-  var resp = await this.eos.getTableRows({
+  let resp = await this.eos.getTableRows({
     code: code,
     scope: scope,
     table: table,
@@ -47,12 +46,12 @@ async function getTableRowsPage(params, page) {
 
 async function getAllTableRows(params) {
 
-  var more = true;
-  var results = [];
-  var page = 0;
+  let more = true;
+  let results = [];
+  let page = 0;
 
   do{
-    var result = await getTableRowsPage(params, page++);
+    let result = await getTableRowsPage.bind(this)(params, page++);
     more = result.more;
     results = results.concat(result.rows);
   } while(more);
@@ -61,7 +60,7 @@ async function getAllTableRows(params) {
 }
 
 async function getAllTableRowsFiltered(params, filter){
-  var result = await getAllTableRows(params);
+  let result = await getAllTableRows.bind(this)(params);
 
   return filterRows(result, filter);
 }
@@ -69,17 +68,17 @@ async function getAllTableRowsFiltered(params, filter){
 function filterRows(rows, filter){
   if(!filter) rows;
 
-  var result = [];
+  let result = [];
 
-  for(var r in rows) {
-    var row = rows[r];
+  for(let r in rows) {
+    let row = rows[r];
 
-    var fits_filter = true;
+    let fits_filter = true;
 
     if(typeof filter === 'function') {
       fits_filter = filter(row);
     } else {
-      for (var f in filter) {
+      for (let f in filter) {
         if (filter[f] != row[f]) fits_filter = false;
       }
     }
