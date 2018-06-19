@@ -25,59 +25,71 @@ function tableKey(oreAccountName) {
   return new BigNumber(this.eos.format.encodeName(oreAccountName, false))
 }
 
-async function getAllTableRows(params = {}) {
+async function getTableRowsPage(params, page) {
 
-    var code = params.code;
-    var scope = params.scope || params.code;
-    var table = params.table;
-    var filter = params.filter;
-    var page_size = params.page_size || 20;
+  var code = params.code;
+  var scope = params.scope || params.code;
+  var table = params.table;
+  var page_size = params.page_size || 20;
 
-    async function getPage(page) {
-        var result = [];
+  var resp = await this.eos.getTableRows({
+    code: code,
+    scope: scope,
+    table: table,
+    lower_bound: page * page_size,
+    upper_bount: ((page + 1) * page_size) + 1,
+    json: true,
+  });
 
-        var resp = await eos.getTableRows({
-            code: code,
-            scope: scope,
-            table: table,
-            lower_bound: page * page_size,
-            upper_bount: ((page + 1) * page_size) + 1,
-            json: true,
-        });
+  return resp;
+}
 
-        for(var r in resp.rows) {
-            var row = resp.rows[r];
 
-            var fits_filter = true;
-            if(filter) {
-                if(typeof filter === 'function') {
-                    fits_filter = filter(row);
-                } else {
-                    for (var f in filter) {
-                        if (filter[f] != row[f]) fits_filter = false;
-                    }
-                }
-            }
+async function getAllTableRows(params) {
 
-            if(!fits_filter) continue;
+  var more = true;
+  var results = [];
+  var page = 0;
 
-            result.push(resp.rows[r]);
-        }
+  do{
+    var result = await getTableRowsPage(params, page++);
+    more = result.more;
+    results = results.concat(result.rows);
+  } while(more);
 
-        return {more: resp.more, rows: result};
+  return results;
+}
+
+async function getAllTableRowsFiltered(params, filter){
+  var result = await getAllTableRows(params);
+
+  return filterRows(result, filter);
+}
+
+function filterRows(rows, filter){
+  if(!filter) rows;
+
+  var result = [];
+
+  for(var r in rows) {
+    var row = rows[r];
+
+    var fits_filter = true;
+
+    if(typeof filter === 'function') {
+      fits_filter = filter(row);
+    } else {
+      for (var f in filter) {
+        if (filter[f] != row[f]) fits_filter = false;
+      }
     }
 
-    var more = true;
-    var results = [];
-    var page = 0;
+    if(!fits_filter) continue;
 
-    do{
-        var result = await getPage(page++);
-        more = result.more;
-        results = results.concat(result.rows);
-    } while(more);
+    result.push(rows[r]);
+  }
 
-    return results;
+  return result;
 }
 
 
@@ -86,4 +98,5 @@ module.exports = {
   findOne,
   tableKey,
   getAllTableRows,
+  getAllTableRowsFiltered,
 }

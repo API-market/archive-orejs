@@ -1,12 +1,11 @@
 const {getAllTableRows} = require("../../src/eos.js");
 
 (async function() {
-    var result = await getAllTableRows({
+    var result = await getAllTableRowsFiltered({
         code: "ore.instr",
-        scope: "ore.instr",
+        scope: "ore.instr", //optional, defaults to same value as code
         table: "tokens",
-        filter: {owner: "apiuser"}
-    });
+    }, {owner:"apiowner"});
 
     console.log(result);
 })()
