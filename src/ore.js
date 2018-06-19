@@ -1,6 +1,6 @@
-const {Keystore, Keygen} = require('eosjs-keygen')
+const {Keygen} = require('eosjs-keygen')
 const base32 = require('base32.js')
-const CryptoJS = require("crypto-js");
+const CryptoJS = require("crypto-js")
 
 const ACCOUNT_NAME_MAX_LENGTH = 12
 
@@ -53,14 +53,14 @@ async function createOreAccountWithKeys(ownerPublicKey, activePublicKey, oreAcco
 
 /* Public */
 
-async function createOreAccount(password) {
-  // TODO Check for existing wallets, for name collisions
+async function createOreAccount(password, ownerPublicKey) {
   const keys = await Keygen.generateMasterKeys()
-  const oreAccountName = await createOreAccountWithKeys.bind(this)(keys.publicKeys.owner, keys.publicKeys.active)
+  // TODO Check for existing wallets, for name collisions
+  const oreAccountName = await createOreAccountWithKeys.bind(this)(ownerPublicKey, keys.publicKeys.active)
 
   encryptKeys.bind(this)(keys, password)
 
-  return { oreAccountName, privateKeys: keys.privateKeys, publicKeys: keys.publicKeys }
+  return { oreAccountName, privateKey: keys.privateKeys.active, publicKey: keys.publicKeys.active }
 }
 
 async function createOreWallet(password, oreAccountName, encryptedAccountOwnerPrivateKey, encryptedAccountActivePrivateKey) {
