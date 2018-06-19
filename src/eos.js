@@ -25,8 +25,60 @@ function tableKey(oreAccountName) {
   return new BigNumber(this.eos.format.encodeName(oreAccountName, false))
 }
 
+async function getAllTableRows(code, scope, table, filter, page_size=20) {
+
+    var more = true;
+
+    var results = [];
+    var page = 0;
+
+    async function getPage(page) {
+        var result = [];
+
+        var resp = await this.eos.getTableRows({
+            code: code,
+            scope: scope,
+            table: table,
+            lower_bound: page * page_size,
+            upper_bount: ((page + 1) * page_size) + 1,
+            json: true,
+        });
+
+        for(var r in resp.rows){
+            var row = resp.rows[r];
+
+            var fits_filter = true;
+            if(filter){
+                if(typeof filter === 'function'){
+                    fits_filter = filter(row);
+                }else{
+                    for (var f in filter) {
+                        if (filter[f] != row[f]) fits_filter = false;
+                    }
+                }
+            }
+
+            if(!fits_filter) continue;
+
+            result.push(resp.rows[r]);
+        }
+
+        return {more: resp.more, rows: result};
+    }
+
+    do{
+        var result = await getPage(page++);
+        more = result.more;
+        results = results.concat(result.rows);
+    }while(more);
+
+    return results;
+}
+
+
 module.exports = {
   find,
   findOne,
-  tableKey
+  tableKey,
+  getAllTableRows,
 }
