@@ -94,12 +94,7 @@ const OFFERS = [
 
   //cleos get table ore.instr ore.instr tokens
   contractName = 'ore.instr'
-  const instruments = await orejs.eos.getTableRows({
-    code: contractName,
-    json: true,
-    scope: contractName,
-    table: 'tokens',
-  })
+  const instruments = await orejs.instruments.getInstruments('')
 
   console.log("Instruments:", instruments)
 })()

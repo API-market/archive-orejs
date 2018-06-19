@@ -1,4 +1,4 @@
-const {orejs} = require("./index")
+const {orejs} = require("../index")
 
 orejs.getInstruments('orejs', 'apimarket.offer').then(instruments => {
   console.log("getInstruments:", instruments)

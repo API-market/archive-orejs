@@ -52,10 +52,27 @@ let offer = {
 
 /* Private */
 
+async function getRightFromInstrument(instrumentData, rightName) {
+  console.log(instrumentData)
+  const rights = instrumentData["instrument"]["rights"]
+  for (let i = 0; i < rights.length; i++) {
+    if (rights[i]["right_name"] === rightName) {
+      return rights[i]
+    }
+  }
+  return undefined
+}
+
 async function getAllInstruments(oreAccountName) {
-  const table_key = this.tableKey(oreAccountName)
-  // TODO Connect this to the instrument contract
-  //const rows = await this.findOne(CONTRACT_NAME, TABLE_NAME, table_key)
+  const table_key = orejs.eos.tableKey(oreAccountName)
+  let contractName = 'ore.instr'
+  // TODO: Use the find method from eos.js
+  const offers = await orejs.eos.getTableRows({
+    code: contractName,
+    json: true,
+    scope: contractName,
+    table: 'token',
+  })
   return [offer, voucher]
 }
 
@@ -74,9 +91,16 @@ async function getInstruments(oreAccountName, category = undefined) {
 async function findInstruments(oreAccountName, activeOnly = true, category = undefined, rightName = undefined) {
   // Where args is search criteria could include (category, rights_name)
   // Note: this requires an index on the rights collection (to filter right names)
-  const rows = await getInstruments.bind(this)(oreAccountName, category)
-  // TODO filter by activeOnly
-  // TODO filter by rightName
+  const instruments = await getInstruments.bind(this)(oreAccountName, category)
+  if (activeOnly) {
+    // TODO Filter by activeOnly
+  }
+  if (rightName) {
+    instruments = instruments.filter((instrumet) => {
+      let right = getRightFromInstrument.bind(this)(instrument, rightName)
+      return right
+    })
+  }
   return rows
 }
 
