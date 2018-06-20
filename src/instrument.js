@@ -52,17 +52,6 @@ let offer = {
 
 /* Private */
 
-async function getRightFromInstrument(instrumentData, rightName) {
-  console.log(instrumentData)
-  const rights = instrumentData["instrument"]["rights"]
-  for (let i = 0; i < rights.length; i++) {
-    if (rights[i]["right_name"] === rightName) {
-      return rights[i]
-    }
-  }
-  return undefined
-}
-
 async function getAllInstruments(oreAccountName, additionalFilter) {
   let instrumentFilter = {owner: oreAccountName}
 
@@ -78,29 +67,34 @@ async function getAllInstruments(oreAccountName, additionalFilter) {
 
 /* Public */
 
-async function getInstruments(oreAccountName, category = undefined) {
-  lat category_filter = category ? function(row) {
-    return row.instrument.instrument_class === category
-  } : null;
+async function getInstruments(oreAccountName, category = undefined, filters = []) {
+  if (category) {
+    filters.push(function(row) {
+      return row.instrument.instrument_class === category
+    })
+  }
 
-  const  rows = await getAllInstruments.bind(this)(oreAccountName, category_filter)
-
+  const rows = await getAllInstruments.bind(this)(oreAccountName, filters)
   return rows
 }
 
 async function findInstruments(oreAccountName, activeOnly = true, category = undefined, rightName = undefined) {
   // Where args is search criteria could include (category, rights_name)
   // Note: this requires an index on the rights collection (to filter right names)
-  const instruments = await getInstruments.bind(this)(oreAccountName, category)
+  let filters = []
   if (activeOnly) {
     // TODO Filter by activeOnly
   }
   if (rightName) {
-    instruments = instruments.filter((instrumet) => {
-      let right = getRightFromInstrument.bind(this)(instrument, rightName)
-      return right
+    filters.push(function(row) {
+      const rights = instrumentData["instrument"]["rights"]
+      for (let i = 0; i < rights.length; i++) {
+        return true if rights[i]["right_name"] === rightName
+      }
+      return false
     })
   }
+  const rows = await getInstruments.bind(this)(oreAccountName, category, filters)
   return rows
 }
 
