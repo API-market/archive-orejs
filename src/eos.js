@@ -56,12 +56,12 @@ function filterRows(rows, filter) {
 
   let result = []
 
-  function fitsFilter(filter, row){
-    var fits = true
+  function fitsFilter(filter, row) {
+    let fits = true
     if (typeof filter === 'function') {
       fits = filter(row)
     } else if(typeof filter === 'object') {
-      for (var f in filter) {
+      for (let f in filter) {
         if (filter[f] != row[f]) fits = false
       }
     } else {

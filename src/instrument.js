@@ -79,7 +79,7 @@ async function getAllInstruments(oreAccountName, additionalFilter) {
 /* Public */
 
 async function getInstruments(oreAccountName, category = undefined) {
-  var category_filter = category ? function(row) {
+  lat category_filter = category ? function(row) {
     return row.instrument.instrument_class === category
   } : null;
 
