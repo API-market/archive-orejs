@@ -5,34 +5,7 @@
 const fs = require("fs")
 let orejs = require("../index").orejs()
 
-const OFFERS = [
-  {
-    "theright": {
-      "right_name": "some_right_2",
-      "price_in_cpu": 10,
-      "issuer": "apiowner",
-      "additional_url_params": [
-        {
-          "name": "a",
-          "value":"5"
-        },
-        {
-          "name": "b",
-          "value": "6"
-        }
-      ],
-      "description": "Lol"
-    },
-    "urls": [
-      {
-        "url": "google.com",
-        "matches_params": [],
-        "token_life_span": 100,
-        "is_default": 1
-      }
-    ]
-  }
-]
+const ONE_YEAR = 365 * 24 * 60 * 60 * 1000
 
 ;(async function () {
   // Grab the current chain id...
@@ -53,15 +26,43 @@ const OFFERS = [
   // Reinitialize the orejs library, with permissions for the current account...
   orejs = require("../index").orejs()
 
-  let options = {authorization: `${accountName}@active`}
-  let contract = await orejs.eos.contract(contractName, options)
-  await contract.publishapi(accountName, 'goodapi', OFFERS, "", 0, 0, options)
+  let instrument = {
+    apiName: 'goodapi',
+    description: "",
+    rights: [
+      {
+        "theright": {
+          "right_name": "some_right_2",
+          "price_in_cpu": 10,
+          "issuer": "apiowner",
+          "additional_url_params": [
+            {
+              "name": "a",
+              "value":"5"
+            },
+            {
+              "name": "b",
+              "value": "6"
+            }
+          ],
+          "description": "Lol"
+        },
+        "urls": [
+          {
+            "url": "google.com",
+            "matches_params": [],
+            "token_life_span": 100,
+            "is_default": 1
+          }
+        ]
+      }
+    ]
+  }
+  await orejs.saveInstrument(accountName, instrument)
 
   //cleos get table apim.manager apim.manager offers
-  const offers = await orejs.eos.getTableRows({
+  const offers = await orejs.getAllTableRows({
     code: contractName,
-    json: true,
-    scope: contractName,
     table: 'offersdata',
   })
 
@@ -77,16 +78,12 @@ const OFFERS = [
   // Reinitialize the orejs library, with permissions for the current account...
   orejs = require("../index").orejs()
 
-  options = {authorization: `${accountName}@active`}
-  contract = await orejs.eos.contract(contractName, options)
-  await contract.licenceapi(accountName, 1, options)
+  await orejs.exerciseInstrument(accountName, 1)
 
   //cleos get table ore.rights ore.rights rights
   contractName = 'ore.rights'
-  const rights = await orejs.eos.getTableRows({
+  const rights = await orejs.getAllTableRows({
     code: contractName,
-    json: true,
-    scope: contractName,
     table: 'rights',
   })
 
@@ -94,11 +91,9 @@ const OFFERS = [
 
   //cleos get table ore.instr ore.instr tokens
   contractName = 'ore.instr'
-  const instruments = await orejs.eos.getTableRows({
+  const instruments = await orejs.getAllTableRows({
     code: contractName,
-    json: true,
-    scope: contractName,
-    table: 'tokens',
+    table: "tokens"
   })
 
   console.log("Instruments:", instruments)

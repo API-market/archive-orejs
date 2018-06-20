@@ -19,9 +19,9 @@ function tableKey(oreAccountName) {
   return new BigNumber(this.eos.format.encodeName(oreAccountName, false))
 }
 
-async function getTableRowsPage(params, page = 0, page_size = 20) {
+async function getTableRowsPage(params, page = 0, page_size = 20, json = true) {
   params = { ...params,
-    json: params.json || true,
+    json: json,
     lower_bound: params.lower_bound || page * page_size,
     scope: params.scope || params.code,
     upper_bound: params.upper_bound || ((page + 1) * page_size) + 1
@@ -56,17 +56,32 @@ function filterRows(rows, filter) {
 
   let result = []
 
+  function fitsFilter(filter, row) {
+    let fits = true
+    if (typeof filter === 'function') {
+      fits = filter(row)
+    } else if (typeof filter === 'object') {
+      for (let f in filter) {
+        if (filter[f] != row[f]) fits = false
+      }
+    } else {
+      throw "filter must be a function or an object"
+    }
+    return fits
+  }
+
   for (let r in rows) {
     let row = rows[r]
 
     let fits_filter = true
 
-    if (typeof filter === 'function') {
-      fits_filter = filter(row)
-    } else {
+    if (filter instanceof Array) {
       for (let f in filter) {
-        if (filter[f] != row[f]) fits_filter = false;
+        if (!filter[f]) continue
+        fits_filter = fits_filter && fitsFilter(filter[f], row)
       }
+    } else {
+      fits_filter = fitsFilter(filter, row)
     }
 
     if (!fits_filter) continue
