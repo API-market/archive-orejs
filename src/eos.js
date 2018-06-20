@@ -19,9 +19,9 @@ function tableKey(oreAccountName) {
   return new BigNumber(this.eos.format.encodeName(oreAccountName, false))
 }
 
-async function getTableRowsPage(params, page = 0, page_size = 20) {
+async function getTableRowsPage(params, page = 0, page_size = 20, json = true) {
   params = { ...params,
-    json: params.json || true,
+    json: json,
     lower_bound: params.lower_bound || page * page_size,
     scope: params.scope || params.code,
     upper_bound: params.upper_bound || ((page + 1) * page_size) + 1
