@@ -1,4 +1,4 @@
-const CONTRACT_NAME = 'ore.instrument'
+const CONTRACT_NAME = 'ore.instr'
 const TABLE_NAME = 'instruments'
 
 /* Mocks */
@@ -63,28 +63,28 @@ async function getRightFromInstrument(instrumentData, rightName) {
   return undefined
 }
 
-async function getAllInstruments(oreAccountName) {
-  const table_key = orejs.eos.tableKey(oreAccountName)
-  let contractName = 'ore.instr'
-  // TODO: Use the find method from eos.js
-  const offers = await orejs.eos.getTableRows({
-    code: contractName,
-    json: true,
-    scope: contractName,
-    table: 'token',
-  })
-  return [offer, voucher]
+async function getAllInstruments(oreAccountName, additionalFilter) {
+  let instrumentFilter = {owner: oreAccountName}
+
+  if(additionalFilter) instrumentFilter = [instrumentFilter, additionalFilter]
+
+  const rows = await orejs.getAllTableRowsFiltered({
+    code: CONTRACT_NAME,
+    table: 'tokens',
+  }, instrumentFilter )
+
+  return rows
 }
 
 /* Public */
 
 async function getInstruments(oreAccountName, category = undefined) {
-  const rows = await getAllInstruments.bind(this)(oreAccountName)
-  if (category) {
-    return rows.filter(row => {
-      return row.category.indexOf(category) >= 0
-    })
-  }
+  lat category_filter = category ? function(row) {
+    return row.instrument.instrument_class === category
+  } : null;
+
+  const  rows = await getAllInstruments.bind(this)(oreAccountName, category_filter)
+
   return rows
 }
 
