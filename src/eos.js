@@ -60,7 +60,7 @@ function filterRows(rows, filter) {
     let fits = true
     if (typeof filter === 'function') {
       fits = filter(row)
-    } else if(typeof filter === 'object') {
+    } else if (typeof filter === 'object') {
       for (let f in filter) {
         if (filter[f] != row[f]) fits = false
       }
