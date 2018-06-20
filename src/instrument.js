@@ -1,30 +1,7 @@
-const CONTRACT_NAME = 'ore.instr'
+const APIM_CONTRACT_NAME = 'apim.manager'
+const INSTR_CONTRACT_NAME = 'ore.instr'
 const TABLE_NAME = 'instruments'
 const ONE_YEAR = 365 * 24 * 60 * 1000
-
-/* Mocks */
-
-let voucher = {
-  category: "apimarket.apiVoucher",
-  class: "apiVoucher.io.hadron.spacetelescope.201801021211212",
-  description: "Human-readable description (Hadron Spacetelescope Access - High Availability US West Datacenter)",
-  type: "pass", //Ticket, Permit, or Pass
-  options: {},
-  consideration: undefined,
-  benefit: undefined,
-  issuer: "uztcnztga3di", // account name
-  startDate: Date.now(),
-  endDate: Date.now() + ONE_YEAR,
-  rights: {
-    apiName: "io.hadron.spaceTelescope",
-    options: {
-      sla: "highAvailability",
-      region: "usWest"
-    },
-    priceInCPU: 0.1,
-    description: "Identify objects in image of deep space"
-  }
-}
 
 /* Private */
 
@@ -32,7 +9,7 @@ async function getAllInstruments(oreAccountName, additionalFilters = []) {
   additionalFilters.push({owner: oreAccountName})
 
   const rows = await this.getAllTableRowsFiltered({
-    code: CONTRACT_NAME,
+    code: INSTR_CONTRACT_NAME,
     table: 'tokens',
   }, additionalFilters )
 
@@ -87,16 +64,26 @@ async function findInstruments(oreAccountName, activeOnly = true, category = und
   return rows
 }
 
-async function saveInstrument(instrument) {
+async function saveInstrument(oreAccountName, instrument) {
   // Confirms that issuer in Instrument matches signature of transaction
   // Creates an instrument token, populate with params, save to issuer account
   // Saves endpoints to endpoints_published
+  let options = {authorization: `${oreAccountName}@active`}
+  let contract = await this.eos.contract(APIM_CONTRACT_NAME, options)
+  let start_time = Date.now()
+  let end_time = Date.now() + ONE_YEAR
+  await contract.publishapi(oreAccountName, instrument.apiName, instrument.rights, instrument.description, start_time, end_time, options)
+
   return instrument
 }
 
-async function exerciseInstrument(offerInstrumentId) {
+async function exerciseInstrument(oreAccountName, offerInstrumentId) {
   // Call the endpoint in the instrument, adding the options params (defined in the instrument), and passing in the considerations (required list of instruments)
   // Save the resulting instruments with current user set as holder
+  let options = {authorization: `${oreAccountName}@active`}
+  let contract = await this.eos.contract(APIM_CONTRACT_NAME, options)
+  let voucher = await contract.licenceapi(oreAccountName, offerInstrumentId, options)
+
   return voucher
 }
 

@@ -26,41 +26,39 @@ const ONE_YEAR = 365 * 24 * 60 * 1000
   // Reinitialize the orejs library, with permissions for the current account...
   orejs = require("../index").orejs()
 
-  let options = {authorization: `${accountName}@active`}
-  let contract = await orejs.eos.contract(contractName, options)
-  let apiname = 'goodapi'
-  let rights_params = [
-    {
-      "theright": {
-        "right_name": "some_right_2",
-        "price_in_cpu": 10,
-        "issuer": "apiowner",
-        "additional_url_params": [
+  let instrument = {
+    apiName: 'goodapi',
+    description: "",
+    rights: [
+      {
+        "theright": {
+          "right_name": "some_right_2",
+          "price_in_cpu": 10,
+          "issuer": "apiowner",
+          "additional_url_params": [
+            {
+              "name": "a",
+              "value":"5"
+            },
+            {
+              "name": "b",
+              "value": "6"
+            }
+          ],
+          "description": "Lol"
+        },
+        "urls": [
           {
-            "name": "a",
-            "value":"5"
-          },
-          {
-            "name": "b",
-            "value": "6"
+            "url": "google.com",
+            "matches_params": [],
+            "token_life_span": 100,
+            "is_default": 1
           }
-        ],
-        "description": "Lol"
-      },
-      "urls": [
-        {
-          "url": "google.com",
-          "matches_params": [],
-          "token_life_span": 100,
-          "is_default": 1
-        }
-      ]
-    }
-  ]
-  let description = ""
-  let start_time = Date.now()
-  let end_time = Date.now() + ONE_YEAR
-  await contract.publishapi(accountName, apiname, rights_params, description, start_time, end_time, options)
+        ]
+      }
+    ]
+  }
+  await orejs.saveInstrument(accountName, instrument)
 
   //cleos get table apim.manager apim.manager offers
   const offers = await orejs.getAllTableRows({
@@ -80,9 +78,7 @@ const ONE_YEAR = 365 * 24 * 60 * 1000
   // Reinitialize the orejs library, with permissions for the current account...
   orejs = require("../index").orejs()
 
-  options = {authorization: `${accountName}@active`}
-  contract = await orejs.eos.contract(contractName, options)
-  await contract.licenceapi(accountName, 1, options)
+  await orejs.exerciseInstrument(accountName, 1)
 
   //cleos get table ore.rights ore.rights rights
   contractName = 'ore.rights'
