@@ -1,7 +1,7 @@
 const APIM_CONTRACT_NAME = 'apim.manager'
 const INSTR_CONTRACT_NAME = 'ore.instr'
 const TABLE_NAME = 'instruments'
-const ONE_YEAR = 365 * 24 * 60 * 1000
+const ONE_YEAR = 365 * 24 * 60 * 60 * 1000
 
 /* Private */
 

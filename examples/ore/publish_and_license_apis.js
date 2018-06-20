@@ -5,7 +5,7 @@
 const fs = require("fs")
 let orejs = require("../index").orejs()
 
-const ONE_YEAR = 365 * 24 * 60 * 1000
+const ONE_YEAR = 365 * 24 * 60 * 60 * 1000
 
 ;(async function () {
   // Grab the current chain id...
