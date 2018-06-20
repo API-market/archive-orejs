@@ -64,16 +64,14 @@ async function getRightFromInstrument(instrumentData, rightName) {
 }
 
 async function getAllInstruments(oreAccountName) {
-  const table_key = orejs.eos.tableKey(oreAccountName)
   let contractName = 'ore.instr'
-  // TODO: Use the find method from eos.js
-  const offers = await orejs.eos.getTableRows({
+
+  const rows = await orejs.getAllTableRowsFiltered({
     code: contractName,
-    json: true,
-    scope: contractName,
-    table: 'token',
-  })
-  return [offer, voucher]
+    table: 'tokens',
+  }, {owner: oreAccountName})
+
+  return rows
 }
 
 /* Public */
