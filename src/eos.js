@@ -56,17 +56,32 @@ function filterRows(rows, filter) {
 
   let result = []
 
+  function fitsFilter(filter, row){
+    var fits = true
+    if (typeof filter === 'function') {
+      fits = filter(row)
+    } else if(typeof filter === 'object') {
+      for (var f in filter) {
+        if (filter[f] != row[f]) fits = false
+      }
+    } else {
+      throw "filter must be a function or an object"
+    }
+    return fits
+  }
+
   for (let r in rows) {
     let row = rows[r]
 
     let fits_filter = true
 
-    if (typeof filter === 'function') {
-      fits_filter = filter(row)
-    } else {
-      for (let f in filter) {
-        if (filter[f] != row[f]) fits_filter = false;
+    if(filter instanceof Array) {
+      for(let f in filter){
+        if(!filter[f]) continue
+        fits_filter = fits_filter && fitsFilter(filter[f], row)
       }
+    } else {
+      fits_filter = fitsFilter(filter, row)
     }
 
     if (!fits_filter) continue

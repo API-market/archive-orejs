@@ -63,13 +63,17 @@ async function getRightFromInstrument(instrumentData, rightName) {
   return undefined
 }
 
-async function getAllInstruments(oreAccountName) {
+async function getAllInstruments(oreAccountName, additionalFilter) {
   let contractName = 'ore.instr'
+
+  let instrumentFilter = {owner: oreAccountName}
+
+  if(additionalFilter) instrumentFilter = [instrumentFilter, additionalFilter]
 
   const rows = await orejs.getAllTableRowsFiltered({
     code: contractName,
     table: 'tokens',
-  }, {owner: oreAccountName})
+  }, instrumentFilter )
 
   return rows
 }
@@ -77,12 +81,12 @@ async function getAllInstruments(oreAccountName) {
 /* Public */
 
 async function getInstruments(oreAccountName, category = undefined) {
-  const rows = await getAllInstruments.bind(this)(oreAccountName)
-  if (category) {
-    return rows.filter(row => {
-      return row.category.indexOf(category) >= 0
-    })
-  }
+  var category_filter = category ? function(row) {
+    return row.instrument.instrument_class === category
+  } : null;
+
+  const  rows = await getAllInstruments.bind(this)(oreAccountName, category_filter)
+
   return rows
 }
 
