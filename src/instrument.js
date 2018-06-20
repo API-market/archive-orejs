@@ -1,5 +1,6 @@
 const CONTRACT_NAME = 'ore.instr'
 const TABLE_NAME = 'instruments'
+const ONE_YEAR = 365 * 24 * 60 * 1000
 
 /* Mocks */
 
@@ -12,8 +13,8 @@ let voucher = {
   consideration: undefined,
   benefit: undefined,
   issuer: "uztcnztga3di", // account name
-  startDate: undefined,
-  endDate: undefined,
+  startDate: Date.now(),
+  endDate: Date.now() + ONE_YEAR,
   rights: {
     apiName: "io.hadron.spaceTelescope",
     options: {
@@ -22,31 +23,6 @@ let voucher = {
     },
     priceInCPU: 0.1,
     description: "Identify objects in image of deep space"
-  }
-}
-
-let offer = {
-  category: "apimarket.offer.licenseApi",
-  class: "apiVoucher.io.hadron.spacetelescope.201801021211212",
-  description: "Human-readable description (copied to the APIVouchers it creates)",
-  type: "pass",
-  options: {
-    apiName: "io.hadron.spaceTelescope",
-    sla: "default",
-    paymentModel: "payPerCall"
-  },
-  consideration: undefined,
-  benefit: undefined,
-  issuer: "uztcnztga3di", // account name
-  startDate: undefined,
-  endDate: undefined,
-  rights: {
-    endpoint: "ore.contract.createApiVoucher",
-    options: {
-      action: "create"
-    },
-    priceInCPU: 0.1,
-    description: "Create API Voucher"
   }
 }
 
@@ -74,8 +50,8 @@ function getRight(instrument, rightName) {
 }
 
 function isActive(instrument) {
-  const startDate = instrument["instrument"]["start_date"]
-  const endDate = instrument["instrument"]["end_date"]
+  const startDate = instrument["instrument"]["start_time"]
+  const endDate = instrument["instrument"]["end_time"]
   const currentDate = Date.now()
   return (currentDate > startDate && currentDate < endDate)
 }
@@ -97,8 +73,7 @@ async function findInstruments(oreAccountName, activeOnly = true, category = und
   // Where args is search criteria could include (category, rights_name)
   // Note: this requires an index on the rights collection (to filter right names)
   let filters = []
-  // TODO Add start and end dates to instruments
-  if (activeOnly && false) {
+  if (activeOnly) {
     filters.push(function(row) {
       return isActive(row)
     })
