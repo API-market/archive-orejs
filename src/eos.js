@@ -75,9 +75,9 @@ function filterRows(rows, filter) {
 
     let fits_filter = true
 
-    if(filter instanceof Array) {
-      for(let f in filter){
-        if(!filter[f]) continue
+    if (filter instanceof Array) {
+      for (let f in filter) {
+        if (!filter[f]) continue
         fits_filter = fits_filter && fitsFilter(filter[f], row)
       }
     } else {
