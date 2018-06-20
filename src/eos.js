@@ -21,7 +21,6 @@ function tableKey(oreAccountName) {
 
 async function getTableRowsPage(params, page = 0, page_size = 20) {
   params = { ...params,
-    json: params.json || true,
     lower_bound: params.lower_bound || page * page_size,
     scope: params.scope || params.code,
     upper_bound: params.upper_bound || ((page + 1) * page_size) + 1
