@@ -10,6 +10,8 @@ const contractDir = process.env.TOKEN_CONTRACT_DIR
 
 ACCOUNTS = {
   'orejs': {keys: undefined},
+  'apiowner': {keys: undefined},
+  'apiuser': {keys: undefined},
   'ore.cpu': {
     keys: undefined,
     contractName: 'token_eos20'
