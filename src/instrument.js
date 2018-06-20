@@ -1,4 +1,4 @@
-const CONTRACT_NAME = 'ore.instrument'
+const CONTRACT_NAME = 'ore.instr'
 const TABLE_NAME = 'instruments'
 
 /* Mocks */
@@ -64,14 +64,12 @@ async function getRightFromInstrument(instrumentData, rightName) {
 }
 
 async function getAllInstruments(oreAccountName, additionalFilter) {
-  let contractName = 'ore.instr'
-
   let instrumentFilter = {owner: oreAccountName}
 
   if(additionalFilter) instrumentFilter = [instrumentFilter, additionalFilter]
 
   const rows = await orejs.getAllTableRowsFiltered({
-    code: contractName,
+    code: CONTRACT_NAME,
     table: 'tokens',
   }, instrumentFilter )
 
