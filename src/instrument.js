@@ -52,17 +52,32 @@ let offer = {
 
 /* Private */
 
-async function getAllInstruments(oreAccountName, additionalFilter) {
-  let instrumentFilter = {owner: oreAccountName}
+async function getAllInstruments(oreAccountName, additionalFilters = []) {
+  additionalFilters.push({owner: oreAccountName})
 
-  if(additionalFilter) instrumentFilter = [instrumentFilter, additionalFilter]
-
-  const rows = await orejs.getAllTableRowsFiltered({
+  const rows = await this.getAllTableRowsFiltered({
     code: CONTRACT_NAME,
     table: 'tokens',
-  }, instrumentFilter )
+  }, additionalFilters )
 
   return rows
+}
+
+function getRight(instrument, rightName) {
+  const rights = instrument["instrument"]["rights"]
+  for (let i = 0; i < rights.length; i++) {
+    let right = rights[i]
+    if (right["right_name"] === rightName) {
+      return right
+    }
+  }
+}
+
+function isActive(instrument) {
+  const startDate = instrument["instrument"]["start_date"]
+  const endDate = instrument["instrument"]["end_date"]
+  const currentDate = Date.now()
+  return (currentDate > startDate && currentDate < endDate)
 }
 
 /* Public */
@@ -70,7 +85,7 @@ async function getAllInstruments(oreAccountName, additionalFilter) {
 async function getInstruments(oreAccountName, category = undefined, filters = []) {
   if (category) {
     filters.push(function(row) {
-      return row.instrument.instrument_class === category
+      return row["instrument"]["instrument_class"] === category
     })
   }
 
@@ -82,16 +97,15 @@ async function findInstruments(oreAccountName, activeOnly = true, category = und
   // Where args is search criteria could include (category, rights_name)
   // Note: this requires an index on the rights collection (to filter right names)
   let filters = []
-  if (activeOnly) {
-    // TODO Filter by activeOnly
+  // TODO Add start and end dates to instruments
+  if (activeOnly && false) {
+    filters.push(function(row) {
+      return isActive(row)
+    })
   }
   if (rightName) {
     filters.push(function(row) {
-      const rights = instrumentData["instrument"]["rights"]
-      for (let i = 0; i < rights.length; i++) {
-        return true if rights[i]["right_name"] === rightName
-      }
-      return false
+      return getRight(row, rightName)
     })
   }
   const rows = await getInstruments.bind(this)(oreAccountName, category, filters)

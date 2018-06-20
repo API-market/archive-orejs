@@ -58,10 +58,8 @@ const OFFERS = [
   await contract.publishapi(accountName, 'goodapi', OFFERS, "", 0, 0, options)
 
   //cleos get table apim.manager apim.manager offers
-  const offers = await orejs.eos.getTableRows({
+  const offers = await orejs.getAllTableRows({
     code: contractName,
-    json: true,
-    scope: contractName,
     table: 'offersdata',
   })
 
@@ -83,10 +81,8 @@ const OFFERS = [
 
   //cleos get table ore.rights ore.rights rights
   contractName = 'ore.rights'
-  const rights = await orejs.eos.getTableRows({
+  const rights = await orejs.getAllTableRows({
     code: contractName,
-    json: true,
-    scope: contractName,
     table: 'rights',
   })
 
@@ -94,7 +90,10 @@ const OFFERS = [
 
   //cleos get table ore.instr ore.instr tokens
   contractName = 'ore.instr'
-  const instruments = await orejs.instruments.getInstruments('')
+  const instruments = await orejs.getAllTableRows({
+    code: contractName,
+    table: "tokens"
+  })
 
   console.log("Instruments:", instruments)
 })()

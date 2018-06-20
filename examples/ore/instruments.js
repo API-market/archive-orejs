@@ -1,13 +1,14 @@
-const {orejs} = require("../index")
+const orejs = require("../index").orejs()
 
-orejs.getInstruments('orejs', 'apimarket.offer').then(instruments => {
+orejs.getInstruments('apiowner', 'apim.apiOffer').then(instruments => {
   console.log("getInstruments:", instruments)
 })
 
-orejs.findInstruments('orejs', true, 'apimarket.offer').then(instruments => {
+orejs.findInstruments('apiuser', true, 'apim.apiVoucher', 'some_right_2').then(instruments => {
   console.log("findInstruments:", instruments)
 })
 
+/*
 orejs.saveInstrument({}).then(instrument => {
   console.log("saveInstrument:", instrument)
 })
@@ -15,3 +16,4 @@ orejs.saveInstrument({}).then(instrument => {
 orejs.exerciseInstrument('').then(instrument => {
   console.log("exerciseInstrument:", instrument)
 })
+*/
