@@ -82,6 +82,7 @@ async function exerciseInstrument(oreAccountName, offerInstrumentId) {
   // Save the resulting instruments with current user set as holder
   let options = {authorization: `${oreAccountName}@active`}
   let contract = await this.eos.contract(APIM_CONTRACT_NAME, options)
+  console.log("exerciseInstrument", oreAccountName, offerInstrumentId)
   let voucher = await contract.licenceapi(oreAccountName, offerInstrumentId, options)
 
   return voucher
