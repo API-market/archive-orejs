@@ -39,10 +39,8 @@ TOKENS = [
       await contract.mint(accountName, 1, options)
 
       // Print the results of our actions...
-      const table_key = orejs.tableKey(accountName)
-      console.log("Retreiving account balance...", accountName, table_key.toString())
-      const account = await orejs.findOne(tokenName, 'accounts', table_key)
-      console.log("Account Balance:", account.balance)
+      const balance = await orejs.getCpuBalance(accountName)
+      console.log("Account Balance:", balance)
     }
   }
 })()

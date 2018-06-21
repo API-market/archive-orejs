@@ -6,6 +6,16 @@ const fs = require("fs")
 let orejs = require("../index").orejs()
 
 const ONE_YEAR = 365 * 24 * 60 * 60 * 1000
+let accounts
+
+async function connectAs(accountName) {
+  let accountData = accounts[accountName]
+  process.env.ORE_AUTH_ACCOUNT_KEY = accountData.keys.privateKeys.active
+  process.env.ORE_AUTH_ACCOUNT_NAME = accountName
+
+  // Reinitialize the orejs library, with permissions for the current account...
+  orejs = require("../index").orejs()
+}
 
 ;(async function () {
   // Grab the current chain id...
@@ -13,18 +23,12 @@ const ONE_YEAR = 365 * 24 * 60 * 60 * 1000
   console.log("Connecting to chain:", info.chain_id, "...")
   process.env.CHAIN_ID = info.chain_id
 
-  let accounts = JSON.parse(fs.readFileSync('./tmp/keys.json'))
+  accounts = JSON.parse(fs.readFileSync('./tmp/keys.json'))
 
   //cleos push action apim.manager publishapi `[ "apiowner", "goodapi", ${OFFERS}]` -p apiowner@active
   let accountName = 'apiowner'
   let contractName = 'apim.manager'
-  let accountData = accounts[accountName]
-
-  process.env.ORE_AUTH_ACCOUNT_KEY = accountData.keys.privateKeys.active
-  process.env.ORE_AUTH_ACCOUNT_NAME = accountName
-
-  // Reinitialize the orejs library, with permissions for the current account...
-  orejs = require("../index").orejs()
+  await connectAs(accountName)
 
   let instrument = {
     apiName: 'goodapi',
@@ -70,15 +74,9 @@ const ONE_YEAR = 365 * 24 * 60 * 60 * 1000
 
   //cleos push action apim.manager licenceapi '["apiuser", 1]' -p apiuser
   accountName = 'apiuser'
-  accountData = accounts[accountName]
+  await connectAs(accountName)
 
-  process.env.ORE_AUTH_ACCOUNT_KEY = accountData.keys.privateKeys.active
-  process.env.ORE_AUTH_ACCOUNT_NAME = accountName
-
-  // Reinitialize the orejs library, with permissions for the current account...
-  orejs = require("../index").orejs()
-
-  await orejs.exerciseInstrument(accountName, 1)
+  await orejs.exerciseInstrument(accountName, 0)
 
   //cleos get table ore.rights ore.rights rights
   contractName = 'ore.rights'

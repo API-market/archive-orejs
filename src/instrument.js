@@ -70,9 +70,9 @@ async function saveInstrument(oreAccountName, instrument) {
   // Saves endpoints to endpoints_published
   let options = {authorization: `${oreAccountName}@active`}
   let contract = await this.eos.contract(APIM_CONTRACT_NAME, options)
-  let start_time = Date.now()
-  let end_time = Date.now() + ONE_YEAR
-  await contract.publishapi(oreAccountName, instrument.apiName, instrument.rights, instrument.description, start_time, end_time, options)
+  instrument.start_time = instrument.start_time || Date.now()
+  instrument.end_time = instrument.end_time || Date.now() + ONE_YEAR
+  await contract.publishapi(oreAccountName, instrument.apiName, instrument.rights, instrument.description, instrument.start_time, instrument.end_time, options)
 
   return instrument
 }
@@ -82,9 +82,7 @@ async function exerciseInstrument(oreAccountName, offerInstrumentId) {
   // Save the resulting instruments with current user set as holder
   let options = {authorization: `${oreAccountName}@active`}
   let contract = await this.eos.contract(APIM_CONTRACT_NAME, options)
-  let voucher = await contract.licenceapi(oreAccountName, offerInstrumentId, options)
-
-  return voucher
+  await contract.licenceapi(oreAccountName, offerInstrumentId, options)
 }
 
 module.exports = {
