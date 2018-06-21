@@ -16,16 +16,6 @@ async function getAllInstruments(oreAccountName, additionalFilters = []) {
   return rows
 }
 
-function getRight(instrument, rightName) {
-  const rights = instrument["instrument"]["rights"]
-  for (let i = 0; i < rights.length; i++) {
-    let right = rights[i]
-    if (right["right_name"] === rightName) {
-      return right
-    }
-  }
-}
-
 function isActive(instrument) {
   const startDate = instrument["instrument"]["start_time"]
   const endDate = instrument["instrument"]["end_time"]
@@ -35,15 +25,12 @@ function isActive(instrument) {
 
 /* Public */
 
-async function getInstruments(oreAccountName, category = undefined, filters = []) {
-  if (category) {
-    filters.push(function(row) {
-      return row["instrument"]["instrument_class"] === category
-    })
-  }
-
-  const rows = await getAllInstruments.bind(this)(oreAccountName, filters)
-  return rows
+async function exerciseInstrument(oreAccountName, offerInstrumentId) {
+  // Call the endpoint in the instrument, adding the options params (defined in the instrument), and passing in the considerations (required list of instruments)
+  // Save the resulting instruments with current user set as holder
+  let options = {authorization: `${oreAccountName}@active`}
+  let contract = await this.eos.contract(APIM_CONTRACT_NAME, options)
+  await contract.licenceapi(oreAccountName, offerInstrumentId, options)
 }
 
 async function findInstruments(oreAccountName, activeOnly = true, category = undefined, rightName = undefined) {
@@ -64,6 +51,27 @@ async function findInstruments(oreAccountName, activeOnly = true, category = und
   return rows
 }
 
+async function getInstruments(oreAccountName, category = undefined, filters = []) {
+  if (category) {
+    filters.push(function(row) {
+      return row["instrument"]["instrument_class"] === category
+    })
+  }
+
+  const rows = await getAllInstruments.bind(this)(oreAccountName, filters)
+  return rows
+}
+
+function getRight(instrument, rightName) {
+  const rights = instrument["instrument"]["rights"]
+  for (let i = 0; i < rights.length; i++) {
+    let right = rights[i]
+    if (right["right_name"] === rightName) {
+      return right
+    }
+  }
+}
+
 async function saveInstrument(oreAccountName, instrument) {
   // Confirms that issuer in Instrument matches signature of transaction
   // Creates an instrument token, populate with params, save to issuer account
@@ -77,17 +85,10 @@ async function saveInstrument(oreAccountName, instrument) {
   return instrument
 }
 
-async function exerciseInstrument(oreAccountName, offerInstrumentId) {
-  // Call the endpoint in the instrument, adding the options params (defined in the instrument), and passing in the considerations (required list of instruments)
-  // Save the resulting instruments with current user set as holder
-  let options = {authorization: `${oreAccountName}@active`}
-  let contract = await this.eos.contract(APIM_CONTRACT_NAME, options)
-  await contract.licenceapi(oreAccountName, offerInstrumentId, options)
-}
-
 module.exports = {
   exerciseInstrument,
   findInstruments,
   getInstruments,
+  getRight,
   saveInstrument
 }
