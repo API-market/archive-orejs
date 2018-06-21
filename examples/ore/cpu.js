@@ -5,6 +5,27 @@ const FROM = 'apiuser'
 const BROKER = 'orejs' // The account making the transaction
 const TO = 'apiowner'
 const CPU_CONTRACT_NAME = 'ore.cpu'
+let accounts, cpuContract, options
+
+async function logBalances() {
+  let balanceFrom = await orejs.getCpuBalance(FROM)
+  let balanceTo = await orejs.getCpuBalance(TO)
+  console.log(`${FROM} balance:`, balanceFrom)
+  console.log(`${TO} balance:`, balanceTo)
+}
+
+async function connectAs(accountName) {
+  let accountData = accounts[accountName]
+  process.env.ORE_AUTH_ACCOUNT_KEY = accountData.keys.privateKeys.active
+  process.env.ORE_AUTH_ACCOUNT_NAME = accountName
+
+  // Reinitialize the orejs library, with permissions for the current account...
+  orejs = require("../index").orejs()
+
+  options = {authorization: `${accountName}@active`}
+  cpuContract = await orejs.eos.contract(CPU_CONTRACT_NAME, options)
+  return cpuContract
+}
 
 ;(async function() {
   const info = await orejs.eos.getInfo({})
@@ -12,34 +33,37 @@ const CPU_CONTRACT_NAME = 'ore.cpu'
   process.env.CHAIN_ID = info.chain_id
 
   // Read the most recently generated account names and keys from the temp json file...
-  let accounts = JSON.parse(fs.readFileSync('./tmp/keys.json'))
+  accounts = JSON.parse(fs.readFileSync('./tmp/keys.json'))
   //console.log("Account Data:", JSON.stringify(accounts))
 
-  let accountData = accounts[FROM]
-  process.env.ORE_AUTH_ACCOUNT_KEY = accountData.keys.privateKeys.active
-  process.env.ORE_AUTH_ACCOUNT_NAME = FROM
+  //////////////////////////////////////////
+  // Mint some tokens to the FROM account //
+  //////////////////////////////////////////
 
-  // Reinitialize the orejs library, with permissions for the current account...
-  orejs = require("../index").orejs()
+  console.log("Minting...")
 
-  let balance = await orejs.getCpuBalance(FROM)
-  console.log(`${TO} balance:`, balance)
-  console.log(`${FROM} balance:`, balance)
+  await connectAs(CPU_CONTRACT_NAME)
+  await cpuContract.mint(FROM, 1, options)
 
-  orejs.approveCpu(FROM, BROKER, balance)
+  await logBalances()
 
-  accountData = accounts[BROKER]
-  process.env.ORE_AUTH_ACCOUNT_KEY = accountData.keys.privateKeys.active
-  process.env.ORE_AUTH_ACCOUNT_NAME = BROKER
+  ////////////////////////////////////////////////////////////////////
+  // Approve the transfer BROKER to transfer tokens from FROM to TO //
+  ////////////////////////////////////////////////////////////////////
 
-  // Reinitialize the orejs library, with permissions for the current account...
-  orejs = require("../index").orejs()
+  console.log("Approving...")
 
-  let options = {authorization: `${BROKER}@active`}
-  let cpuContract = await orejs.eos.contract(CPU_CONTRACT_NAME, options)
-  await cpuContract.transferfrom(BROKER, FROM, TO, balance, options)
+  await connectAs(FROM)
+  await orejs.approveCpu(FROM, BROKER, 1, options)
 
-  balance = await orejs.getCpuBalance(FROM)
-  console.log(`${TO} balance:`, balance)
-  console.log(`${FROM} balance:`, balance)
+  /////////////////////////
+  // Transfer the tokens //
+  /////////////////////////
+
+  console.log("Transferring...")
+
+  await connectAs(BROKER)
+  await cpuContract.transferfrom(BROKER, FROM, TO, 1, options)
+
+  logBalances()
 })()
