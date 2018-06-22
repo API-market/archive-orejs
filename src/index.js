@@ -27,5 +27,6 @@ class Orejs {
 }
 
 module.exports = {
+  ore,
   Orejs
 }

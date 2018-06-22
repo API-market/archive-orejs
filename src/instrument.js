@@ -1,6 +1,6 @@
 const APIM_CONTRACT_NAME = 'apim.manager'
 const INSTR_CONTRACT_NAME = 'ore.instr'
-const TABLE_NAME = 'instruments'
+const INSTR_TABLE_NAME = 'tokens'
 const ONE_YEAR = 365 * 24 * 60 * 60 * 1000
 
 /* Private */
@@ -10,7 +10,7 @@ async function getAllInstruments(oreAccountName, additionalFilters = []) {
 
   const rows = await this.getAllTableRowsFiltered({
     code: INSTR_CONTRACT_NAME,
-    table: 'tokens',
+    table: INSTR_TABLE_NAME,
   }, additionalFilters )
 
   return rows

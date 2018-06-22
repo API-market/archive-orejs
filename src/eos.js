@@ -1,55 +1,7 @@
 const BigNumber = require("bignumber.js")
+const ecc = require('eosjs-ecc')
 
-// Find one row in a table
-async function findOne(contractName, tableName, tableKey) {
-  let results = await this.eos.getTableRows({
-    code: contractName.toString(),
-    json: true,
-    limit: 1,
-    lower_bound: tableKey.toString(),
-    scope: contractName.toString(),
-    table: tableName.toString(),
-    upper_bound: tableKey.plus(1).toString()
-  })
-  return results.rows[0]
-}
-
-// Transform account names from base32 to their numeric representations
-function tableKey(oreAccountName) {
-  return new BigNumber(this.eos.format.encodeName(oreAccountName, false))
-}
-
-async function getTableRowsPage(params, page = 0, page_size = 20, json = true) {
-  params = { ...params,
-    json: json,
-    lower_bound: params.lower_bound || page * page_size,
-    scope: params.scope || params.code,
-    upper_bound: params.upper_bound || ((page + 1) * page_size) + 1
-  }
-  let resp = await this.eos.getTableRows(params)
-
-  return resp;
-}
-
-async function getAllTableRows(params) {
-  let more = true
-  let results = []
-  let page = 0
-
-  do {
-    let result = await getTableRowsPage.bind(this)(params, page++)
-    more = result.more
-    results = results.concat(result.rows)
-  } while(more)
-
-  return results
-}
-
-async function getAllTableRowsFiltered(params, filter) {
-  let result = await getAllTableRows.bind(this)(params)
-
-  return filterRows(result, filter)
-}
+/* Private */
 
 function filterRows(rows, filter) {
   if (!filter) return rows
@@ -92,9 +44,67 @@ function filterRows(rows, filter) {
   return result
 }
 
+async function getTableRowsPage(params, page = 0, page_size = 20, json = true) {
+  params = { ...params,
+    json: json,
+    lower_bound: params.lower_bound || page * page_size,
+    scope: params.scope || params.code,
+    upper_bound: params.upper_bound || ((page + 1) * page_size) + 1
+  }
+  let resp = await this.eos.getTableRows(params)
+
+  return resp;
+}
+
+/* Public */
+
+// Find one row in a table
+async function findOne(contractName, tableName, tableKey) {
+  let results = await this.eos.getTableRows({
+    code: contractName.toString(),
+    json: true,
+    limit: 1,
+    lower_bound: tableKey.toString(),
+    scope: contractName.toString(),
+    table: tableName.toString(),
+    upper_bound: tableKey.plus(1).toString()
+  })
+  return results.rows[0]
+}
+
+async function getAllTableRows(params) {
+  let more = true
+  let results = []
+  let page = 0
+
+  do {
+    let result = await getTableRowsPage.bind(this)(params, page++)
+    more = result.more
+    results = results.concat(result.rows)
+  } while(more)
+
+  return results
+}
+
+async function getAllTableRowsFiltered(params, filter) {
+  let result = await getAllTableRows.bind(this)(params)
+
+  return filterRows(result, filter)
+}
+
+function signVoucher(apiVoucher) {
+  return ecc.sign(apiVoucher.id.toString(), this.config.keyProvider)
+}
+
+// Transform account names from base32 to their numeric representations
+function tableKey(oreAccountName) {
+  return new BigNumber(this.eos.format.encodeName(oreAccountName, false))
+}
+
 module.exports = {
   findOne,
-  tableKey,
   getAllTableRows,
   getAllTableRowsFiltered,
+  signVoucher,
+  tableKey,
 }
