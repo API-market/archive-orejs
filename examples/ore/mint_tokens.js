@@ -23,8 +23,8 @@ TOKENS = [
 
   for (tokenName of TOKENS) {
     let accountData = accounts[tokenName]
-    process.env.ORE_AUTH_ACCOUNT_KEY = accountData.keys.privateKeys.active
-    process.env.ORE_AUTH_ACCOUNT_NAME = tokenName
+    process.env.ORE_PAYER_ACCOUNT_KEY = accountData.keys.privateKeys.active
+    process.env.ORE_PAYER_ACCOUNT_NAME = tokenName
 
     // Reinitialize the orejs library, with permissions for the current account...
     orejs = require("../index").orejs()

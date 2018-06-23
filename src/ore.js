@@ -1,3 +1,4 @@
+//const ecc = require('eosjs-ecc')
 const {Keygen} = require('eosjs-keygen')
 const base32 = require('base32.js')
 const CryptoJS = require("crypto-js")
@@ -6,13 +7,29 @@ const ACCOUNT_NAME_MAX_LENGTH = 12
 
 /* Private */
 
-async function createOreAccountWithKeys(ownerPublicKey, activePublicKey, oreAccountName = generateAccountName()) {
-  // create a new user account on the ORE network with wallet and associate it with a user’s identity
-  await this.eos.newaccount({
-    creator: this.config.oreAuthAccountName,
-    name: oreAccountName,
-    owner: ownerPublicKey,
-    active: activePublicKey
+async function createOreAccountWithKeys(activePublicKey, ownerPublicKey, oreAccountName = generateAccountName()) {
+  //const ownerPublicKey = ecc.privateToPublic(this.config.keyProvider)
+  await this.eos.transaction(tr => {
+    tr.newaccount({
+      creator: this.config.orePayerAccountName,
+      name: oreAccountName,
+      owner: ownerPublicKey,
+      active: activePublicKey
+    })
+
+    tr.buyrambytes({
+      payer: this.config.orePayerAccountName,
+      receiver: oreAccountName,
+      bytes: 8192
+    })
+
+    tr.delegatebw({
+      from: this.config.orePayerAccountName,
+      receiver: oreAccountName,
+      stake_net_quantity: '10.0000 SYS',
+      stake_cpu_quantity: '10.0000 SYS',
+      transfer: 0
+    })
   })
 
   return oreAccountName
@@ -43,7 +60,7 @@ function generateAccountName(encoding = {type: 'rfc4648', lc: true}){
 async function createOreAccount(password, ownerPublicKey) {
   const keys = await Keygen.generateMasterKeys()
   // TODO Check for existing wallets, for name collisions
-  const oreAccountName = await createOreAccountWithKeys.bind(this)(ownerPublicKey, keys.publicKeys.active)
+  const oreAccountName = await createOreAccountWithKeys.bind(this)(keys.publicKeys.active, ownerPublicKey)
 
   encryptKeys.bind(this)(keys, password)
 
