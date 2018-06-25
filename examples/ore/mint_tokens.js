@@ -6,7 +6,7 @@ const fs = require("fs")
 let orejs = require("../index").orejs()
 
 TOKENS = [
-  'ore.cpu',
+  'cpu.ore',
   'ore.ore'
 ]
 

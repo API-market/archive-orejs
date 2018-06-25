@@ -25,9 +25,9 @@ async function connectAs(accountName) {
 
   accounts = JSON.parse(fs.readFileSync('./tmp/keys.json'))
 
-  //cleos push action apim.manager publishapi `[ "apiowner", "goodapi", ${OFFERS}]` -p apiowner@active
+  //cleos push action manager.apim publishapi `[ "apiowner", "goodapi", ${OFFERS}]` -p apiowner@active
   let accountName = 'apiowner'
-  let contractName = 'apim.manager'
+  let contractName = 'manager.apim'
   await connectAs(accountName)
 
   let instrument = {
@@ -64,7 +64,7 @@ async function connectAs(accountName) {
   }
   await orejs.saveInstrument(accountName, instrument)
 
-  //cleos get table apim.manager apim.manager offers
+  //cleos get table manager.apim manager.apim offers
   const offers = await orejs.getAllTableRows({
     code: contractName,
     table: 'offersdata',
@@ -72,14 +72,14 @@ async function connectAs(accountName) {
 
   console.log("Offers:", offers)
 
-  //cleos push action apim.manager licenceapi '["apiuser", 1]' -p apiuser
+  //cleos push action manager.apim licenceapi '["apiuser", 1]' -p apiuser
   accountName = 'apiuser'
   await connectAs(accountName)
 
   await orejs.exerciseInstrument(accountName, 0)
 
-  //cleos get table ore.rights ore.rights rights
-  contractName = 'ore.rights'
+  //cleos get table rights.ore rights.ore rights
+  contractName = 'rights.ore'
   const rights = await orejs.getAllTableRows({
     code: contractName,
     table: 'rights',
@@ -87,8 +87,8 @@ async function connectAs(accountName) {
 
   console.log("Rights:", rights)
 
-  //cleos get table ore.instr ore.instr tokens
-  contractName = 'ore.instr'
+  //cleos get table instr.ore instr.ore tokens
+  contractName = 'instr.ore'
   const instruments = await orejs.getAllTableRows({
     code: contractName,
     table: "tokens"

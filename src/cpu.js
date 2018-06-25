@@ -1,4 +1,4 @@
-const CPU_CONTRACT_NAME = 'ore.cpu'
+const CPU_CONTRACT_NAME = 'cpu.ore'
 const TABLE_NAME = 'accounts'
 
 /* Public */

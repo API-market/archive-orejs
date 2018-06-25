@@ -21,7 +21,7 @@ node ore/create_accounts
 node ore/mint_tokens
 
 # TODO Remove me...
-cleos set account permission apim.manager active '{"threshold": 1,"keys": [{"key": "EOS6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV","weight": 1}],"accounts": [{"permission":{"actor":"apim.manager","permission":"eosio.code"},"weight":1}]}' owner -p apim.manager
+cleos set account permission manager.apim active '{"threshold": 1,"keys": [{"key": "EOS6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV","weight": 1}],"accounts": [{"permission":{"actor":"manager.apim","permission":"eosio.code"},"weight":1}]}' owner -p manager.apim
 
 # Publish & license some apis...
 node ore/publish_and_license_apis
