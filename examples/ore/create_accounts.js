@@ -56,7 +56,7 @@ ACCOUNTS = {
       accountData.keys = await Keygen.generateMasterKeys()
 
       await orejs.eos.newaccount({
-        creator: orejs.config.oreAuthAccountName,
+        creator: orejs.config.orePayerAccountName,
         name: accountName,
         owner: accountData.keys.publicKeys.owner,
         active: accountData.keys.publicKeys.active
