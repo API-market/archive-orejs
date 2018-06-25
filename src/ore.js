@@ -20,14 +20,14 @@ async function createOreAccountWithKeys(activePublicKey, ownerPublicKey, oreAcco
     tr.buyrambytes({
       payer: this.config.orePayerAccountName,
       receiver: oreAccountName,
-      bytes: 8192
+      bytes: 4096
     })
 
     tr.delegatebw({
       from: this.config.orePayerAccountName,
       receiver: oreAccountName,
-      stake_net_quantity: '10.0000 SYS',
-      stake_cpu_quantity: '10.0000 SYS',
+      stake_net_quantity: '1.0000 SYS',
+      stake_cpu_quantity: '1.0000 SYS',
       transfer: 0
     })
   })
