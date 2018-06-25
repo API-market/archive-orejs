@@ -2,7 +2,7 @@ const orejs = require("../index.js").orejs()
 
 ;(async function() {
   let vouchers = await orejs.getAllTableRowsFiltered({
-    code: "ore.instr",
+    code: "instr.ore",
     table: "tokens",
   }, {owner: 'apiuser'})
 

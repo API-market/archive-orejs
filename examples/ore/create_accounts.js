@@ -12,7 +12,7 @@ ACCOUNTS = {
   'orejs': {keys: undefined},
   'apiowner': {keys: undefined},
   'apiuser': {keys: undefined},
-  'ore.cpu': {
+  'cpu.ore': {
     keys: undefined,
     contractName: 'token_eos20'
   },
@@ -20,19 +20,19 @@ ACCOUNTS = {
     keys: undefined,
     contractName: 'token_eos20'
   },
-  'ore.instr': {
+  'instr.ore': {
     keys: undefined,
     contractName: 'ore.instrument'
   },
-  'ore.rights': {
+  'rights.ore': {
     keys: undefined,
     contractName: 'ore.rights_registry'
   },
-  'ore.usagelog': {
+  'useagelog.ore': {
     keys: undefined,
     contractName: 'ore.usage_log'
   },
-  'apim.manager': {
+  'manager.apim': {
     keys: undefined,
     contractName: 'apim.manager'
   }

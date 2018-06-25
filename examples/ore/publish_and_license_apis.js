@@ -78,8 +78,8 @@ async function connectAs(accountName) {
 
   await orejs.exerciseInstrument(accountName, 0)
 
-  //cleos get table ore.rights ore.rights rights
-  contractName = 'ore.rights'
+  //cleos get table rights.ore rights.ore rights
+  contractName = 'rights.ore'
   const rights = await orejs.getAllTableRows({
     code: contractName,
     table: 'rights',
@@ -87,8 +87,8 @@ async function connectAs(accountName) {
 
   console.log("Rights:", rights)
 
-  //cleos get table ore.instr ore.instr tokens
-  contractName = 'ore.instr'
+  //cleos get table instr.ore instr.ore tokens
+  contractName = 'instr.ore'
   const instruments = await orejs.getAllTableRows({
     code: contractName,
     table: "tokens"

@@ -4,7 +4,7 @@ let orejs = require("../index").orejs()
 const FROM = 'apiuser'
 const BROKER = 'orejs' // The account making the transaction
 const TO = 'apiowner'
-const CPU_CONTRACT_NAME = 'ore.cpu'
+const CPU_CONTRACT_NAME = 'cpu.ore'
 let accounts, cpuContract, options
 
 async function logBalances() {
