@@ -44,15 +44,15 @@ function filterRows(rows, filter) {
   return result
 }
 
-async function getTableRowsPage(params, lower_bound = 0, page_size = 20) {
+async function getTableRowsPage(params, lower_bound = 0, page_size = 20, json = true) {
   params = { ...params,
-    json: params.json || true,
+    json: json,
     lower_bound: params.lower_bound || lower_bound,
     scope: params.scope || params.code,
     limit: page_size,
     upper_bound: params.upper_bound
   }
-  if(!params.upper_bound) delete params.upper_bound
+  if (!params.upper_bound) delete params.upper_bound
 
   let resp = await this.eos.getTableRows(params)
 
