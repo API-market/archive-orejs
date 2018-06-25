@@ -25,9 +25,9 @@ async function connectAs(accountName) {
 
   accounts = JSON.parse(fs.readFileSync('./tmp/keys.json'))
 
-  //cleos push action apim.manager publishapi `[ "apiowner", "goodapi", ${OFFERS}]` -p apiowner@active
+  //cleos push action manager.apim publishapi `[ "apiowner", "goodapi", ${OFFERS}]` -p apiowner@active
   let accountName = 'apiowner'
-  let contractName = 'apim.manager'
+  let contractName = 'manager.apim'
   await connectAs(accountName)
 
   let instrument = {
@@ -64,7 +64,7 @@ async function connectAs(accountName) {
   }
   await orejs.saveInstrument(accountName, instrument)
 
-  //cleos get table apim.manager apim.manager offers
+  //cleos get table manager.apim manager.apim offers
   const offers = await orejs.getAllTableRows({
     code: contractName,
     table: 'offersdata',
@@ -72,7 +72,7 @@ async function connectAs(accountName) {
 
   console.log("Offers:", offers)
 
-  //cleos push action apim.manager licenceapi '["apiuser", 1]' -p apiuser
+  //cleos push action manager.apim licenceapi '["apiuser", 1]' -p apiuser
   accountName = 'apiuser'
   await connectAs(accountName)
 

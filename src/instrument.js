@@ -1,4 +1,4 @@
-const APIM_CONTRACT_NAME = 'apim.manager'
+const APIM_CONTRACT_NAME = 'manager.apim'
 const INSTR_CONTRACT_NAME = 'instr.ore'
 const INSTR_TABLE_NAME = 'tokens'
 const ONE_YEAR = 365 * 24 * 60 * 60 * 1000
