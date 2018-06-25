@@ -16,7 +16,7 @@
 rm -rf ~/Library/Application\ Support/eosio/nodeos/data
 
 # Delete old/stale orejs wallet...
-rm -rf ~/eosio-wallet/./orejs.wallet
+rm -rf ~/eosio-wallet/*.wallet
 
 # Start up the blockchain...
-$1/build/programs/nodeos/nodeos -e -p eosio --plugin eosio::chain_api_plugin --plugin eosio::history_api_plugin
+$1/build/programs/nodeos/nodeos -e -p eosio --plugin eosio::chain_api_plugin --plugin eosio::history_api_plugin --delete-all-blocks

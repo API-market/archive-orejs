@@ -28,7 +28,7 @@ ACCOUNTS = {
     keys: undefined,
     contractName: 'ore.rights_registry'
   },
-  'useagelog.ore': {
+  'usagelog.ore': {
     keys: undefined,
     contractName: 'ore.usage_log'
   },
