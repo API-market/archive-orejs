@@ -44,13 +44,16 @@ function filterRows(rows, filter) {
   return result
 }
 
-async function getTableRowsPage(params, page = 0, page_size = 20, json = true) {
+async function getTableRowsPage(params, lower_bound = 0, page_size = 20, json = true) {
   params = { ...params,
     json: json,
-    lower_bound: params.lower_bound || page * page_size,
+    lower_bound: params.lower_bound || lower_bound,
     scope: params.scope || params.code,
-    upper_bound: params.upper_bound || ((page + 1) * page_size) + 1
+    limit: page_size,
+    upper_bound: params.upper_bound
   }
+  if (!params.upper_bound) delete params.upper_bound
+
   let resp = await this.eos.getTableRows(params)
 
   return resp;
@@ -72,22 +75,34 @@ async function findOne(contractName, tableName, tableKey) {
   return results.rows[0]
 }
 
-async function getAllTableRows(params) {
+async function getAllTableRows(params, key_field="id") {
   let more = true
   let results = []
-  let page = 0
+  let lower_bound = 0
 
   do {
-    let result = await getTableRowsPage.bind(this)(params, page++)
+    let result = await getTableRowsPage.bind(this)(params, lower_bound)
     more = result.more
+
+    if (more) {
+      let last_key_value = result.rows[result.rows.length - 1][key_field]
+
+      //if it's an account_name convert it to its numeric representation
+      if (isNaN(last_key_value)) {
+        last_key_value = tableKey(last_key_value)
+      }
+
+      lower_bound = (new BigNumber(last_key_value)).plus(1).toFixed()
+    }
+
     results = results.concat(result.rows)
   } while(more)
 
   return results
 }
 
-async function getAllTableRowsFiltered(params, filter) {
-  let result = await getAllTableRows.bind(this)(params)
+async function getAllTableRowsFiltered(params, filter, key_field="id") {
+  let result = await getAllTableRows.bind(this)(params, key_field)
 
   return filterRows(result, filter)
 }

@@ -13,4 +13,11 @@ const orejs = require("../index.js").orejs()
     table: "tokens",
   }, {owner: 'apiuser'})
   console.log(filteredResults)
+
+  var customKeyResults = await orejs.getAllTableRowsFiltered({
+    code: "ore.instr",
+    table: "accounts",
+  }, null, "owner" );
+  console.log(customKeyResults);
+
 })()
