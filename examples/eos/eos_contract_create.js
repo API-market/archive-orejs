@@ -6,8 +6,8 @@ const accountName = process.argv[2]
 const contractDir = process.argv[3]
 const accountKey = process.argv[4]
 
-process.env.ORE_AUTH_ACCOUNT_KEY = accountKey
-process.env.ORE_AUTH_ACCOUNT_NAME = accountName
+process.env.ORE_PAYER_ACCOUNT_KEY = accountKey
+process.env.ORE_PAYER_ACCOUNT_NAME = accountName
 
 const {orejs} = require("./index")
 

@@ -1,10 +1,51 @@
-const {Keystore, Keygen} = require('eosjs-keygen')
+//const ecc = require('eosjs-ecc')
+const {Keygen} = require('eosjs-keygen')
 const base32 = require('base32.js')
-const CryptoJS = require("crypto-js");
+const CryptoJS = require("crypto-js")
 
 const ACCOUNT_NAME_MAX_LENGTH = 12
 
 /* Private */
+
+async function createOreAccountWithKeys(activePublicKey, ownerPublicKey, options = {}) {
+  //const ownerPublicKey = ecc.privateToPublic(this.config.keyProvider)
+  let oreAccountName = options.oreAccountName || generateAccountName()
+  let bytes = options.bytes || 8192
+  let stake_net_quantity = options.stake_net_quantity || 1
+  let stake_cpu_quantity = options.stake_cpu_quantity || 1
+  let transfer = options.transfer || 0
+  await this.eos.transaction(tr => {
+    tr.newaccount({
+      creator: this.config.orePayerAccountName,
+      name: oreAccountName,
+      owner: ownerPublicKey,
+      active: activePublicKey
+    })
+
+    tr.buyrambytes({
+      payer: this.config.orePayerAccountName,
+      receiver: oreAccountName,
+      bytes: bytes
+    })
+
+    tr.delegatebw({
+      from: this.config.orePayerAccountName,
+      receiver: oreAccountName,
+      stake_net_quantity: `${stake_net_quantity}.0000 SYS`,
+      stake_cpu_quantity: `${stake_cpu_quantity}.0000 SYS`,
+      transfer: transfer
+    })
+  })
+
+  return oreAccountName
+}
+
+function encryptKeys(keys, password) {
+  this.encryptedWalletPassword = encrypt(keys.masterPrivateKey, password).toString()
+  keys.masterPrivateKey = this.encryptedWalletPassword
+  keys.privateKeys.owner = encrypt(keys.privateKeys.owner, password).toString()
+  keys.privateKeys.active = encrypt(keys.privateKeys.active, password).toString()
+}
 
 function generateAccountName(encoding = {type: 'rfc4648', lc: true}){
   // account names are generated based on the current unix timestamp
@@ -19,48 +60,16 @@ function generateAccountName(encoding = {type: 'rfc4648', lc: true}){
   return encodedTimestamp.substr(idx, ACCOUNT_NAME_MAX_LENGTH)
 }
 
-function encrypt(unencrypted, password) {
-  let encrypted = CryptoJS.AES.encrypt(unencrypted, password);
-
-  return encrypted
-}
-
-function decrypt(encrypted, password) {
-  let bytes = CryptoJS.AES.decrypt(encrypted.toString(), password);
-  let unencrypted = bytes.toString(CryptoJS.enc.Utf8);
-
-  return unencrypted
-}
-
-function encryptKeys(keys, password) {
-  this.encryptedWalletPassword = encrypt(keys.masterPrivateKey, password).toString()
-  keys.masterPrivateKey = this.encryptedWalletPassword
-  keys.privateKeys.owner = encrypt(keys.privateKeys.owner, password).toString()
-  keys.privateKeys.active = encrypt(keys.privateKeys.active, password).toString()
-}
-
-async function createOreAccountWithKeys(ownerPublicKey, activePublicKey, oreAccountName = generateAccountName()) {
-  // create a new user account on the ORE network with wallet and associate it with a user’s identity
-  await this.eos.newaccount({
-    creator: this.config.oreAuthAccountName,
-    name: oreAccountName,
-    owner: ownerPublicKey,
-    active: activePublicKey
-  })
-
-  return oreAccountName
-}
-
 /* Public */
 
-async function createOreAccount(password) {
-  // TODO Check for existing wallets, for name collisions
+async function createOreAccount(password, ownerPublicKey, options = {}) {
   const keys = await Keygen.generateMasterKeys()
-  const oreAccountName = await createOreAccountWithKeys.bind(this)(keys.publicKeys.owner, keys.publicKeys.active)
+  // TODO Check for existing wallets, for name collisions
+  const oreAccountName = await createOreAccountWithKeys.bind(this)(keys.publicKeys.active, ownerPublicKey, options)
 
   encryptKeys.bind(this)(keys, password)
 
-  return { oreAccountName, privateKeys: keys.privateKeys, publicKeys: keys.publicKeys }
+  return { oreAccountName, privateKey: keys.privateKeys.active, publicKey: keys.publicKeys.active }
 }
 
 async function createOreWallet(password, oreAccountName, encryptedAccountOwnerPrivateKey, encryptedAccountActivePrivateKey) {
@@ -71,6 +80,19 @@ async function createOreWallet(password, oreAccountName, encryptedAccountOwnerPr
   //Import both owner and acrtive keypairs (public and private)
   //Encrypt newWalletPassword with userAccountPassword => encryptedWalletPassword
   return { oreAccountName, encryptedWalletPassword }
+}
+
+function decrypt(encrypted, password) {
+  let bytes = CryptoJS.AES.decrypt(encrypted.toString(), password);
+  let unencrypted = bytes.toString(CryptoJS.enc.Utf8);
+
+  return unencrypted
+}
+
+function encrypt(unencrypted, password) {
+  let encrypted = CryptoJS.AES.encrypt(unencrypted, password);
+
+  return encrypted
 }
 
 async function getOreAccountContents(oreAccountName) {
@@ -89,6 +111,8 @@ async function unlockOreWallet(name, password) {
 module.exports = {
   createOreAccount,
   createOreWallet,
+  decrypt,
+  encrypt,
   getOreAccountContents,
   unlockOreWallet
 }

@@ -6,16 +6,36 @@
 const fs = require("fs")
 const {Keystore, Keygen} = require('eosjs-keygen')
 let orejs = require("../index").orejs()
+const contractDir = process.env.TOKEN_CONTRACT_DIR
 
-ACCOUNTS = {
+let WALLET_URL="http://localhost:8900"
+let ACCOUNTS = {
   'orejs': {keys: undefined},
-  'ore.cpu': {
+  'apiowner': {keys: undefined},
+  'apiuser': {keys: undefined},
+  'cpu.ore': {
     keys: undefined,
-    contractDir: process.env.TOKEN_CONTRACT_DIR
+    contractName: 'token_eos20'
   },
   'ore.ore': {
     keys: undefined,
-    contractDir: process.env.TOKEN_CONTRACT_DIR
+    contractName: 'token_eos20'
+  },
+  'instr.ore': {
+    keys: undefined,
+    contractName: 'ore.instrument'
+  },
+  'rights.ore': {
+    keys: undefined,
+    contractName: 'ore.rights_registry'
+  },
+  'usagelog.ore': {
+    keys: undefined,
+    contractName: 'ore.usage_log'
+  },
+  'manager.apim': {
+    keys: undefined,
+    contractName: 'apim.manager'
   }
 }
 
@@ -33,22 +53,23 @@ ACCOUNTS = {
   // Generate accounts with keys...
   for (accountName in ACCOUNTS) {
     try {
-      console.log("Creating account:", accountName)
       let accountData = ACCOUNTS[accountName]
       accountData.keys = await Keygen.generateMasterKeys()
 
       await orejs.eos.newaccount({
-        creator: orejs.config.oreAuthAccountName,
+        creator: orejs.config.orePayerAccountName,
         name: accountName,
         owner: accountData.keys.publicKeys.owner,
         active: accountData.keys.publicKeys.active
       })
 
-      importKeysCommands += `cleos wallet import ${accountData.keys.privateKeys.owner} -n orejs\n`
-      importKeysCommands += `cleos wallet import ${accountData.keys.privateKeys.active} -n orejs\n\n`
-      if (accountData.contractDir) {
-        deployContractsCommands += `cleos set contract ${accountName} ${accountData.contractDir} -p ${accountName}@active\n`
-        deployContractsCommands += `cleos set abi ${accountName} ${accountData.contractDir}/token_eos20.abi -p ${accountName}@active\n\n`
+      importKeysCommands += `echo \"-------> Import keys for ${accountName}\" \n`
+      importKeysCommands += `cleos --wallet-url=${WALLET_URL} wallet import ${accountData.keys.privateKeys.owner} -n orejs\n`
+      importKeysCommands += `cleos --wallet-url=${WALLET_URL} wallet import ${accountData.keys.privateKeys.active} -n orejs\n\n`
+      if (accountData.contractName) {
+        deployContractsCommands += `echo \"-------> Deploy contract for ${accountName}\" \n`
+        deployContractsCommands += `cleos --wallet-url=${WALLET_URL} set contract ${accountName} ${contractDir}/${accountData.contractName} -p ${accountName}@active\n`
+        deployContractsCommands += `cleos --wallet-url=${WALLET_URL} set abi ${accountName} ${contractDir}/${accountData.contractName}/${accountData.contractName}.abi -p ${accountName}@active\n\n`
       }
     } catch(err) {
     }

@@ -1,17 +1,21 @@
-const CONTRACT_NAME = 'token.eos2'
+const CPU_CONTRACT_NAME = 'cpu.ore'
 const TABLE_NAME = 'accounts'
 
 /* Public */
 
-async function approveCpu(oreAccountName, cpuAmount) {
+async function approveCpu(fromAccountName, toAccountName, cpuAmount) {
+  let options = {authorization: `${fromAccountName}@active`}
+  let contract = await this.eos.contract(CPU_CONTRACT_NAME, options)
+  await contract.approvemore(fromAccountName, toAccountName, cpuAmount, options)
 }
 
 async function getCpuBalance(oreAccountName) {
   const table_key = this.tableKey(oreAccountName)
-  const account = await this.findOne(CONTRACT_NAME, TABLE_NAME, table_key)
+  const account = await this.findOne(CPU_CONTRACT_NAME, TABLE_NAME, table_key)
   return account.balance
 }
 
 module.exports = {
+  approveCpu,
   getCpuBalance
 }

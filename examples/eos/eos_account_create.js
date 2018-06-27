@@ -8,7 +8,7 @@ const activePublicKey = process.argv[4] || ownerKey
 
 ;(async function() {
   const account = await orejs.eos.newaccount({
-    creator: orejs.config.oreAuthAccountName,
+    creator: orejs.config.orePayerAccountName,
     name: oreAccountName,
     owner: ownerPublicKey,
     active: activePublicKey
