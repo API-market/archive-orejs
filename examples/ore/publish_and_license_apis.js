@@ -16,10 +16,10 @@ async function connectAs(accountName, accountKey) {
   //process.env.ORE_PAYER_ACCOUNT_KEY = '5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3'
   process.env.ORE_PAYER_ACCOUNT_KEY = accountKey
   process.env.ORE_PAYER_ACCOUNT_NAME = accountName
-  console.log("Private Key:", process.env.ORE_PAYER_ACCOUNT_KEY)
-  console.log("Public Key:", ecc.privateToPublic(process.env.ORE_PAYER_ACCOUNT_KEY))
   // Reinitialize the orejs library, with permissions for the current account...
   orejs = require("../index").orejs()
+  console.log("Private Key:", process.env.ORE_PAYER_ACCOUNT_KEY)
+  console.log("Public Key:", ecc.privateToPublic(process.env.ORE_PAYER_ACCOUNT_KEY))
 }
 
 ;(async function () {
