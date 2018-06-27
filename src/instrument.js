@@ -30,7 +30,7 @@ async function exerciseInstrument(oreAccountName, offerInstrumentId) {
   // Save the resulting instruments with current user set as holder
   let options = {authorization: `${oreAccountName}@active`}
   let contract = await this.eos.contract(APIM_CONTRACT_NAME, options)
-  await contract.licenceapi(oreAccountName, offerInstrumentId, options)
+  await contract.licenseapi(oreAccountName, offerInstrumentId, options)
 }
 
 async function findInstruments(oreAccountName, activeOnly = true, category = undefined, rightName = undefined) {

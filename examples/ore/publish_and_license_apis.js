@@ -3,16 +3,21 @@
 // Usage: $ node ore/mint_tokens
 
 const fs = require("fs")
+const ecc = require("eosjs-ecc")
 let orejs = require("../index").orejs()
 
 const ONE_YEAR = 365 * 24 * 60 * 60 * 1000
 let accounts
 
-async function connectAs(accountName) {
+async function connectAs(accountName, accountKey) {
   let accountData = accounts[accountName]
-  process.env.ORE_PAYER_ACCOUNT_KEY = accountData.keys.privateKeys.active
+  //process.env.ORE_PAYER_ACCOUNT_KEY = accountData.keys.privateKeys.active
+  //process.env.ORE_PAYER_ACCOUNT_KEY = orejs.decrypt('U2FsdGVkX18xLuKXqyqMx4ycZWUFiYVypgiKz/eKR7ifaxNx2ZG/yAs8s00sS8kdDYsJvWaRZbhxw1akVt7GVlT1Yg27u0EYyFjHpJwmDAI=', "password")
+  //process.env.ORE_PAYER_ACCOUNT_KEY = '5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3'
+  process.env.ORE_PAYER_ACCOUNT_KEY = accountKey
   process.env.ORE_PAYER_ACCOUNT_NAME = accountName
-
+  console.log("Private Key:", process.env.ORE_PAYER_ACCOUNT_KEY)
+  console.log("Public Key:", ecc.privateToPublic(process.env.ORE_PAYER_ACCOUNT_KEY))
   // Reinitialize the orejs library, with permissions for the current account...
   orejs = require("../index").orejs()
 }
@@ -26,27 +31,27 @@ async function connectAs(accountName) {
   accounts = JSON.parse(fs.readFileSync('./tmp/keys.json'))
 
   //cleos push action manager.apim publishapi `[ "apiowner", "goodapi", ${OFFERS}]` -p apiowner@active
-  let accountName = 'apiowner'
+  let accountName = process.env.ORE_TESTA_ACCOUNT_NAME
   let contractName = 'manager.apim'
-  await connectAs(accountName)
+  await connectAs(accountName, process.env.ORE_TESTA_ACCOUNT_KEY)
 
   let instrument = {
-    apiName: 'goodapi',
-    description: "",
+    apiName: 'exampleapi',
+    description: "this is a very good api",
     rights: [
       {
         "theright": {
           "right_name": "some_right_2",
           "price_in_cpu": 10,
-          "issuer": "apiowner",
+          "issuer": accountName,
           "additional_url_params": [
             {
-              "name": "a",
-              "value":"5"
+              "name": "sla",
+              "value":"highAvailability"
             },
             {
-              "name": "b",
-              "value": "6"
+              "name": "region",
+              "value": "usWest"
             }
           ],
           "description": "Lol"
@@ -54,14 +59,23 @@ async function connectAs(accountName) {
         "urls": [
           {
             "url": "google.com",
-            "matches_params": [],
+            "method": "post",
+            "matches_params": [{"name": "sla", "value":"highAvailability"},{"name":"region", "value":"usWest"}],
             "token_life_span": 100,
             "is_default": 1
+          },
+          {
+            "url": "google.com",
+            "method": "post",
+            "matches_params": [{"name": "sla", "value":"highAvailability"},{"name":"region", "value":"usEast"}],
+            "token_life_span": 100,
+            "is_default": 0
           }
         ]
       }
     ]
   }
+
   await orejs.saveInstrument(accountName, instrument)
 
   //cleos get table manager.apim manager.apim offers
@@ -73,8 +87,8 @@ async function connectAs(accountName) {
   console.log("Offers:", offers)
 
   //cleos push action manager.apim licenceapi '["apiuser", 1]' -p apiuser
-  accountName = 'apiuser'
-  await connectAs(accountName)
+  accountName = process.env.ORE_TESTB_ACCOUNT_NAME
+  await connectAs(accountName, process.env.ORE_TESTB_ACCOUNT_KEY)
 
   await orejs.exerciseInstrument(accountName, 0)
 
