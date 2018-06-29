@@ -59,6 +59,13 @@ async function getTableRowsPage(params, lower_bound = 0, page_size = 20, json = 
   return resp;
 }
 
+async function keyProvider() {
+  if (this.config.keyProvider instanceof Array) {
+    return this.config.keyProvider[0]
+  }
+  return this.config.keyProvider
+}
+
 /* Public */
 
 // Find one row in a table
@@ -108,7 +115,7 @@ async function getAllTableRowsFiltered(params, filter, key_field="id") {
 }
 
 function signVoucher(apiVoucher) {
-  return ecc.sign(apiVoucher.id.toString(), this.config.keyProvider)
+  return ecc.sign(apiVoucher.id.toString(), this.keyProvider())
 }
 
 // Transform account names from base32 to their numeric representations
