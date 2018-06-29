@@ -13,8 +13,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
         while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
+            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [0, t.value];
             switch (op[0]) {
                 case 0: case 1: t = op; break;
                 case 4: _.label++; return { value: op[1], done: false };
@@ -33,13 +33,37 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var CONTRACT_NAME = 'token.eos2';
+var CPU_CONTRACT_NAME = 'cpu.ore';
 var TABLE_NAME = 'accounts';
 /* Public */
-function approveCpu(oreAccountName, cpuAmount) {
+function cpuContract(accountName) {
     return __awaiter(this, void 0, void 0, function () {
+        var options, contract;
         return __generator(this, function (_a) {
-            return [2 /*return*/];
+            switch (_a.label) {
+                case 0:
+                    options = { authorization: accountName + "@active" };
+                    return [4 /*yield*/, this.eos.contract(CPU_CONTRACT_NAME, options)];
+                case 1:
+                    contract = _a.sent();
+                    return [2 /*return*/, { contract: contract, options: options }];
+            }
+        });
+    });
+}
+function approveCpu(fromAccountName, toAccountName, cpuAmount) {
+    return __awaiter(this, void 0, void 0, function () {
+        var _a, contract, options;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0: return [4 /*yield*/, cpuContract.bind(this)(fromAccountName)];
+                case 1:
+                    _a = _b.sent(), contract = _a.contract, options = _a.options;
+                    return [4 /*yield*/, contract.approvemore(fromAccountName, toAccountName, cpuAmount, options)];
+                case 2:
+                    _b.sent();
+                    return [2 /*return*/];
+            }
         });
     });
 }
@@ -50,14 +74,37 @@ function getCpuBalance(oreAccountName) {
             switch (_a.label) {
                 case 0:
                     table_key = this.tableKey(oreAccountName);
-                    return [4 /*yield*/, this.findOne(CONTRACT_NAME, TABLE_NAME, table_key)];
+                    return [4 /*yield*/, this.findOne(CPU_CONTRACT_NAME, TABLE_NAME, table_key)];
                 case 1:
                     account = _a.sent();
-                    return [2 /*return*/, account.balance];
+                    if (account) {
+                        return [2 /*return*/, account.balance];
+                    }
+                    return [2 /*return*/, 0];
+            }
+        });
+    });
+}
+function transferCpu(fromAccountName, toAccountName, amount) {
+    return __awaiter(this, void 0, void 0, function () {
+        var _a, contract, options;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0: return [4 /*yield*/, cpuContract.bind(this)(fromAccountName)];
+                case 1:
+                    _a = _b.sent(), contract = _a.contract, options = _a.options;
+                    return [4 /*yield*/, contract.transfer(fromAccountName, toAccountName, amount, options)];
+                case 2:
+                    _b.sent();
+                    return [2 /*return*/];
             }
         });
     });
 }
 module.exports = {
-    getCpuBalance: getCpuBalance
+    approveCpu: approveCpu,
+    cpuContract: cpuContract,
+    getCpuBalance: getCpuBalance,
+    transferCpu: transferCpu
 };
+//# sourceMappingURL=cpu.js.map

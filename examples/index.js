@@ -8,7 +8,7 @@ function orejs() {
   return new Orejs({
     chainId: process.env.CHAIN_ID,
     httpEndpoint: process.env.ORE_NETWORK_URI,
-    keyProvider: process.env.ORE_PAYER_ACCOUNT_KEY,
+    keyProvider: [process.env.ORE_PAYER_ACCOUNT_KEY, process.env.ORE_OWNER_ACCOUNT_KEY],
     orePayerAccountName: process.env.ORE_PAYER_ACCOUNT_NAME,
     sign: true
   })

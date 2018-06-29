@@ -18,10 +18,12 @@ var Orejs = /** @class */ (function () {
     }
     Orejs.prototype.constructEos = function (config) {
         this.config = config;
-        this.eos = Object.assign(Eos.modules, Eos.Localnet(this.config));
+        this.eos = Object.assign(Eos.modules, Eos(this.config));
     };
     return Orejs;
 }());
 module.exports = {
+    ore: ore,
     Orejs: Orejs
 };
+//# sourceMappingURL=index.js.map

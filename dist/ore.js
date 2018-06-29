@@ -13,8 +13,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
         while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
+            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [0, t.value];
             switch (op[0]) {
                 case 0: case 1: t = op; break;
                 case 4: _.label++; return { value: op[1], done: false };
@@ -33,11 +33,58 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _a = require('eosjs-keygen'), Keystore = _a.Keystore, Keygen = _a.Keygen;
+//const ecc = require('eosjs-ecc')
+var Keygen = require('eosjs-keygen').Keygen;
 var base32 = require('base32.js');
 var CryptoJS = require("crypto-js");
 var ACCOUNT_NAME_MAX_LENGTH = 12;
 /* Private */
+function createOreAccountWithKeys(activePublicKey, ownerPublicKey, options) {
+    if (options === void 0) { options = {}; }
+    return __awaiter(this, void 0, void 0, function () {
+        var _this = this;
+        var oreAccountName, bytes, stake_net_quantity, stake_cpu_quantity, transfer;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    oreAccountName = options.oreAccountName || generateAccountName();
+                    bytes = options.bytes || 8192;
+                    stake_net_quantity = options.stake_net_quantity || 1;
+                    stake_cpu_quantity = options.stake_cpu_quantity || 1;
+                    transfer = options.transfer || 0;
+                    return [4 /*yield*/, this.eos.transaction(function (tr) {
+                            tr.newaccount({
+                                creator: _this.config.orePayerAccountName,
+                                name: oreAccountName,
+                                owner: ownerPublicKey,
+                                active: activePublicKey
+                            });
+                            tr.buyrambytes({
+                                payer: _this.config.orePayerAccountName,
+                                receiver: oreAccountName,
+                                bytes: bytes
+                            });
+                            tr.delegatebw({
+                                from: _this.config.orePayerAccountName,
+                                receiver: oreAccountName,
+                                stake_net_quantity: stake_net_quantity + ".0000 SYS",
+                                stake_cpu_quantity: stake_cpu_quantity + ".0000 SYS",
+                                transfer: transfer
+                            });
+                        })];
+                case 1:
+                    _a.sent();
+                    return [2 /*return*/, oreAccountName];
+            }
+        });
+    });
+}
+function encryptKeys(keys, password) {
+    this.encryptedWalletPassword = encrypt(keys.masterPrivateKey, password).toString();
+    keys.masterPrivateKey = this.encryptedWalletPassword;
+    keys.privateKeys.owner = encrypt(keys.privateKeys.owner, password).toString();
+    keys.privateKeys.active = encrypt(keys.privateKeys.active, password).toString();
+}
 function generateAccountName(encoding) {
     if (encoding === void 0) { encoding = { type: 'rfc4648', lc: true }; }
     // account names are generated based on the current unix timestamp
@@ -50,56 +97,23 @@ function generateAccountName(encoding) {
     var idx = encodedTimestamp.length - ACCOUNT_NAME_MAX_LENGTH;
     return encodedTimestamp.substr(idx, ACCOUNT_NAME_MAX_LENGTH);
 }
-function encrypt(unencrypted, password) {
-    var encrypted = CryptoJS.AES.encrypt(unencrypted, password);
-    return encrypted;
-}
-function decrypt(encrypted, password) {
-    var bytes = CryptoJS.AES.decrypt(encrypted.toString(), password);
-    var unencrypted = bytes.toString(CryptoJS.enc.Utf8);
-    return unencrypted;
-}
-function encryptKeys(keys, password) {
-    this.encryptedWalletPassword = encrypt(keys.masterPrivateKey, password).toString();
-    keys.masterPrivateKey = this.encryptedWalletPassword;
-    keys.privateKeys.owner = encrypt(keys.privateKeys.owner, password).toString();
-    keys.privateKeys.active = encrypt(keys.privateKeys.active, password).toString();
-}
-function createOreAccountWithKeys(ownerPublicKey, activePublicKey, oreAccountName) {
-    if (oreAccountName === void 0) { oreAccountName = generateAccountName(); }
-    return __awaiter(this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: 
-                // create a new user account on the ORE network with wallet and associate it with a user’s identity
-                return [4 /*yield*/, this.eos.newaccount({
-                        creator: this.config.oreAuthAccountName,
-                        name: oreAccountName,
-                        owner: ownerPublicKey,
-                        active: activePublicKey
-                    })];
-                case 1:
-                    // create a new user account on the ORE network with wallet and associate it with a user’s identity
-                    _a.sent();
-                    return [2 /*return*/, oreAccountName];
-            }
-        });
-    });
-}
 /* Public */
-function createOreAccount(password) {
+function createOreAccount(password, ownerPublicKey, options) {
+    if (options === void 0) { options = {}; }
     return __awaiter(this, void 0, void 0, function () {
         var keys, oreAccountName;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, Keygen.generateMasterKeys()];
+                case 0: return [4 /*yield*/, Keygen.generateMasterKeys()
+                    // TODO Check for existing wallets, for name collisions
+                ];
                 case 1:
                     keys = _a.sent();
-                    return [4 /*yield*/, createOreAccountWithKeys.bind(this)(keys.publicKeys.owner, keys.publicKeys.active)];
+                    return [4 /*yield*/, createOreAccountWithKeys.bind(this)(keys.publicKeys.active, ownerPublicKey, options)];
                 case 2:
                     oreAccountName = _a.sent();
                     encryptKeys.bind(this)(keys, password);
-                    return [2 /*return*/, { oreAccountName: oreAccountName, privateKeys: keys.privateKeys, publicKeys: keys.publicKeys }];
+                    return [2 /*return*/, { oreAccountName: oreAccountName, privateKey: keys.privateKeys.active, publicKey: keys.publicKeys.active }];
             }
         });
     });
@@ -115,6 +129,15 @@ function createOreWallet(password, oreAccountName, encryptedAccountOwnerPrivateK
             return [2 /*return*/, { oreAccountName: oreAccountName, encryptedWalletPassword: encryptedWalletPassword }];
         });
     });
+}
+function decrypt(encrypted, password) {
+    var bytes = CryptoJS.AES.decrypt(encrypted.toString(), password);
+    var unencrypted = bytes.toString(CryptoJS.enc.Utf8);
+    return unencrypted;
+}
+function encrypt(unencrypted, password) {
+    var encrypted = CryptoJS.AES.encrypt(unencrypted, password);
+    return encrypted;
 }
 function getOreAccountContents(oreAccountName) {
     return __awaiter(this, void 0, void 0, function () {
@@ -141,6 +164,9 @@ function unlockOreWallet(name, password) {
 module.exports = {
     createOreAccount: createOreAccount,
     createOreWallet: createOreWallet,
+    decrypt: decrypt,
+    encrypt: encrypt,
     getOreAccountContents: getOreAccountContents,
     unlockOreWallet: unlockOreWallet
 };
+//# sourceMappingURL=ore.js.map

@@ -13,8 +13,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
         while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
+            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [0, t.value];
             switch (op[0]) {
                 case 0: case 1: t = op; break;
                 case 4: _.label++; return { value: op[1], done: false };
@@ -33,82 +33,51 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var CONTRACT_NAME = 'ore.instrument';
-var TABLE_NAME = 'instruments';
-/* Mocks */
-var voucher = {
-    category: "apimarket.apiVoucher",
-    class: "apiVoucher.io.hadron.spacetelescope.201801021211212",
-    description: "Human-readable description (Hadron Spacetelescope Access - High Availability US West Datacenter)",
-    type: "pass",
-    options: {},
-    consideration: undefined,
-    benefit: undefined,
-    issuer: "uztcnztga3di",
-    startDate: undefined,
-    endDate: undefined,
-    rights: {
-        apiName: "io.hadron.spaceTelescope",
-        options: {
-            sla: "highAvailability",
-            region: "usWest"
-        },
-        priceInCPU: 0.1,
-        description: "Identify objects in image of deep space"
-    }
-};
-var offer = {
-    category: "apimarket.offer.licenseApi",
-    class: "apiVoucher.io.hadron.spacetelescope.201801021211212",
-    description: "Human-readable description (copied to the APIVouchers it creates)",
-    type: "pass",
-    options: {
-        apiName: "io.hadron.spaceTelescope",
-        sla: "default",
-        paymentModel: "payPerCall"
-    },
-    consideration: undefined,
-    benefit: undefined,
-    issuer: "uztcnztga3di",
-    startDate: undefined,
-    endDate: undefined,
-    rights: {
-        endpoint: "ore.contract.createApiVoucher",
-        options: {
-            action: "create"
-        },
-        priceInCPU: 0.1,
-        description: "Create API Voucher"
-    }
-};
+var APIM_CONTRACT_NAME = 'manager.apim';
+var INSTR_CONTRACT_NAME = 'instr.ore';
+var INSTR_TABLE_NAME = 'tokens';
+var ONE_YEAR = 365 * 24 * 60 * 60 * 1000;
 /* Private */
-function getAllInstruments(oreAccountName) {
-    return __awaiter(this, void 0, void 0, function () {
-        var table_key;
-        return __generator(this, function (_a) {
-            table_key = this.tableKey(oreAccountName);
-            // TODO Connect this to the instrument contract
-            //const rows = await this.findOne(CONTRACT_NAME, TABLE_NAME, table_key)
-            return [2 /*return*/, [offer, voucher]];
-        });
-    });
-}
-/* Public */
-function getInstruments(oreAccountName, category) {
-    if (category === void 0) { category = undefined; }
+function getAllInstruments(oreAccountName, additionalFilters) {
+    if (additionalFilters === void 0) { additionalFilters = []; }
     return __awaiter(this, void 0, void 0, function () {
         var rows;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, getAllInstruments.bind(this)(oreAccountName)];
+                case 0:
+                    additionalFilters.push({ owner: oreAccountName });
+                    return [4 /*yield*/, this.getAllTableRowsFiltered({
+                            code: INSTR_CONTRACT_NAME,
+                            table: INSTR_TABLE_NAME,
+                        }, additionalFilters)];
                 case 1:
                     rows = _a.sent();
-                    if (category) {
-                        return [2 /*return*/, rows.filter(function (row) {
-                                return row.category.indexOf(category) >= 0;
-                            })];
-                    }
                     return [2 /*return*/, rows];
+            }
+        });
+    });
+}
+function isActive(instrument) {
+    var startDate = instrument["instrument"]["start_time"];
+    var endDate = instrument["instrument"]["end_time"];
+    var currentDate = Date.now();
+    return (currentDate > startDate && currentDate < endDate);
+}
+/* Public */
+function exerciseInstrument(oreAccountName, offerInstrumentId) {
+    return __awaiter(this, void 0, void 0, function () {
+        var options, contract;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    options = { authorization: oreAccountName + "@active" };
+                    return [4 /*yield*/, this.eos.contract(APIM_CONTRACT_NAME, options)];
+                case 1:
+                    contract = _a.sent();
+                    return [4 /*yield*/, contract.licenseapi(oreAccountName, offerInstrumentId, options)];
+                case 2:
+                    _a.sent();
+                    return [2 /*return*/];
             }
         });
     });
@@ -118,38 +87,76 @@ function findInstruments(oreAccountName, activeOnly, category, rightName) {
     if (category === void 0) { category = undefined; }
     if (rightName === void 0) { rightName = undefined; }
     return __awaiter(this, void 0, void 0, function () {
-        var rows;
+        var filters, rows;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, getInstruments.bind(this)(oreAccountName, category)
-                    // TODO filter by activeOnly
-                    // TODO filter by rightName
-                ];
+                case 0:
+                    filters = [];
+                    if (activeOnly) {
+                        filters.push(function (row) {
+                            return isActive(row);
+                        });
+                    }
+                    if (rightName) {
+                        filters.push(function (row) {
+                            return getRight(row, rightName);
+                        });
+                    }
+                    return [4 /*yield*/, getInstruments.bind(this)(oreAccountName, category, filters)];
                 case 1:
                     rows = _a.sent();
-                    // TODO filter by activeOnly
-                    // TODO filter by rightName
                     return [2 /*return*/, rows];
             }
         });
     });
 }
-function saveInstrument(instrument) {
+function getInstruments(oreAccountName, category, filters) {
+    if (category === void 0) { category = undefined; }
+    if (filters === void 0) { filters = []; }
     return __awaiter(this, void 0, void 0, function () {
+        var rows;
         return __generator(this, function (_a) {
-            // Confirms that issuer in Instrument matches signature of transaction
-            // Creates an instrument token, populate with params, save to issuer account
-            // Saves endpoints to endpoints_published
-            return [2 /*return*/, instrument];
+            switch (_a.label) {
+                case 0:
+                    if (category) {
+                        filters.push(function (row) {
+                            return row["instrument"]["instrument_class"] === category;
+                        });
+                    }
+                    return [4 /*yield*/, getAllInstruments.bind(this)(oreAccountName, filters)];
+                case 1:
+                    rows = _a.sent();
+                    return [2 /*return*/, rows];
+            }
         });
     });
 }
-function exerciseInstrument(offerInstrumentId) {
+function getRight(instrument, rightName) {
+    var rights = instrument["instrument"]["rights"];
+    for (var i = 0; i < rights.length; i++) {
+        var right = rights[i];
+        if (right["right_name"] === rightName) {
+            return right;
+        }
+    }
+}
+function saveInstrument(oreAccountName, instrument) {
     return __awaiter(this, void 0, void 0, function () {
+        var options, contract;
         return __generator(this, function (_a) {
-            // Call the endpoint in the instrument, adding the options params (defined in the instrument), and passing in the considerations (required list of instruments)
-            // Save the resulting instruments with current user set as holder
-            return [2 /*return*/, voucher];
+            switch (_a.label) {
+                case 0:
+                    options = { authorization: oreAccountName + "@active" };
+                    return [4 /*yield*/, this.eos.contract(APIM_CONTRACT_NAME, options)];
+                case 1:
+                    contract = _a.sent();
+                    instrument.start_time = instrument.start_time || Date.now();
+                    instrument.end_time = instrument.end_time || Date.now() + ONE_YEAR;
+                    return [4 /*yield*/, contract.publishapi(oreAccountName, instrument.apiName, instrument.rights, instrument.description, instrument.start_time, instrument.end_time, options)];
+                case 2:
+                    _a.sent();
+                    return [2 /*return*/, instrument];
+            }
         });
     });
 }
@@ -157,5 +164,7 @@ module.exports = {
     exerciseInstrument: exerciseInstrument,
     findInstruments: findInstruments,
     getInstruments: getInstruments,
+    getRight: getRight,
     saveInstrument: saveInstrument
 };
+//# sourceMappingURL=instrument.js.map
