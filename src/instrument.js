@@ -91,7 +91,7 @@ async function exerciseInstrument(oreAccountName, offerInstrumentId) {
 
 async function getApiCallStats(rightName){
   //calls the usagelog contract to get the total number of calls against a particular right
-  let calls = await eos.getAllTableRows({
+  let calls = await this.eos.getAllTableRows({
     code: INSTR_USAGE_CONTRACT_NAME,
     table: LOG_TABLE_NAME
   })
