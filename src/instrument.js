@@ -103,10 +103,22 @@ async function getApiCallStats(rightName){
   }
 }
 
+// Function name may be changed
+async function setRightsInRegistry(oreAccountName, right) {
+  // Enables the rights issuers add & modify rights, seperately from instruments
+  let options = {authorization: `${oreAccountName}@active`}
+  let contract = await this.eos.contract(RIGHT_CONTRACT_NAME, options)
+
+  // upsertright(account_name issuer, string &right_name, vector<ore_types::endpoint_url> urls, vector<account_name> issuer_whitelist)
+  await contract.upsertright(oreAccountName, right.right_name, right.urls, right.issuer_whitelist)
+  return right
+}
+
 module.exports = {
   exerciseInstrument,
   findInstruments,
   getInstruments,
   saveInstrument,
-  getApiCallStats
+  getApiCallStats,
+  setRightsInRegistry
 }
