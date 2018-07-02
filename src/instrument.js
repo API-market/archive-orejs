@@ -1,7 +1,9 @@
 const APIM_CONTRACT_NAME = 'manager.apim'
 const INSTR_CONTRACT_NAME = 'instr.ore'
 const INSTR_USAGE_CONTRACT_NAME = 'usagelog.ore'
-const TABLE_NAME = 'instruments'
+const INSTR_TABLE_NAME = 'tokens'
+const LOG_TABLE_NAME = 'callcount'
+
 const ONE_YEAR = 365 * 24 * 60 * 60 * 1000
 
 /* Private */
@@ -11,7 +13,7 @@ async function getAllInstruments(oreAccountName, additionalFilters = []) {
 
   const rows = await this.getAllTableRowsFiltered({
     code: INSTR_CONTRACT_NAME,
-    table: 'tokens',
+    table: INSTR_TABLE_NAME,
   }, additionalFilters )
 
   return rows
@@ -71,8 +73,7 @@ async function saveInstrument(oreAccountName, instrument) {
   // Saves endpoints to endpoints_published
   let options = {authorization: `${oreAccountName}@active`}
   let contract = await this.eos.contract(APIM_CONTRACT_NAME, options)
-  let start_time = Date.now()
-  let end_time = Date.now() + ONE_YEAR
+
   await contract.publishapi(oreAccountName, instrument.apiName, instrument.rights, instrument.description, start_time, end_time, options)
 
   return instrument
@@ -88,30 +89,16 @@ async function exerciseInstrument(oreAccountName, offerInstrumentId) {
   return voucher
 }
 
-async function getAPiCallCount(rightName){
+async function getApiCallStats(rightName){
   //calls the usagelog contract to get the total number of calls against a particular right
-  let options = {authorization: `${oreAccountName}@active`}
   let calls = await eos.getAllTableRows({
     code: INSTR_USAGE_CONTRACT_NAME,
-    table: "callcount"
+    table: LOG_TABLE_NAME
   })
   for (var i = 0; i < calls.length; i++) {
     if (calls[i]["right_name"] === rightName) {
-      return calls[i]["total_count"]
-    }
-  }
-}
-
-async function getCpuUsage(rightName){
-  //calls the usage log contraxct to get the total cpu payment for a particular right
-  let options = {authorization: `${oreAccountName}@active`}
-  let calls = await eos.getAllTableRows({
-    code: INSTR_USAGE_CONTRACT_NAME,
-    table: "callcount"
-  })
-  for (var i = 0; i < calls.length; i++) {
-    if (calls[i]["right_name"] === rightName) {
-      return calls[i]["total_cpu"]
+      const rightProprties = {"totalCalls": calls[i]["total_count"], "totalCpuUsage": calls[i]["total_cpu"]}
+      return rightProprties
     }
   }
 }
@@ -121,6 +108,5 @@ module.exports = {
   findInstruments,
   getInstruments,
   saveInstrument,
-  getAPiCallCount,
-  getCpuUsage
+  getApiCallStats
 }
