@@ -44,7 +44,7 @@ function filterRows(rows, filter) {
   return result
 }
 
-async function getTableRowsPage(params, lower_bound = 0, page_size = 20, json = true) {
+async function getTableRowsPage(params, lower_bound = 0, page_size = -1, json = true) {
   params = { ...params,
     json: json,
     lower_bound: params.lower_bound || lower_bound,
