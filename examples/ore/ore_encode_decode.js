@@ -1,5 +1,5 @@
 const fs = require("fs")
-let {orejs, ore, walletPassword} = require("../index")
+let {orejs, walletPassword} = require("../index")
 
 orejs = orejs()
 
@@ -11,9 +11,9 @@ const USER = 'apiowner'
   console.log("Account Data:", accountData)
 
   let privateKey = accountData.keys.privateKeys.active
-  let encryptedKey = ore.encrypt(privateKey, walletPassword).toString()
+  let encryptedKey = orejs.encrypt(privateKey, walletPassword).toString()
   console.log("Encrypted Key:", encryptedKey)
 
-  let decryptedKey = ore.decrypt(encryptedKey, walletPassword).toString()
+  let decryptedKey = orejs.decrypt(encryptedKey, walletPassword).toString()
   console.log("Decrypted Key Matches:", decryptedKey == privateKey)
 })()

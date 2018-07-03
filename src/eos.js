@@ -68,6 +68,12 @@ async function keyProvider() {
 
 /* Public */
 
+async function contract(contractName, accountName) {
+  let options = {authorization: `${accountName}@active`}
+  let contract = await this.eos.contract(contractName, options)
+  return { contract, options }
+}
+
 // Find one row in a table
 async function findOne(contractName, tableName, tableKey) {
   let results = await this.eos.getTableRows({
@@ -124,6 +130,7 @@ function tableKey(oreAccountName) {
 }
 
 module.exports = {
+  contract,
   findOne,
   getAllTableRows,
   getAllTableRowsFiltered,

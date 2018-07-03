@@ -71,10 +71,9 @@ async function saveInstrument(oreAccountName, instrument) {
   // Confirms that issuer in Instrument matches signature of transaction
   // Creates an instrument token, populate with params, save to issuer account
   // Saves endpoints to endpoints_published
-  let options = {authorization: `${oreAccountName}@active`}
-  let contract = await this.eos.contract(APIM_CONTRACT_NAME, options)
+  let {contract, options} = await this.contract(APIM_CONTRACT_NAME, oreAccountName)
 
-  await contract.publishapi(oreAccountName, instrument.apiName, instrument.rights, instrument.description, start_time, end_time, options)
+  await contract.publishapi(oreAccountName, instrument.apiName, instrument.rights, instrument.description, instrument.start_time, instrument.end_time, options)
 
   return instrument
 }
@@ -106,8 +105,7 @@ async function getApiCallStats(rightName){
 // Function name may be changed
 async function setRightsInRegistry(oreAccountName, right) {
   // Enables the rights issuers add & modify rights, seperately from instruments
-  let options = {authorization: `${oreAccountName}@active`}
-  let contract = await this.eos.contract(RIGHT_CONTRACT_NAME, options)
+  let {contract, options} = await this.contract(RIGHT_CONTRACT_NAME, oreAccountName)
 
   // upsertright(account_name issuer, string &right_name, vector<ore_types::endpoint_url> urls, vector<account_name> issuer_whitelist)
   await contract.upsertright(oreAccountName, right.right_name, right.urls, right.issuer_whitelist)

@@ -1,8 +1,10 @@
 Eos = require('eosjs')
-const cpu = require('./cpu')
+const accounts = require('./accounts')
 const eos = require('./eos')
 const instrument = require('./instrument')
-const ore = require('./ore')
+const token = require('./token')
+const cpu = require('./tokens/cpu')
+const ore = require('./tokens/ore')
 
 // THE ORE Network Chain ID
 const CHAIN_ID = "cf057bbfb72640471fd910bcb67639c22df9f92470936cddc1ade0e2f2e7dc4f"
@@ -14,10 +16,12 @@ class Orejs {
     this.constructEos(config)
 
     /* Mixins */
+    Object.assign(this, accounts)
     Object.assign(this, cpu)
     Object.assign(this, eos)
     Object.assign(this, instrument)
     Object.assign(this, ore)
+    Object.assign(this, token)
   }
 
   constructEos(config) {
@@ -27,6 +31,5 @@ class Orejs {
 }
 
 module.exports = {
-  ore,
   Orejs
 }
