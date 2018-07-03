@@ -28,9 +28,8 @@ TOKENS = [
 
     // Reinitialize the orejs library, with permissions for the current account...
     orejs = require("../index").orejs()
-    let options = {authorization: `${tokenName}@active`}
-
-    const contract = await orejs.eos.contract(tokenName, options)
+    
+    const {contract, options} = await orejs.contract(tokenName, tokenName)
     //console.log("Contract:", contract)
 
     for (accountName in accounts) {

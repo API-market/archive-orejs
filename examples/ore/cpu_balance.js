@@ -1,7 +1,7 @@
 const fs = require("fs")
 let orejs = require("../index").orejs()
 
-const USER = 'iztgojtge3ts'
+const USER = 'a4tcmbvgeyta'
 const CPU_CONTRACT_NAME = 'cpu.ore'
 
 ;(async function() {

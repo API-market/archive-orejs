@@ -4,7 +4,7 @@ let orejs = require("../index").orejs()
 const FROM = 'apiuser'
 const BROKER = 'orejs' // The account making the transaction
 const TO = 'apiowner'
-const CPU_CONTRACT_NAME = 'cpu.ore'
+const CPU_CONTRACT_NAME = 'cpu'
 let accounts, cpuContract, options
 
 async function logBalances() {
@@ -22,9 +22,8 @@ async function connectAs(accountName) {
   // Reinitialize the orejs library, with permissions for the current account...
   orejs = require("../index").orejs()
 
-  options = {authorization: `${accountName}@active`}
-  cpuContract = await orejs.eos.contract(CPU_CONTRACT_NAME, options)
-  return cpuContract
+  let {contract, options} = await orejs.contract(CPU_CONTRACT_NAME, accountName)
+  return contract
 }
 
 ;(async function() {
