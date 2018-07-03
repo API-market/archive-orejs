@@ -73,7 +73,7 @@ async function saveInstrument(oreAccountName, instrument) {
   // Saves endpoints to endpoints_published
   let {contract, options} = await this.contract(APIM_CONTRACT_NAME, oreAccountName)
 
-  await contract.publishapi(oreAccountName, instrument.apiName, instrument.rights, instrument.description, start_time, end_time, options)
+  await contract.publishapi(oreAccountName, instrument.apiName, instrument.rights, instrument.description, instrument.start_time, instrument.end_time, options)
 
   return instrument
 }
