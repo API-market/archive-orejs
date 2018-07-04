@@ -67,25 +67,14 @@ async function findInstruments(oreAccountName, activeOnly = true, category = und
   return rows
 }
 
-async function saveInstrument(oreAccountName, instrument) {
+async function createInstrument(instrumentCreatorAccountName, instrumentOwnerAccountName, instrumentData) {
   // Confirms that issuer in Instrument matches signature of transaction
   // Creates an instrument token, populate with params, save to issuer account
-  // Saves endpoints to endpoints_published
-  let {contract, options} = await this.contract(APIM_CONTRACT_NAME, oreAccountName)
+  let {contract, options} = await this.contract(INSTR_CONTRACT_NAME, instrumentCreatorAccountName)
 
-  await contract.publishapi(oreAccountName, instrument.apiName, instrument.rights, instrument.description, instrument.start_time, instrument.end_time, options)
+  const instrument = await contract.mint({"minter":instrumentCreatorAccountName, "owner":instrumentOwnerAccountName, "instrument":instrumentData})
 
   return instrument
-}
-
-async function exerciseInstrument(oreAccountName, offerInstrumentId) {
-  // Call the endpoint in the instrument, adding the options params (defined in the instrument), and passing in the considerations (required list of instruments)
-  // Save the resulting instruments with current user set as holder
-  let options = {authorization: `${oreAccountName}@active`}
-  let contract = await this.eos.contract(APIM_CONTRACT_NAME, options)
-  let voucher = await contract.licenceapi(oreAccountName, offerInstrumentId, options)
-
-  return voucher
 }
 
 async function getApiCallStats(rightName){
@@ -102,21 +91,27 @@ async function getApiCallStats(rightName){
   }
 }
 
-// Function name may be changed
-async function setRightsInRegistry(oreAccountName, right) {
-  // Enables the rights issuers add & modify rights, seperately from instruments
-  let {contract, options} = await this.contract(RIGHT_CONTRACT_NAME, oreAccountName)
+async function createOfferInstrument(oreAccountName, offerInstrumentData){
+  // Create an offer
+  let options = {authorization: `${oreAccountName}@owner`}
+  let contract  = await this.eos.contract(APIM_CONTRACT_NAME)
+  let instrument = await contract.publishapi(oreAccountName, offerInstrumentData.issuer, offerInstrumentData.api_name,offerInstrumentData.additional_api_params, offerInstrumentData.api_payment_model, offerInstrumentData.api_price_in_cpu, offerInstrumentData.license_price_in_cpu, offerInstrumentData.api_description, offerInstrumentData.right_registry, offerInstrumentData.start_time, offerInstrumentData.end_time,options)
+  return instrument
+}
 
-  // upsertright(account_name issuer, string &right_name, vector<ore_types::endpoint_url> urls, vector<account_name> issuer_whitelist)
-  await contract.upsertright(oreAccountName, right.right_name, right.urls, right.issuer_whitelist)
-  return right
+async function createVoucherInstrument(oreAccountName, buyer, offerId){
+  //Exercise an offer to get a voucher
+  let options = {authorization: `${oreAccountName}@owner`}
+  let contract = await this.eos.contract(APIM_CONTRACT_NAME, options)
+  let instrument = await contract.licenseapi(oreAccountName, buyer, offerId)
+  return instrument
 }
 
 module.exports = {
-  exerciseInstrument,
   findInstruments,
   getInstruments,
-  saveInstrument,
   getApiCallStats,
-  setRightsInRegistry
+  createInstrument,
+  createOfferInstrument,
+  createVoucherInstrument,
 }
