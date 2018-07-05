@@ -12,7 +12,7 @@ const rightRegistry = require('./rightsregistry')
 
 class Orejs {
   constructor(config = {}) {
-    config.chainId = config.chainId 
+    config.chainId = config.chainId
 
     this.constructEos(config)
 
@@ -22,8 +22,8 @@ class Orejs {
     Object.assign(this, eos)
     Object.assign(this, instrument)
     Object.assign(this, ore)
-    Object.assign(this, token)
     Object.assign(this, rightRegistry)
+    Object.assign(this, token)
   }
 
   constructEos(config) {
