@@ -72,7 +72,7 @@ async function createInstrument(instrumentCreatorAccountName, instrumentOwnerAcc
   // Creates an instrument token, populate with params, save to issuer account
   let {contract, options} = await this.contract(INSTR_CONTRACT_NAME, instrumentCreatorAccountName)
 
-  const instrument = await contract.mint({"minter":instrumentCreatorAccountName, "owner":instrumentOwnerAccountName, "instrument":instrumentData})
+  const instrument = await contract.mint({"minter":instrumentCreatorAccountName, "owner":instrumentOwnerAccountName, "instrument":instrumentData}, options)
 
   return instrument
 }
@@ -94,14 +94,14 @@ async function getApiCallStats(rightName){
 async function createOfferInstrument(oreAccountName, offerInstrumentData){
   // Create an offer
   let {contract, options} = await this.contract(APIM_CONTRACT_NAME, oreAccountName)
-  let instrument = await contract.publishapi(oreAccountName, offerInstrumentData.issuer, offerInstrumentData.api_name,offerInstrumentData.additional_api_params, offerInstrumentData.api_payment_model, offerInstrumentData.api_price_in_cpu, offerInstrumentData.license_price_in_cpu, offerInstrumentData.api_description, offerInstrumentData.right_registry, offerInstrumentData.start_time, offerInstrumentData.end_time,options)
+  let instrument = await contract.publishapi(oreAccountName, offerInstrumentData.issuer, offerInstrumentData.api_name,offerInstrumentData.additional_api_params, offerInstrumentData.api_payment_model, offerInstrumentData.api_price_in_cpu, offerInstrumentData.license_price_in_cpu, offerInstrumentData.api_description, offerInstrumentData.right_registry, offerInstrumentData.start_time, offerInstrumentData.end_time, options)
   return instrument
 }
 
 async function createVoucherInstrument(oreAccountName, buyer, offerId){
   //Exercise an offer to get a voucher
   let {contract, options} = await this.contract(APIM_CONTRACT_NAME, oreAccountName)
-  let instrument = await contract.licenseapi(oreAccountName, buyer, offerId)
+  let instrument = await contract.licenseapi(oreAccountName, buyer, offerId, options)
   return instrument
 }
 
