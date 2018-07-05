@@ -77,19 +77,21 @@ async function createInstrument(instrumentCreatorAccountName, instrumentOwnerAcc
   return instrument
 }
 
-async function getApiCallStats(rightName){
+async function getApiCallStats(instrumentId, rightName){
   //calls the usagelog contract to get the total number of calls against a particular right
-  let calls = await this.eos.getAllTableRows({
+  let result = await this.eos.getAllTableRows({
     code: INSTR_USAGE_CONTRACT_NAME,
-    table: LOG_TABLE_NAME
+    table: LOG_TABLE_NAME,
+    scope: instrumentId // new scoping
   })
-  for (var i = 0; i < calls.length; i++) {
-    if (calls[i]["right_name"] === rightName) {
+  for (var i = 0; i < result.rows.length; i++) {
+    if ( result.rows[i]["right_name"] === rightName) {
       const rightProprties = {"totalCalls": calls[i]["total_count"], "totalCpuUsage": calls[i]["total_cpu"]}
       return rightProprties
     }
   }
 }
+
 
 async function createOfferInstrument(oreAccountName, offerInstrumentData){
   // Create an offer
