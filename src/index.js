@@ -5,7 +5,7 @@ const instrument = require('./instrument')
 const token = require('./token')
 const cpu = require('./tokens/cpu')
 const ore = require('./tokens/ore')
-const rightRegistry = require('./rightsregistry')
+const rightsRegistry = require('./rightsregistry')
 
 class Orejs {
   constructor(config = {}) {
@@ -18,7 +18,7 @@ class Orejs {
     Object.assign(this, eos)
     Object.assign(this, instrument)
     Object.assign(this, ore)
-    Object.assign(this, rightRegistry)
+    Object.assign(this, rightsRegistry)
     Object.assign(this, token)
   }
 
