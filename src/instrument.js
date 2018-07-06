@@ -72,38 +72,38 @@ async function createInstrument(instrumentCreatorAccountName, instrumentOwnerAcc
   // Creates an instrument token, populate with params, save to issuer account
   let {contract, options} = await this.contract(INSTR_CONTRACT_NAME, instrumentCreatorAccountName)
 
-  const instrument = await contract.mint({"minter":instrumentCreatorAccountName, "owner":instrumentOwnerAccountName, "instrument":instrumentData})
+  const instrument = await contract.mint({"minter":instrumentCreatorAccountName, "owner":instrumentOwnerAccountName, "instrument":instrumentData}, options)
 
   return instrument
 }
 
-async function getApiCallStats(rightName){
+async function getApiCallStats(instrumentId, rightName){
   //calls the usagelog contract to get the total number of calls against a particular right
-  let calls = await this.eos.getAllTableRows({
+  let result = await this.eos.getAllTableRows({
     code: INSTR_USAGE_CONTRACT_NAME,
-    table: LOG_TABLE_NAME
+    table: LOG_TABLE_NAME,
+    scope: instrumentId // new scoping
   })
-  for (var i = 0; i < calls.length; i++) {
-    if (calls[i]["right_name"] === rightName) {
+  for (var i = 0; i < result.rows.length; i++) {
+    if ( result.rows[i]["right_name"] === rightName) {
       const rightProprties = {"totalCalls": calls[i]["total_count"], "totalCpuUsage": calls[i]["total_cpu"]}
       return rightProprties
     }
   }
 }
 
+
 async function createOfferInstrument(oreAccountName, offerInstrumentData){
   // Create an offer
-  let options = {authorization: `${oreAccountName}@owner`}
-  let contract  = await this.eos.contract(APIM_CONTRACT_NAME)
-  let instrument = await contract.publishapi(oreAccountName, offerInstrumentData.issuer, offerInstrumentData.api_name,offerInstrumentData.additional_api_params, offerInstrumentData.api_payment_model, offerInstrumentData.api_price_in_cpu, offerInstrumentData.license_price_in_cpu, offerInstrumentData.api_description, offerInstrumentData.right_registry, offerInstrumentData.start_time, offerInstrumentData.end_time,options)
+  let {contract, options} = await this.contract(APIM_CONTRACT_NAME, oreAccountName)
+  let instrument = await contract.publishapi(oreAccountName, offerInstrumentData.issuer, offerInstrumentData.api_name,offerInstrumentData.additional_api_params, offerInstrumentData.api_payment_model, offerInstrumentData.api_price_in_cpu, offerInstrumentData.license_price_in_cpu, offerInstrumentData.api_description, offerInstrumentData.right_registry, offerInstrumentData.start_time, offerInstrumentData.end_time, options)
   return instrument
 }
 
 async function createVoucherInstrument(oreAccountName, buyer, offerId){
   //Exercise an offer to get a voucher
-  let options = {authorization: `${oreAccountName}@owner`}
-  let contract = await this.eos.contract(APIM_CONTRACT_NAME, options)
-  let instrument = await contract.licenseapi(oreAccountName, buyer, offerId)
+  let {contract, options} = await this.contract(APIM_CONTRACT_NAME, oreAccountName)
+  let instrument = await contract.licenseapi(oreAccountName, buyer, offerId, options)
   return instrument
 }
 
