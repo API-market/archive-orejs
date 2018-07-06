@@ -13,8 +13,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
         while (_) try {
-            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [0, t.value];
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
                 case 0: case 1: t = op; break;
                 case 4: _.label++; return { value: op[1], done: false };
@@ -35,7 +35,9 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 var APIM_CONTRACT_NAME = 'manager.apim';
 var INSTR_CONTRACT_NAME = 'instr.ore';
+var INSTR_USAGE_CONTRACT_NAME = 'usagelog.ore';
 var INSTR_TABLE_NAME = 'tokens';
+var LOG_TABLE_NAME = 'callcount';
 var ONE_YEAR = 365 * 24 * 60 * 60 * 1000;
 /* Private */
 function getAllInstruments(oreAccountName, additionalFilters) {
@@ -57,27 +59,39 @@ function getAllInstruments(oreAccountName, additionalFilters) {
         });
     });
 }
+function getRight(instrument, rightName) {
+    var rights = instrument["instrument"]["rights"];
+    for (var i = 0; i < rights.length; i++) {
+        var right = rights[i];
+        if (right["right_name"] === rightName) {
+            return right;
+        }
+    }
+}
 function isActive(instrument) {
-    var startDate = instrument["instrument"]["start_time"];
-    var endDate = instrument["instrument"]["end_time"];
-    var currentDate = Date.now();
-    return (currentDate > startDate && currentDate < endDate);
+    var startTime = instrument["instrument"]["start_time"];
+    var endTime = instrument["instrument"]["end_time"];
+    var currentTime = Math.floor(Date.now() / 1000);
+    return (currentTime > startTime && currentTime < endTime);
 }
 /* Public */
-function exerciseInstrument(oreAccountName, offerInstrumentId) {
+function getInstruments(oreAccountName, category, filters) {
+    if (category === void 0) { category = undefined; }
+    if (filters === void 0) { filters = []; }
     return __awaiter(this, void 0, void 0, function () {
-        var options, contract;
+        var rows;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    options = { authorization: oreAccountName + "@active" };
-                    return [4 /*yield*/, this.eos.contract(APIM_CONTRACT_NAME, options)];
+                    if (category) {
+                        filters.push(function (row) {
+                            return row["instrument"]["instrument_class"] === category;
+                        });
+                    }
+                    return [4 /*yield*/, getAllInstruments.bind(this)(oreAccountName, filters)];
                 case 1:
-                    contract = _a.sent();
-                    return [4 /*yield*/, contract.licenseapi(oreAccountName, offerInstrumentId, options)];
-                case 2:
-                    _a.sent();
-                    return [2 /*return*/];
+                    rows = _a.sent();
+                    return [2 /*return*/, rows];
             }
         });
     });
@@ -110,61 +124,87 @@ function findInstruments(oreAccountName, activeOnly, category, rightName) {
         });
     });
 }
-function getInstruments(oreAccountName, category, filters) {
-    if (category === void 0) { category = undefined; }
-    if (filters === void 0) { filters = []; }
+function createInstrument(instrumentCreatorAccountName, instrumentOwnerAccountName, instrumentData) {
     return __awaiter(this, void 0, void 0, function () {
-        var rows;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    if (category) {
-                        filters.push(function (row) {
-                            return row["instrument"]["instrument_class"] === category;
-                        });
-                    }
-                    return [4 /*yield*/, getAllInstruments.bind(this)(oreAccountName, filters)];
+        var _a, contract, options, instrument;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0: return [4 /*yield*/, this.contract(INSTR_CONTRACT_NAME, instrumentCreatorAccountName)];
                 case 1:
-                    rows = _a.sent();
-                    return [2 /*return*/, rows];
+                    _a = _b.sent(), contract = _a.contract, options = _a.options;
+                    return [4 /*yield*/, contract.mint({ "minter": instrumentCreatorAccountName, "owner": instrumentOwnerAccountName, "instrument": instrumentData }, options)];
+                case 2:
+                    instrument = _b.sent();
+                    return [2 /*return*/, instrument];
             }
         });
     });
 }
-function getRight(instrument, rightName) {
-    var rights = instrument["instrument"]["rights"];
-    for (var i = 0; i < rights.length; i++) {
-        var right = rights[i];
-        if (right["right_name"] === rightName) {
-            return right;
-        }
-    }
-}
-function saveInstrument(oreAccountName, instrument) {
+function getApiCallStats(instrumentId, rightName) {
     return __awaiter(this, void 0, void 0, function () {
-        var options, contract;
+        var result, i, rightProprties;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, this.eos.getAllTableRows({
+                        code: INSTR_USAGE_CONTRACT_NAME,
+                        table: LOG_TABLE_NAME,
+                        scope: instrumentId // new scoping
+                    })];
+                case 1:
+                    result = _a.sent();
+                    for (i = 0; i < result.rows.length; i++) {
+                        if (result.rows[i]["right_name"] === rightName) {
+                            rightProprties = { "totalCalls": calls[i]["total_count"], "totalCpuUsage": calls[i]["total_cpu"] };
+                            return [2 /*return*/, rightProprties];
+                        }
+                    }
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+function createOfferInstrument(oreAccountName, offerInstrumentData) {
+    return __awaiter(this, void 0, void 0, function () {
+        var options, contract, instrument;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    options = { authorization: oreAccountName + "@active" };
+                    options = { authorization: oreAccountName + "@owner" };
                     return [4 /*yield*/, this.eos.contract(APIM_CONTRACT_NAME, options)];
                 case 1:
                     contract = _a.sent();
-                    instrument.start_time = instrument.start_time || Date.now();
-                    instrument.end_time = instrument.end_time || Date.now() + ONE_YEAR;
-                    return [4 /*yield*/, contract.publishapi(oreAccountName, instrument.apiName, instrument.rights, instrument.description, instrument.start_time, instrument.end_time, options)];
+                    return [4 /*yield*/, contract.publishapi(oreAccountName, offerInstrumentData.issuer, offerInstrumentData.api_name, offerInstrumentData.additional_api_params, offerInstrumentData.api_payment_model, offerInstrumentData.api_price_in_cpu, offerInstrumentData.license_price_in_cpu, offerInstrumentData.api_description, offerInstrumentData.right_registry, offerInstrumentData.start_time, offerInstrumentData.end_time, options)];
                 case 2:
-                    _a.sent();
+                    instrument = _a.sent();
+                    return [2 /*return*/, instrument];
+            }
+        });
+    });
+}
+function createVoucherInstrument(oreAccountName, buyer, offerId) {
+    return __awaiter(this, void 0, void 0, function () {
+        var options, contract, instrument;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    options = { authorization: oreAccountName + "@owner" };
+                    return [4 /*yield*/, this.eos.contract(APIM_CONTRACT_NAME, options)];
+                case 1:
+                    contract = _a.sent();
+                    return [4 /*yield*/, contract.licenseapi(oreAccountName, buyer, offerId, options)];
+                case 2:
+                    instrument = _a.sent();
                     return [2 /*return*/, instrument];
             }
         });
     });
 }
 module.exports = {
-    exerciseInstrument: exerciseInstrument,
     findInstruments: findInstruments,
     getInstruments: getInstruments,
-    getRight: getRight,
-    saveInstrument: saveInstrument
+    getApiCallStats: getApiCallStats,
+    createInstrument: createInstrument,
+    createOfferInstrument: createOfferInstrument,
+    createVoucherInstrument: createVoucherInstrument,
 };
 //# sourceMappingURL=instrument.js.map

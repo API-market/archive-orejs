@@ -21,8 +21,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
         while (_) try {
-            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [0, t.value];
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
                 case 0: case 1: t = op; break;
                 case 4: _.label++; return { value: op[1], done: false };
@@ -85,7 +85,7 @@ function filterRows(rows, filter) {
 }
 function getTableRowsPage(params, lower_bound, page_size, json) {
     if (lower_bound === void 0) { lower_bound = 0; }
-    if (page_size === void 0) { page_size = 20; }
+    if (page_size === void 0) { page_size = -1; }
     if (json === void 0) { json = true; }
     return __awaiter(this, void 0, void 0, function () {
         var resp;
@@ -114,6 +114,21 @@ function keyProvider() {
     });
 }
 /* Public */
+function contract(contractName, accountName) {
+    return __awaiter(this, void 0, void 0, function () {
+        var options, contract;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    options = { authorization: accountName + "@active" };
+                    return [4 /*yield*/, this.eos.contract(contractName, options)];
+                case 1:
+                    contract = _a.sent();
+                    return [2 /*return*/, { contract: contract, options: options }];
+            }
+        });
+    });
+}
 // Find one row in a table
 function findOne(contractName, tableName, tableKey) {
     return __awaiter(this, void 0, void 0, function () {
@@ -191,6 +206,7 @@ function tableKey(oreAccountName) {
     return new BigNumber(this.eos.format.encodeName(oreAccountName, false));
 }
 module.exports = {
+    contract: contract,
     findOne: findOne,
     getAllTableRows: getAllTableRows,
     getAllTableRowsFiltered: getAllTableRowsFiltered,
