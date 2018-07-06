@@ -7,16 +7,10 @@ const ecc = require("eosjs-ecc")
 let orejs = require("../index").orejs()
 
 const ONE_YEAR = 365 * 24 * 60 * 60 * 1000
-let accounts
 
 async function connectAs(accountName, accountKey) {
-  let accountData = accounts[accountName]
-  process.env.ORE_PAYER_ACCOUNT_KEY = accountKey
-  process.env.ORE_PAYER_ACCOUNT_NAME = accountName
   // Reinitialize the orejs library, with permissions for the current account...
-  orejs = require("../index").orejs()
-  console.log("Private Key:", process.env.ORE_PAYER_ACCOUNT_KEY)
-  console.log("Public Key:", ecc.privateToPublic(process.env.ORE_PAYER_ACCOUNT_KEY))
+  orejs = require("../index").orejs(accountName, accountKey)
 }
 
 ;(async function () {
@@ -25,15 +19,12 @@ async function connectAs(accountName, accountKey) {
   console.log("Connecting to chain:", info.chain_id, "...")
   process.env.CHAIN_ID = info.chain_id
 
-  accounts = JSON.parse(fs.readFileSync('./tmp/keys.json'))
-
   //cleos push action manager.apim publishapi `[ "apiowner", "goodapi", ${OFFERS}]` -p apiowner@active
-  let accountName = process.env.ORE_TESTA_ACCOUNT_NAME
   let contractName = 'manager.apim'
-  await connectAs(accountName, process.env.ORE_TESTA_ACCOUNT_KEY)
   
+  // example rights to insert
   let rights = {  
-    "right_name": "hadronapi",
+    "right_name": "hadron-food-api",
     "urls":[  
        {  
           "url":"www.hadron.com",
@@ -53,10 +44,11 @@ async function connectAs(accountName, accountKey) {
     ]
  } 
 
+  // example instrument to be created
   let instrument = {  
     "creator":"app.apim",
     "issuer":"test1.apim",
-    "api_name":"hadronapi",
+    "api_name":"hadron-food-api",
     "additional_api_params":[  
        {  
         "name":"sla",
@@ -91,20 +83,25 @@ async function connectAs(accountName, accountKey) {
     "end_time":0
  }
 
- //errors out with the error "cannot find abi" ; works fine when called with eosjs directly
+// initialise the orejs library as test user
+let accountName = process.env.ORE_TESTA_ACCOUNT_NAME
+await connectAs(accountName, process.env.ORE_TESTA_ACCOUNT_KEY)
+ 
+// add right to rights registry
 await orejs.setRightsInRegistry(accountName, rights)
 
+// initialise the orejs library as app.apim
 await connectAs(process.env.ORE_OWNER_ACCOUNT_NAME, process.env.ORE_OWNER_ACCOUNT_KEY)
 
-//errors out with the error "cannot find abi" ; works fine when called with eosjs directly
+// create offer
 await orejs.createOfferInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, instrument)
 
-//example offer id
+// example buyer account and offer id
 const buyer = "test2.apim"
 const offerId = 0
 
-//errors out with the error "cannot find abi" ; works fine when called with eosjs directly
-await orejs.createVoucherInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, buyer, offerId)
+// create voucher
+await orejs.createVoucherInstrument(process.env.ORE_OWNER_ACCOUNT_NAME,buyer,offerId)
 
 //cleos get table instr.ore instr.ore tokens
   contractName = 'instr.ore'
