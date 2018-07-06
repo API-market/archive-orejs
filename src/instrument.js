@@ -95,14 +95,16 @@ async function getApiCallStats(instrumentId, rightName){
 
 async function createOfferInstrument(oreAccountName, offerInstrumentData){
   // Create an offer
-  let {contract, options} = await this.contract(APIM_CONTRACT_NAME, oreAccountName)
+  let options = {authorization: `${oreAccountName}@owner`}
+  let contract = await this.eos.contract(APIM_CONTRACT_NAME, options)
   let instrument = await contract.publishapi(oreAccountName, offerInstrumentData.issuer, offerInstrumentData.api_name,offerInstrumentData.additional_api_params, offerInstrumentData.api_payment_model, offerInstrumentData.api_price_in_cpu, offerInstrumentData.license_price_in_cpu, offerInstrumentData.api_description, offerInstrumentData.right_registry, offerInstrumentData.start_time, offerInstrumentData.end_time, options)
   return instrument
 }
 
 async function createVoucherInstrument(oreAccountName, buyer, offerId){
   //Exercise an offer to get a voucher
-  let {contract, options} = await this.contract(APIM_CONTRACT_NAME, oreAccountName)
+  let options = {authorization: `${oreAccountName}@owner`}
+  let contract = await this.eos.contract(APIM_CONTRACT_NAME, options)
   let instrument = await contract.licenseapi(oreAccountName, buyer, offerId, options)
   return instrument
 }
