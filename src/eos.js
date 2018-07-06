@@ -120,8 +120,8 @@ async function getAllTableRowsFiltered(params, filter, key_field="id") {
   return filterRows(result, filter)
 }
 
-function signVoucher(apiVoucher) {
-  return ecc.sign(apiVoucher.id.toString(), this.keyProvider())
+async function signVoucher(apiVoucherId) {
+  return ecc.sign(apiVoucherId.toString(), this.config.keyProvider[0])
 }
 
 // Transform account names from base32 to their numeric representations
@@ -135,5 +135,5 @@ module.exports = {
   getAllTableRows,
   getAllTableRowsFiltered,
   signVoucher,
-  tableKey,
+  tableKey
 }
