@@ -30,10 +30,10 @@ function getRight(instrument, rightName) {
 }
 
 function isActive(instrument) {
-  const startDate = instrument["instrument"]["start_time"]
-  const endDate = instrument["instrument"]["end_time"]
-  const currentDate = Date.now()
-  return (currentDate > startDate && currentDate < endDate)
+  const startTime = instrument["instrument"]["start_time"]
+  const endTime = instrument["instrument"]["end_time"]
+  const currentTime = Math.floor(Date.now() / 1000)
+  return (currentTime > startTime && currentTime < endTime)
 }
 
 /* Public */
