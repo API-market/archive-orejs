@@ -9,10 +9,6 @@ const rightRegistry = require('./rightsregistry')
 
 class Orejs {
   constructor(config = {}) {
-<<<<<<< HEAD
-=======
-    config.chainId = config.chainId
->>>>>>> 07d84e8f9fa85f5cfb7560568259f5a7fa84e8c9
 
     this.constructEos(config)
 
