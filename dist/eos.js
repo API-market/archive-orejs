@@ -198,8 +198,12 @@ function getAllTableRowsFiltered(params, filter, key_field) {
         });
     });
 }
-function signVoucher(apiVoucher) {
-    return ecc.sign(apiVoucher.id.toString(), this.keyProvider());
+function signVoucher(apiVoucherId) {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            return [2 /*return*/, ecc.sign(apiVoucherId.toString(), this.config.keyProvider[0])];
+        });
+    });
 }
 // Transform account names from base32 to their numeric representations
 function tableKey(oreAccountName) {
@@ -211,6 +215,6 @@ module.exports = {
     getAllTableRows: getAllTableRows,
     getAllTableRowsFiltered: getAllTableRowsFiltered,
     signVoucher: signVoucher,
-    tableKey: tableKey,
+    tableKey: tableKey
 };
 //# sourceMappingURL=eos.js.map

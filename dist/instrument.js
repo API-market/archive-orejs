@@ -200,6 +200,7 @@ function createVoucherInstrument(oreAccountName, buyer, offerId) {
     });
 }
 module.exports = {
+    getRight: getRight,
     findInstruments: findInstruments,
     getInstruments: getInstruments,
     getApiCallStats: getApiCallStats,
