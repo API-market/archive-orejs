@@ -1,11 +1,13 @@
 Eos = require('eosjs')
 const accounts = require('./accounts')
+const cpu = require('./tokens/cpu')
 const eos = require('./eos')
 const instrument = require('./instrument')
-const token = require('./token')
-const cpu = require('./tokens/cpu')
+const crypto = require('./modules/crypto')
 const ore = require('./tokens/ore')
 const rightsRegistry = require('./rightsregistry')
+const token = require('./token')
+
 
 class Orejs {
   constructor(config = {}) {
@@ -15,11 +17,13 @@ class Orejs {
     /* Mixins */
     Object.assign(this, accounts)
     Object.assign(this, cpu)
+    Object.assign(this, crypto)
     Object.assign(this, eos)
     Object.assign(this, instrument)
     Object.assign(this, ore)
     Object.assign(this, rightsRegistry)
     Object.assign(this, token)
+
   }
 
   constructEos(config) {
@@ -29,5 +33,6 @@ class Orejs {
 }
 
 module.exports = {
+  crypto,
   Orejs
 }
