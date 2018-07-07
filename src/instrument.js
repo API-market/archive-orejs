@@ -110,13 +110,9 @@ async function createVoucherInstrument(oreAccountName, buyer, offerId){
 }
 
 module.exports = {
+  getRight,
   findInstruments,
   getInstruments,
-<<<<<<< HEAD
-  getRight,
-  saveInstrument,
-=======
->>>>>>> 231e9266f9f1ebc88afd187cb4219128c1101c72
   getApiCallStats,
   createInstrument,
   createOfferInstrument,
