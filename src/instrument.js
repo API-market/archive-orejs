@@ -116,6 +116,7 @@ module.exports = {
   exerciseInstrument,
   findInstruments,
   getInstruments,
+  getRight,
   saveInstrument,
   getApiCallStats,
   setRightsInRegistry
