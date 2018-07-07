@@ -1,7 +1,6 @@
 //const ecc = require('eosjs-ecc')
 const {Keygen} = require('eosjs-keygen')
 const base32 = require('base32.js')
-const CryptoJS = require("crypto-js")
 
 const ACCOUNT_NAME_MAX_LENGTH = 12
 
@@ -82,19 +81,6 @@ async function createOreWallet(password, oreAccountName, encryptedAccountOwnerPr
   return { oreAccountName, encryptedWalletPassword }
 }
 
-function decrypt(encrypted, password) {
-  let bytes = CryptoJS.AES.decrypt(encrypted.toString(), password);
-  let unencrypted = bytes.toString(CryptoJS.enc.Utf8);
-
-  return unencrypted
-}
-
-function encrypt(unencrypted, password) {
-  let encrypted = CryptoJS.AES.encrypt(unencrypted, password);
-
-  return encrypted
-}
-
 async function getOreAccountContents(oreAccountName) {
   //const cpuBalance = this.getCpuBalance(oreAccountName)
   //const instruments = this.getInstruments(oreAccountName)
@@ -111,8 +97,6 @@ async function unlockOreWallet(name, password) {
 module.exports = {
   createOreAccount,
   createOreWallet,
-  decrypt,
-  encrypt,
   getOreAccountContents,
   unlockOreWallet
 }

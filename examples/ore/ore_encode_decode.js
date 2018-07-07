@@ -1,19 +1,16 @@
 const fs = require("fs")
-let {orejs, walletPassword} = require("../index")
+let {crypto, walletPassword} = require("../index")
 
-orejs = orejs()
-
-const USER = 'apiowner'
+const USER = 'test2.apim'
 
 ;(async function() {
-  let accounts = JSON.parse(fs.readFileSync('./tmp/keys.json'))
-  let accountData = accounts[USER]
-  console.log("Account Data:", accountData)
+  let account = process.env.ORE_OWNER_ACCOUNT_NAME
+  let privateKey = process.env.ORE_OWNER_ACCOUNT_KEY
+  console.log("Account:", account)
 
-  let privateKey = accountData.keys.privateKeys.active
-  let encryptedKey = orejs.encrypt(privateKey, walletPassword).toString()
+  let encryptedKey = crypto.encrypt(privateKey, walletPassword).toString()
   console.log("Encrypted Key:", encryptedKey)
 
-  let decryptedKey = orejs.decrypt(encryptedKey, walletPassword).toString()
+  let decryptedKey = crypto.decrypt(encryptedKey, walletPassword).toString()
   console.log("Decrypted Key Matches:", decryptedKey == privateKey)
 })()

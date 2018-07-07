@@ -181,7 +181,7 @@ function createOfferInstrument(oreAccountName, offerInstrumentData) {
         });
     });
 }
-function createVoucherInstrument(oreAccountName, buyer, offerId) {
+function createVoucherInstrument(creator, buyer, offerId) {
     return __awaiter(this, void 0, void 0, function () {
         var options, contract, instrument;
         return __generator(this, function (_a) {
@@ -191,7 +191,7 @@ function createVoucherInstrument(oreAccountName, buyer, offerId) {
                     return [4 /*yield*/, this.eos.contract(APIM_CONTRACT_NAME, options)];
                 case 1:
                     contract = _a.sent();
-                    return [4 /*yield*/, contract.licenseapi(oreAccountName, buyer, offerId, options)];
+                    return [4 /*yield*/, contract.licenseapi(creator, buyer, offerId, options)];
                 case 2:
                     instrument = _a.sent();
                     return [2 /*return*/, instrument];

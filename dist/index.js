@@ -1,11 +1,12 @@
 Eos = require('eosjs');
 var accounts = require('./accounts');
+var cpu = require('./tokens/cpu');
 var eos = require('./eos');
 var instrument = require('./instrument');
-var token = require('./token');
-var cpu = require('./tokens/cpu');
+var crypto = require('./modules/crypto');
 var ore = require('./tokens/ore');
 var rightsRegistry = require('./rightsregistry');
+var token = require('./token');
 var Orejs = /** @class */ (function () {
     function Orejs(config) {
         if (config === void 0) { config = {}; }
@@ -13,6 +14,7 @@ var Orejs = /** @class */ (function () {
         /* Mixins */
         Object.assign(this, accounts);
         Object.assign(this, cpu);
+        Object.assign(this, crypto);
         Object.assign(this, eos);
         Object.assign(this, instrument);
         Object.assign(this, ore);
@@ -26,6 +28,7 @@ var Orejs = /** @class */ (function () {
     return Orejs;
 }());
 module.exports = {
+    crypto: crypto,
     Orejs: Orejs
 };
 //# sourceMappingURL=index.js.map

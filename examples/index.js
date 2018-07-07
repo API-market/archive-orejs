@@ -1,5 +1,5 @@
 const dotenv = require("dotenv")
-const { Orejs, ore } = require("../src")
+const { Orejs, crypto } = require("../src")
 
 dotenv.config()
 
@@ -15,7 +15,7 @@ function orejs(accountName, accountKey) {
 }
 
 module.exports = {
-  ore,
   orejs,
+  crypto,
   walletPassword: process.env.WALLET_PASSWORD
 }
