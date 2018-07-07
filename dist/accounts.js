@@ -36,7 +36,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 //const ecc = require('eosjs-ecc')
 var Keygen = require('eosjs-keygen').Keygen;
 var base32 = require('base32.js');
-var CryptoJS = require("crypto-js");
 var ACCOUNT_NAME_MAX_LENGTH = 12;
 /* Private */
 function createOreAccountWithKeys(activePublicKey, ownerPublicKey, options) {
@@ -130,15 +129,6 @@ function createOreWallet(password, oreAccountName, encryptedAccountOwnerPrivateK
         });
     });
 }
-function decrypt(encrypted, password) {
-    var bytes = CryptoJS.AES.decrypt(encrypted.toString(), password);
-    var unencrypted = bytes.toString(CryptoJS.enc.Utf8);
-    return unencrypted;
-}
-function encrypt(unencrypted, password) {
-    var encrypted = CryptoJS.AES.encrypt(unencrypted, password);
-    return encrypted;
-}
 function getOreAccountContents(oreAccountName) {
     return __awaiter(this, void 0, void 0, function () {
         var account;
@@ -164,8 +154,6 @@ function unlockOreWallet(name, password) {
 module.exports = {
     createOreAccount: createOreAccount,
     createOreWallet: createOreWallet,
-    decrypt: decrypt,
-    encrypt: encrypt,
     getOreAccountContents: getOreAccountContents,
     unlockOreWallet: unlockOreWallet
 };
