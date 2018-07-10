@@ -1,6 +1,7 @@
 //const ecc = require('eosjs-ecc')
 const {Keygen} = require('eosjs-keygen')
 const base32 = require('base32.js')
+let {crypto} = require("./index")
 
 const ACCOUNT_NAME_MAX_LENGTH = 12
 
@@ -40,10 +41,10 @@ async function createOreAccountWithKeys(activePublicKey, ownerPublicKey, options
 }
 
 function encryptKeys(keys, password) {
-  this.encryptedWalletPassword = encrypt(keys.masterPrivateKey, password).toString()
+  this.encryptedWalletPassword = crypto.encrypt(keys.masterPrivateKey, password).toString()
   keys.masterPrivateKey = this.encryptedWalletPassword
-  keys.privateKeys.owner = encrypt(keys.privateKeys.owner, password).toString()
-  keys.privateKeys.active = encrypt(keys.privateKeys.active, password).toString()
+  keys.privateKeys.owner = crypto.encrypt(keys.privateKeys.owner, password).toString()
+  keys.privateKeys.active = crypto.encrypt(keys.privateKeys.active, password).toString()
 }
 
 function generateAccountName(encoding = {type: 'rfc4648', lc: true}){
