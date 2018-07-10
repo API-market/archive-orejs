@@ -51,7 +51,7 @@ function isActive(instrument) {
 /* Public */
 
 async function getInstruments(oreAccountName, category = undefined, filters = []) {
-  //gets the instruments belonging to a particular category
+  // Gets the instruments belonging to a particular category
   if (category) {
     filters.push(function(row) {
       return row["instrument"]["instrument_class"] === category
@@ -170,7 +170,7 @@ async function createOfferInstrument(oreAccountName, offerInstrumentData){
 }
 
 async function createVoucherInstrument(creator, buyer, offerId){
-  //Exercise an offer to get a voucher
+  // Exercise an offer to get a voucher
   let options = {authorization: `${creator}@owner`}
   let contract = await this.eos.contract(APIM_CONTRACT_NAME, options)
   let instrument = await contract.licenseapi(creator, buyer, offerId, options)

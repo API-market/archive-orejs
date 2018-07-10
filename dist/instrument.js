@@ -94,7 +94,7 @@ function getInstruments(oreAccountName, category, filters) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    //gets the instruments belonging to a particular category
+                    // Gets the instruments belonging to a particular category
                     if (category) {
                         filters.push(function (row) {
                             return row["instrument"]["instrument_class"] === category;
