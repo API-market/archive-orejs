@@ -37,7 +37,7 @@ var APIM_CONTRACT_NAME = 'manager.apim';
 var INSTR_CONTRACT_NAME = 'instr.ore';
 var INSTR_USAGE_CONTRACT_NAME = 'usagelog.ore';
 var INSTR_TABLE_NAME = 'tokens';
-var LOG_TABLE_NAME = 'callcount';
+var LOG_COUNT_TABLE_NAME = 'counts';
 var ONE_YEAR = 365 * 24 * 60 * 60 * 1000;
 /* Private */
 function getAllInstruments(oreAccountName, additionalFilters) {
@@ -68,6 +68,17 @@ function getRight(instrument, rightName) {
         }
     }
 }
+function rightExist(instrument, rightName) {
+    // Checks if a right belongs to an instrument
+    var rights = instrument["instrument"]["rights"];
+    for (var i = 0; i < rights.length; i++) {
+        var right = rights[i];
+        if (right["right_name"] === rightName) {
+            return true;
+        }
+    }
+    return false;
+}
 function isActive(instrument) {
     var startTime = instrument["instrument"]["start_time"];
     var endTime = instrument["instrument"]["end_time"];
@@ -83,6 +94,7 @@ function getInstruments(oreAccountName, category, filters) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
+                    //gets the instruments belonging to a particular category
                     if (category) {
                         filters.push(function (row) {
                             return row["instrument"]["instrument_class"] === category;
@@ -93,6 +105,34 @@ function getInstruments(oreAccountName, category, filters) {
                     rows = _a.sent();
                     return [2 /*return*/, rows];
             }
+        });
+    });
+}
+function getInstrumentByRight(instrumentList, rightName) {
+    return __awaiter(this, void 0, void 0, function () {
+        var instruments, i;
+        return __generator(this, function (_a) {
+            instruments = [];
+            for (i = 0; i < instrumentList.length; i++) {
+                if (rightExist(instrumentList[i], rightName)) {
+                    instruments.push(instrumentList[i]);
+                }
+            }
+            return [2 /*return*/, instruments];
+        });
+    });
+}
+function getInstrumentByOwner(instrumentList, owner) {
+    return __awaiter(this, void 0, void 0, function () {
+        var instruments, i;
+        return __generator(this, function (_a) {
+            instruments = [];
+            for (i = 0; i < instrumentList.length; i++) {
+                if (instrumentList[i]["owner"] === owner) {
+                    instruments.push(instrumentList[i]);
+                }
+            }
+            return [2 /*return*/, instruments];
         });
     });
 }
@@ -145,20 +185,65 @@ function getApiCallStats(instrumentId, rightName) {
         var result, i, rightProprties;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, this.eos.getAllTableRows({
+                case 0: return [4 /*yield*/, this.eos.getTableRows({
                         code: INSTR_USAGE_CONTRACT_NAME,
-                        table: LOG_TABLE_NAME,
-                        scope: instrumentId // new scoping
+                        json: true,
+                        scope: instrumentId,
+                        table: LOG_COUNT_TABLE_NAME,
+                        limit: -1
                     })];
                 case 1:
                     result = _a.sent();
                     for (i = 0; i < result.rows.length; i++) {
                         if (result.rows[i]["right_name"] === rightName) {
-                            rightProprties = { "totalCalls": calls[i]["total_count"], "totalCpuUsage": calls[i]["total_cpu"] };
+                            rightProprties = { "totalApiCalls": result.rows[i]["total_count"], "totalCpuUsage": result.rows[i]["total_cpu"] };
                             return [2 /*return*/, rightProprties];
                         }
                     }
                     return [2 /*return*/];
+            }
+        });
+    });
+}
+function getRightStats(rightName, owner) {
+    return __awaiter(this, void 0, void 0, function () {
+        var instruments, instrumentList, totalCpuUsage, totalApiCalls, rightProprties, i;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    totalCpuUsage = 0;
+                    totalApiCalls = 0;
+                    return [4 /*yield*/, this.getAllTableRows({
+                            code: INSTR_CONTRACT_NAME,
+                            scope: INSTR_CONTRACT_NAME,
+                            table: INSTR_TABLE_NAME,
+                            limit: -1
+                        })];
+                case 1:
+                    instrumentList = _a.sent();
+                    return [4 /*yield*/, getInstrumentByRight(instrumentList, rightName)];
+                case 2:
+                    instruments = _a.sent();
+                    if (!owner) return [3 /*break*/, 4];
+                    return [4 /*yield*/, getInstrumentByOwner(instruments, owner)];
+                case 3:
+                    instruments = _a.sent();
+                    _a.label = 4;
+                case 4:
+                    i = 0;
+                    _a.label = 5;
+                case 5:
+                    if (!(i < instruments.length)) return [3 /*break*/, 8];
+                    return [4 /*yield*/, getApiCallStats.bind(this)(instruments[i].id, rightName)];
+                case 6:
+                    rightProprties = _a.sent();
+                    totalCpuUsage += rightProprties["totalCpuUsage"];
+                    totalApiCalls += rightProprties["totalApiCalls"];
+                    _a.label = 7;
+                case 7:
+                    i++;
+                    return [3 /*break*/, 5];
+                case 8: return [2 /*return*/, { totalCpuUsage: totalCpuUsage, totalApiCalls: totalApiCalls }];
             }
         });
     });
@@ -204,6 +289,7 @@ module.exports = {
     findInstruments: findInstruments,
     getInstruments: getInstruments,
     getApiCallStats: getApiCallStats,
+    getRightStats: getRightStats,
     createInstrument: createInstrument,
     createOfferInstrument: createOfferInstrument,
     createVoucherInstrument: createVoucherInstrument,
