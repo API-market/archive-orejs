@@ -5,16 +5,14 @@
 // Usage: $ node ore/account_create_random
 
 const ecc = require('eosjs-ecc')
-let orejs = require("../index").orejs()
-let options, balance, cpuContract, instrContract, contents
+let {crypto} = require("../index")
+let options, balance, cpuContract, instrContract, contents, orejs
 
 async function connectAs(accountName, accountKey) {
-  process.env.ORE_PAYER_ACCOUNT_KEY = accountKey
-  process.env.ORE_PAYER_ACCOUNT_NAME = accountName
   // Reinitialize the orejs library, with permissions for the current account...
-  orejs = require("../index").orejs()
-  console.log("Private Key:", process.env.ORE_PAYER_ACCOUNT_KEY)
-  console.log("Public Key:", ecc.privateToPublic(process.env.ORE_PAYER_ACCOUNT_KEY))
+  orejs = require("../index").orejs(accountName, accountKey)
+  console.log("Private Key:", accountKey)
+  console.log("Public Key:", ecc.privateToPublic(accountKey))
   options = {authorization: `${accountName}@active`}
   cpuContract = await orejs.eos.contract('cpu.ore', options)
   instrContract = await orejs.eos.contract('manager.apim', options)
@@ -35,55 +33,46 @@ async function logBalances(account = undefined) {
 
 function instrumentFor(accountName, version = Math.random().toString()) {
   return {
-    apiName: `${accountName} : ${version}`,
-    description: "this is a very good api",
-    rights: [
-      {
-        "theright": {
-          "right_name": "some_right_2",
-          "price_in_cpu": 1,
-          "issuer": accountName,
-          "additional_url_params": [
-            {
-              "name": "sla",
-              "value":"highAvailability"
-            },
-            {
-              "name": "region",
-              "value": "usWest"
-            }
-          ],
-          "description": "Lol"
-        },
-        "urls": [
+    "creator":process.env.ORE_OWNER_ACCOUNT_NAME,
+    "issuer":accountName,
+    "api_name":`${accountName} : ${version}`,
+    "additional_api_params":[
+       {
+        "name":"sla",
+        "value":"high-availability"
+       }
+    ],
+    "api_payment_model":"paypercall",
+    "api_price_in_cpu":1,
+    "license_price_in_cpu":0,
+    "api_description":"returns an image feature vector for input image",
+    "right_registry":{
+       "right_name":"apimarket.manager.licenseApi",
+       "urls":[
           {
-            "url": "google.com",
-            "method": "post",
-            "matches_params": [{"name": "sla", "value":"highAvailability"},{"name":"region", "value":"usWest"}],
-            "token_life_span": 100,
-            "is_default": 1
-          },
-          {
-            "url": "google.com",
-            "method": "post",
-            "matches_params": [{"name": "sla", "value":"highAvailability"},{"name":"region", "value":"usEast"}],
-            "token_life_span": 100,
-            "is_default": 0
+             "url":"ore://manager.apim/action/licenseapi",
+             "method":"post",
+             "matches_params":[
+                {
+                   "name":"sla",
+                   "value":"default"
+                }
+             ],
+             "token_life_span":100,
+             "is_default":1
           }
-        ]
-      }
-    ]
+       ],
+       "whitelist":[
+        "app.apim"
+       ]
+    },
+    "start_time":0,
+    "end_time":0
   }
 }
 
 ;(async function() {
-  // Grab the current chain id...
-  const info = await orejs.eos.getInfo({})
-  console.log("Connecting to chain:", info.chain_id, "...")
-  process.env.CHAIN_ID = info.chain_id
-
-  // Reinitialize the orejs library, with the appropriate chain id...
-  orejs = require("../index").orejs()
+  connectAs(process.env.ORE_PAYER_ACCOUNT_NAME, process.env.ORE_PAYER_ACCOUNT_KEY)
 
   ///////////////////////////
   // Create the account... //
@@ -113,8 +102,8 @@ function instrumentFor(accountName, version = Math.random().toString()) {
   await logBalances()
 
   await connectAs(process.env.ORE_OWNER_ACCOUNT_NAME, process.env.ORE_OWNER_ACCOUNT_KEY)
-  console.log("Transfering", amount, "CPU from", process.env.ORE_PAYER_ACCOUNT_NAME, "to", account.oreAccountName)
-  await cpuContract.transfer(process.env.ORE_PAYER_ACCOUNT_NAME, account.oreAccountName, amount, options)
+  console.log("Transfering", amount, "CPU from", process.env.ORE_OWNER_ACCOUNT_NAME, "to", account.oreAccountName)
+  await cpuContract.transfer(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, amount, options)
 
   await logBalances(account)
 
@@ -122,11 +111,11 @@ function instrumentFor(accountName, version = Math.random().toString()) {
   // Publish an API... //
   ///////////////////////
 
-  await connectAs(account.oreAccountName, orejs.decrypt(account.privateKey, "password"))
+  await connectAs(account.oreAccountName, crypto.decrypt(account.privateKey, "password"))
 
 
   for (let a = 0; a < 5; a++) {
-    await orejs.saveInstrument(account.oreAccountName, instrumentFor(account.oreAccountName))
+    await orejs.createOfferInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, instrumentFor(account.oreAccountName))
   }
 
   const offers = await orejs.getAllTableRows({
