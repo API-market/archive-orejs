@@ -33,7 +33,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-//const ecc = require('eosjs-ecc')
 var Keygen = require('eosjs-keygen').Keygen;
 var base32 = require('base32.js');
 var ACCOUNT_NAME_MAX_LENGTH = 12;
@@ -79,10 +78,10 @@ function createOreAccountWithKeys(activePublicKey, ownerPublicKey, options) {
     });
 }
 function encryptKeys(keys, password) {
-    this.encryptedWalletPassword = encrypt(keys.masterPrivateKey, password).toString();
+    this.encryptedWalletPassword = this.encrypt(keys.masterPrivateKey, password).toString();
     keys.masterPrivateKey = this.encryptedWalletPassword;
-    keys.privateKeys.owner = encrypt(keys.privateKeys.owner, password).toString();
-    keys.privateKeys.active = encrypt(keys.privateKeys.active, password).toString();
+    keys.privateKeys.owner = this.encrypt(keys.privateKeys.owner, password).toString();
+    keys.privateKeys.active = this.encrypt(keys.privateKeys.active, password).toString();
 }
 function generateAccountName(encoding) {
     if (encoding === void 0) { encoding = { type: 'rfc4648', lc: true }; }
