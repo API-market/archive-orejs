@@ -61,18 +61,18 @@ function getAllInstruments(oreAccountName, additionalFilters) {
 }
 function getRight(instrument, rightName) {
     var rights = instrument["instrument"]["rights"];
-    for (var i = 0; i < rights.length; i++) {
-        var right = rights[i];
+    for (var _i = 0, rights_1 = rights; _i < rights_1.length; _i++) {
+        right = rights_1[_i];
         if (right["right_name"] === rightName) {
             return right;
         }
     }
 }
-function rightExist(instrument, rightName) {
+function rightExists(instrument, rightName) {
     // Checks if a right belongs to an instrument
     var rights = instrument["instrument"]["rights"];
-    for (var i = 0; i < rights.length; i++) {
-        var right = rights[i];
+    for (var _i = 0, rights_2 = rights; _i < rights_2.length; _i++) {
+        right = rights_2[_i];
         if (right["right_name"] === rightName) {
             return true;
         }
@@ -108,14 +108,15 @@ function getInstruments(oreAccountName, category, filters) {
         });
     });
 }
-function getInstrumentByRight(instrumentList, rightName) {
+function getInstrumentsByRight(instrumentList, rightName) {
     return __awaiter(this, void 0, void 0, function () {
-        var instruments, i;
+        var instruments, _i, instrumentList_1;
         return __generator(this, function (_a) {
             instruments = [];
-            for (i = 0; i < instrumentList.length; i++) {
-                if (rightExist(instrumentList[i], rightName)) {
-                    instruments.push(instrumentList[i]);
+            for (_i = 0, instrumentList_1 = instrumentList; _i < instrumentList_1.length; _i++) {
+                instrument = instrumentList_1[_i];
+                if (rightExists(instrument, rightName)) {
+                    instruments.push(instrument);
                 }
             }
             return [2 /*return*/, instruments];
@@ -124,12 +125,13 @@ function getInstrumentByRight(instrumentList, rightName) {
 }
 function getInstrumentByOwner(instrumentList, owner) {
     return __awaiter(this, void 0, void 0, function () {
-        var instruments, i;
+        var instruments, _i, instrumentList_2;
         return __generator(this, function (_a) {
             instruments = [];
-            for (i = 0; i < instrumentList.length; i++) {
-                if (instrumentList[i]["owner"] === owner) {
-                    instruments.push(instrumentList[i]);
+            for (_i = 0, instrumentList_2 = instrumentList; _i < instrumentList_2.length; _i++) {
+                instrument = instrumentList_2[_i];
+                if (instrument["owner"] === owner) {
+                    instruments.push(instrument);
                 }
             }
             return [2 /*return*/, instruments];
@@ -182,9 +184,9 @@ function createInstrument(instrumentCreatorAccountName, instrumentOwnerAccountNa
 }
 function getApiCallStats(instrumentId, rightName) {
     return __awaiter(this, void 0, void 0, function () {
-        var result, i, rightProprties;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
+        var result, _i, _a, right, rightProprties;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
                 case 0: return [4 /*yield*/, this.eos.getTableRows({
                         code: INSTR_USAGE_CONTRACT_NAME,
                         json: true,
@@ -193,10 +195,11 @@ function getApiCallStats(instrumentId, rightName) {
                         limit: -1
                     })];
                 case 1:
-                    result = _a.sent();
-                    for (i = 0; i < result.rows.length; i++) {
-                        if (result.rows[i]["right_name"] === rightName) {
-                            rightProprties = { "totalApiCalls": result.rows[i]["total_count"], "totalCpuUsage": result.rows[i]["total_cpu"] };
+                    result = _b.sent();
+                    for (_i = 0, _a = result.rows; _i < _a.length; _i++) {
+                        right = _a[_i];
+                        if (right["right_name"] === rightName) {
+                            rightProprties = { "totalApiCalls": right["total_count"], "totalCpuUsage": right["total_cpu"] };
                             return [2 /*return*/, rightProprties];
                         }
                     }
@@ -207,7 +210,7 @@ function getApiCallStats(instrumentId, rightName) {
 }
 function getRightStats(rightName, owner) {
     return __awaiter(this, void 0, void 0, function () {
-        var instruments, instrumentList, totalCpuUsage, totalApiCalls, rightProprties, i;
+        var instruments, instrumentList, rightProprties, totalCpuUsage, totalApiCalls, _i, instruments_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -221,7 +224,7 @@ function getRightStats(rightName, owner) {
                         })];
                 case 1:
                     instrumentList = _a.sent();
-                    return [4 /*yield*/, getInstrumentByRight(instrumentList, rightName)];
+                    return [4 /*yield*/, getInstrumentsByRight(instrumentList, rightName)];
                 case 2:
                     instruments = _a.sent();
                     if (!owner) return [3 /*break*/, 4];
@@ -230,18 +233,19 @@ function getRightStats(rightName, owner) {
                     instruments = _a.sent();
                     _a.label = 4;
                 case 4:
-                    i = 0;
+                    _i = 0, instruments_1 = instruments;
                     _a.label = 5;
                 case 5:
-                    if (!(i < instruments.length)) return [3 /*break*/, 8];
-                    return [4 /*yield*/, getApiCallStats.bind(this)(instruments[i].id, rightName)];
+                    if (!(_i < instruments_1.length)) return [3 /*break*/, 8];
+                    instrumentObject = instruments_1[_i];
+                    return [4 /*yield*/, getApiCallStats.bind(this)(instrumentObject.id, rightName)];
                 case 6:
-                    rightProprties = _a.sent();
-                    totalCpuUsage += rightProprties["totalCpuUsage"];
-                    totalApiCalls += rightProprties["totalApiCalls"];
+                    rightProperties = _a.sent();
+                    totalCpuUsage += rightProperties["totalCpuUsage"];
+                    totalApiCalls += rightProperties["totalApiCalls"];
                     _a.label = 7;
                 case 7:
-                    i++;
+                    _i++;
                     return [3 /*break*/, 5];
                 case 8: return [2 /*return*/, { totalCpuUsage: totalCpuUsage, totalApiCalls: totalApiCalls }];
             }

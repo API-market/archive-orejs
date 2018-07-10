@@ -20,8 +20,7 @@ async function getAllInstruments(oreAccountName, additionalFilters = []) {
 
 function getRight(instrument, rightName) {
   const rights = instrument["instrument"]["rights"]
-  for (let i = 0; i < rights.length; i++) {
-    let right = rights[i]
+  for (right of rights) {
     if (right["right_name"] === rightName) {
       return right
     }
@@ -29,11 +28,10 @@ function getRight(instrument, rightName) {
 }
 
 
-function rightExist(instrument, rightName){
+function rightExists(instrument, rightName){
   // Checks if a right belongs to an instrument
   const rights = instrument["instrument"]["rights"]
-  for (let i = 0; i < rights.length; i++) {
-    let right = rights[i]
+  for (right of rights) {
     if (right["right_name"] === rightName) {
       return true
     }
@@ -62,12 +60,12 @@ async function getInstruments(oreAccountName, category = undefined, filters = []
   return rows
 }
 
-async function getInstrumentByRight(instrumentList, rightName){
+async function getInstrumentsByRight(instrumentList, rightName){
   // Gets all the instruments with a particular right
   let instruments = []
-  for (let i = 0; i < instrumentList.length; i++) {
-    if(rightExist(instrumentList[i], rightName)){
-      instruments.push(instrumentList[i])
+  for (instrument of instrumentList) {
+    if(rightExists(instrument, rightName)){
+      instruments.push(instrument)
     }
   }
   
@@ -77,9 +75,9 @@ async function getInstrumentByRight(instrumentList, rightName){
 async function getInstrumentByOwner(instrumentList, owner){
   // Get all the instruments with a particular owner
   let instruments = []
-  for (let i = 0; i < instrumentList.length; i++) {
-    if(instrumentList[i]["owner"] === owner){
-      instruments.push(instrumentList[i])
+  for (instrument of instrumentList) {
+    if(instrument["owner"] === owner){
+      instruments.push(instrument)
     }
   } 
   return instruments
@@ -123,9 +121,9 @@ async function getApiCallStats(instrumentId, rightName){
     limit: -1
   })
 
-  for (let i = 0; i < result.rows.length; i++) {
-    if ( result.rows[i]["right_name"] === rightName) {
-      const rightProprties = {"totalApiCalls": result.rows[i]["total_count"], "totalCpuUsage": result.rows[i]["total_cpu"]}
+  for (let right of result.rows) {
+    if ( right["right_name"] === rightName) {
+      const rightProprties = {"totalApiCalls": right["total_count"], "totalCpuUsage": right["total_cpu"]}
       return rightProprties
     }
   }
@@ -133,11 +131,9 @@ async function getApiCallStats(instrumentId, rightName){
 
 async function getRightStats(rightName, owner){
   // Returns the total cpu and api calls against a particular right across all the vouchers. If owner specified, then returns the toatal api calls and cpu usage for the owner.
-  let instruments
-  let instrumentList
+  let instruments, instrumentList, rightProprties
   let totalCpuUsage = 0
   let totalApiCalls = 0
-  let rightProprties
 
   instrumentList = await this.getAllTableRows({
     code: INSTR_CONTRACT_NAME,
@@ -146,16 +142,16 @@ async function getRightStats(rightName, owner){
     limit: -1
   })
 
-  instruments = await getInstrumentByRight(instrumentList, rightName)
+  instruments = await getInstrumentsByRight(instrumentList, rightName)
 
   if(owner){
     instruments = await getInstrumentByOwner(instruments, owner)
   }
 
-  for (let i = 0; i < instruments.length; i++) {
-    rightProprties = await getApiCallStats.bind(this)(instruments[i].id, rightName)
-    totalCpuUsage += rightProprties["totalCpuUsage"]
-    totalApiCalls += rightProprties["totalApiCalls"]
+  for (instrumentObject of instruments) {
+    rightProperties = await getApiCallStats.bind(this)(instrumentObject.id, rightName)
+    totalCpuUsage += rightProperties["totalCpuUsage"]
+    totalApiCalls += rightProperties["totalApiCalls"]
   }
   return {totalCpuUsage, totalApiCalls}  
 }
