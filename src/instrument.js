@@ -103,7 +103,7 @@ async function createOfferInstrument(oreAccountName, offerInstrumentData){
 
 async function createVoucherInstrument(creator, buyer, offerId){
   //Exercise an offer to get a voucher
-  let options = {authorization: `${oreAccountName}@owner`}
+  let options = {authorization: `${creator}@owner`}
   let contract = await this.eos.contract(APIM_CONTRACT_NAME, options)
   let instrument = await contract.licenseapi(creator, buyer, offerId, options)
   return instrument

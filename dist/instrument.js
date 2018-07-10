@@ -187,7 +187,7 @@ function createVoucherInstrument(creator, buyer, offerId) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    options = { authorization: oreAccountName + "@owner" };
+                    options = { authorization: creator + "@owner" };
                     return [4 /*yield*/, this.eos.contract(APIM_CONTRACT_NAME, options)];
                 case 1:
                     contract = _a.sent();
