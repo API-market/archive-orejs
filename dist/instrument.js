@@ -37,7 +37,7 @@ var APIM_CONTRACT_NAME = 'manager.apim';
 var INSTR_CONTRACT_NAME = 'instr.ore';
 var INSTR_USAGE_CONTRACT_NAME = 'usagelog.ore';
 var INSTR_TABLE_NAME = 'tokens';
-var LOG_TABLE_NAME = 'callcount';
+var LOG_COUNT_TABLE_NAME = 'counts';
 var ONE_YEAR = 365 * 24 * 60 * 60 * 1000;
 /* Private */
 function getAllInstruments(oreAccountName, additionalFilters) {
@@ -61,12 +61,23 @@ function getAllInstruments(oreAccountName, additionalFilters) {
 }
 function getRight(instrument, rightName) {
     var rights = instrument["instrument"]["rights"];
-    for (var i = 0; i < rights.length; i++) {
-        var right = rights[i];
+    var right = rights.find(function (rightObject) {
+        if (rightObject["right_name"] === rightName) {
+            return rightObject;
+        }
+    });
+    return right;
+}
+function rightExists(instrument, rightName) {
+    // Checks if a right belongs to an instrument
+    var rights = instrument["instrument"]["rights"];
+    for (var _i = 0, rights_1 = rights; _i < rights_1.length; _i++) {
+        right = rights_1[_i];
         if (right["right_name"] === rightName) {
-            return right;
+            return true;
         }
     }
+    return false;
 }
 function isActive(instrument) {
     var startTime = instrument["instrument"]["start_time"];
@@ -83,6 +94,7 @@ function getInstruments(oreAccountName, category, filters) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
+                    // Gets the instruments belonging to a particular category
                     if (category) {
                         filters.push(function (row) {
                             return row["instrument"]["instrument_class"] === category;
@@ -93,6 +105,31 @@ function getInstruments(oreAccountName, category, filters) {
                     rows = _a.sent();
                     return [2 /*return*/, rows];
             }
+        });
+    });
+}
+function getInstrumentsByRight(instrumentList, rightName) {
+    return __awaiter(this, void 0, void 0, function () {
+        var instruments, _i, instrumentList_1;
+        return __generator(this, function (_a) {
+            instruments = [];
+            for (_i = 0, instrumentList_1 = instrumentList; _i < instrumentList_1.length; _i++) {
+                instrument = instrumentList_1[_i];
+                if (rightExists(instrument, rightName)) {
+                    instruments.push(instrument);
+                }
+            }
+            return [2 /*return*/, instruments];
+        });
+    });
+}
+function getInstrumentByOwner(instrumentList, owner) {
+    return __awaiter(this, void 0, void 0, function () {
+        var instruments;
+        return __generator(this, function (_a) {
+            instruments = [];
+            instruments = instrumentList.filter(function (instrument) { return instrument["owner"] === owner; });
+            return [2 /*return*/, instruments];
         });
     });
 }
@@ -142,23 +179,71 @@ function createInstrument(instrumentCreatorAccountName, instrumentOwnerAccountNa
 }
 function getApiCallStats(instrumentId, rightName) {
     return __awaiter(this, void 0, void 0, function () {
-        var result, i, rightProprties;
+        var result, right, rightProperties;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, this.eos.getAllTableRows({
+                case 0: return [4 /*yield*/, this.eos.getTableRows({
                         code: INSTR_USAGE_CONTRACT_NAME,
-                        table: LOG_TABLE_NAME,
-                        scope: instrumentId // new scoping
+                        json: true,
+                        scope: instrumentId,
+                        table: LOG_COUNT_TABLE_NAME,
+                        limit: -1
                     })];
                 case 1:
                     result = _a.sent();
-                    for (i = 0; i < result.rows.length; i++) {
-                        if (result.rows[i]["right_name"] === rightName) {
-                            rightProprties = { "totalCalls": calls[i]["total_count"], "totalCpuUsage": calls[i]["total_cpu"] };
-                            return [2 /*return*/, rightProprties];
-                        }
-                    }
-                    return [2 /*return*/];
+                    return [4 /*yield*/, result.rows.find(function (rightObject) {
+                            if (rightObject["right_name"] === rightName) {
+                                return rightObject;
+                            }
+                        })];
+                case 2:
+                    right = _a.sent();
+                    rightProperties = { "totalApiCalls": right["total_count"], "totalCpuUsage": right["total_cpu"] };
+                    return [2 /*return*/, rightProperties];
+            }
+        });
+    });
+}
+function getRightStats(rightName, owner) {
+    return __awaiter(this, void 0, void 0, function () {
+        var instruments, instrumentList, rightProperties, totalCpuUsage, totalApiCalls, _i, instruments_1;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    totalCpuUsage = 0;
+                    totalApiCalls = 0;
+                    return [4 /*yield*/, this.getAllTableRows({
+                            code: INSTR_CONTRACT_NAME,
+                            scope: INSTR_CONTRACT_NAME,
+                            table: INSTR_TABLE_NAME,
+                            limit: -1
+                        })];
+                case 1:
+                    instrumentList = _a.sent();
+                    return [4 /*yield*/, getInstrumentsByRight(instrumentList, rightName)];
+                case 2:
+                    instruments = _a.sent();
+                    if (!owner) return [3 /*break*/, 4];
+                    return [4 /*yield*/, getInstrumentByOwner(instruments, owner)];
+                case 3:
+                    instruments = _a.sent();
+                    _a.label = 4;
+                case 4:
+                    _i = 0, instruments_1 = instruments;
+                    _a.label = 5;
+                case 5:
+                    if (!(_i < instruments_1.length)) return [3 /*break*/, 8];
+                    instrumentObject = instruments_1[_i];
+                    return [4 /*yield*/, getApiCallStats.bind(this)(instrumentObject.id, rightName)];
+                case 6:
+                    rightProperties = _a.sent();
+                    totalCpuUsage += rightProperties["totalCpuUsage"];
+                    totalApiCalls += rightProperties["totalApiCalls"];
+                    _a.label = 7;
+                case 7:
+                    _i++;
+                    return [3 /*break*/, 5];
+                case 8: return [2 /*return*/, { totalCpuUsage: totalCpuUsage, totalApiCalls: totalApiCalls }];
             }
         });
     });
@@ -204,6 +289,7 @@ module.exports = {
     findInstruments: findInstruments,
     getInstruments: getInstruments,
     getApiCallStats: getApiCallStats,
+    getRightStats: getRightStats,
     createInstrument: createInstrument,
     createOfferInstrument: createOfferInstrument,
     createVoucherInstrument: createVoucherInstrument,

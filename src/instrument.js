@@ -2,8 +2,7 @@ const APIM_CONTRACT_NAME = 'manager.apim'
 const INSTR_CONTRACT_NAME = 'instr.ore'
 const INSTR_USAGE_CONTRACT_NAME = 'usagelog.ore'
 const INSTR_TABLE_NAME = 'tokens'
-const LOG_TABLE_NAME = 'callcount'
-
+const LOG_COUNT_TABLE_NAME = 'counts'
 const ONE_YEAR = 365 * 24 * 60 * 60 * 1000
 
 /* Private */
@@ -21,12 +20,24 @@ async function getAllInstruments(oreAccountName, additionalFilters = []) {
 
 function getRight(instrument, rightName) {
   const rights = instrument["instrument"]["rights"]
-  for (let i = 0; i < rights.length; i++) {
-    let right = rights[i]
+  const right = rights.find(function(rightObject){
+    if(rightObject["right_name"] === rightName){
+      return rightObject
+    }
+  })
+  return right
+}
+
+
+function rightExists(instrument, rightName){
+  // Checks if a right belongs to an instrument
+  const rights = instrument["instrument"]["rights"]
+  for (right of rights) {
     if (right["right_name"] === rightName) {
-      return right
+      return true
     }
   }
+  return false
 }
 
 function isActive(instrument) {
@@ -39,6 +50,7 @@ function isActive(instrument) {
 /* Public */
 
 async function getInstruments(oreAccountName, category = undefined, filters = []) {
+  // Gets the instruments belonging to a particular category
   if (category) {
     filters.push(function(row) {
       return row["instrument"]["instrument_class"] === category
@@ -47,6 +59,26 @@ async function getInstruments(oreAccountName, category = undefined, filters = []
 
   const rows = await getAllInstruments.bind(this)(oreAccountName, filters)
   return rows
+}
+
+async function getInstrumentsByRight(instrumentList, rightName){
+  // Gets all the instruments with a particular right
+  let instruments = []
+  for (instrument of instrumentList) {
+    if(rightExists(instrument, rightName)){
+      instruments.push(instrument)
+    }
+  }
+  
+  return instruments
+}
+
+async function getInstrumentByOwner(instrumentList, owner){
+  // Get all the instruments with a particular owner
+  let instruments = []
+  instruments = instrumentList.filter(instrument => instrument["owner"] === owner)
+  
+  return instruments
 }
 
 async function findInstruments(oreAccountName, activeOnly = true, category = undefined, rightName = undefined) {
@@ -79,17 +111,51 @@ async function createInstrument(instrumentCreatorAccountName, instrumentOwnerAcc
 
 async function getApiCallStats(instrumentId, rightName){
   //calls the usagelog contract to get the total number of calls against a particular right
-  let result = await this.eos.getAllTableRows({
+  let result = await this.eos.getTableRows({
     code: INSTR_USAGE_CONTRACT_NAME,
-    table: LOG_TABLE_NAME,
-    scope: instrumentId // new scoping
+    json: true,
+    scope: instrumentId,
+    table: LOG_COUNT_TABLE_NAME,
+    limit: -1
   })
-  for (var i = 0; i < result.rows.length; i++) {
-    if ( result.rows[i]["right_name"] === rightName) {
-      const rightProprties = {"totalCalls": calls[i]["total_count"], "totalCpuUsage": calls[i]["total_cpu"]}
-      return rightProprties
+
+  const right = await result.rows.find(function(rightObject){ 
+    if(rightObject["right_name"] === rightName)
+    {
+      return rightObject
     }
+  })
+
+  const rightProperties = {"totalApiCalls": right["total_count"], "totalCpuUsage": right["total_cpu"]}
+
+  return rightProperties
+}
+
+async function getRightStats(rightName, owner){
+  // Returns the total cpu and api calls against a particular right across all the vouchers. If owner specified, then returns the toatal api calls and cpu usage for the owner.
+  let instruments, instrumentList, rightProperties
+  let totalCpuUsage = 0
+  let totalApiCalls = 0
+
+  instrumentList = await this.getAllTableRows({
+    code: INSTR_CONTRACT_NAME,
+    scope: INSTR_CONTRACT_NAME,
+    table: INSTR_TABLE_NAME,
+    limit: -1
+  })
+
+  instruments = await getInstrumentsByRight(instrumentList, rightName)
+
+  if(owner){
+    instruments = await getInstrumentByOwner(instruments, owner)
   }
+
+  for (instrumentObject of instruments) {
+    rightProperties = await getApiCallStats.bind(this)(instrumentObject.id, rightName)
+    totalCpuUsage += rightProperties["totalCpuUsage"]
+    totalApiCalls += rightProperties["totalApiCalls"]
+  }
+  return {totalCpuUsage, totalApiCalls}  
 }
 
 
@@ -102,7 +168,7 @@ async function createOfferInstrument(oreAccountName, offerInstrumentData){
 }
 
 async function createVoucherInstrument(creator, buyer, offerId){
-  //Exercise an offer to get a voucher
+  // Exercise an offer to get a voucher
   let options = {authorization: `${creator}@owner`}
   let contract = await this.eos.contract(APIM_CONTRACT_NAME, options)
   let instrument = await contract.licenseapi(creator, buyer, offerId, options)
@@ -114,6 +180,7 @@ module.exports = {
   findInstruments,
   getInstruments,
   getApiCallStats,
+  getRightStats,
   createInstrument,
   createOfferInstrument,
   createVoucherInstrument,
