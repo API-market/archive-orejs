@@ -61,18 +61,18 @@ function getAllInstruments(oreAccountName, additionalFilters) {
 }
 function getRight(instrument, rightName) {
     var rights = instrument["instrument"]["rights"];
-    for (var _i = 0, rights_1 = rights; _i < rights_1.length; _i++) {
-        right = rights_1[_i];
-        if (right["right_name"] === rightName) {
-            return right;
+    var right = rights.find(function (rightObject) {
+        if (rightObject["right_name"] === rightName) {
+            return rightObject;
         }
-    }
+    });
+    return right;
 }
 function rightExists(instrument, rightName) {
     // Checks if a right belongs to an instrument
     var rights = instrument["instrument"]["rights"];
-    for (var _i = 0, rights_2 = rights; _i < rights_2.length; _i++) {
-        right = rights_2[_i];
+    for (var _i = 0, rights_1 = rights; _i < rights_1.length; _i++) {
+        right = rights_1[_i];
         if (right["right_name"] === rightName) {
             return true;
         }
@@ -125,15 +125,10 @@ function getInstrumentsByRight(instrumentList, rightName) {
 }
 function getInstrumentByOwner(instrumentList, owner) {
     return __awaiter(this, void 0, void 0, function () {
-        var instruments, _i, instrumentList_2;
+        var instruments;
         return __generator(this, function (_a) {
             instruments = [];
-            for (_i = 0, instrumentList_2 = instrumentList; _i < instrumentList_2.length; _i++) {
-                instrument = instrumentList_2[_i];
-                if (instrument["owner"] === owner) {
-                    instruments.push(instrument);
-                }
-            }
+            instruments = instrumentList.filter(function (instrument) { return instrument["owner"] === owner; });
             return [2 /*return*/, instruments];
         });
     });
@@ -184,9 +179,9 @@ function createInstrument(instrumentCreatorAccountName, instrumentOwnerAccountNa
 }
 function getApiCallStats(instrumentId, rightName) {
     return __awaiter(this, void 0, void 0, function () {
-        var result, _i, _a, right, rightProprties;
-        return __generator(this, function (_b) {
-            switch (_b.label) {
+        var result, right, rightProperties;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
                 case 0: return [4 /*yield*/, this.eos.getTableRows({
                         code: INSTR_USAGE_CONTRACT_NAME,
                         json: true,
@@ -195,22 +190,23 @@ function getApiCallStats(instrumentId, rightName) {
                         limit: -1
                     })];
                 case 1:
-                    result = _b.sent();
-                    for (_i = 0, _a = result.rows; _i < _a.length; _i++) {
-                        right = _a[_i];
-                        if (right["right_name"] === rightName) {
-                            rightProprties = { "totalApiCalls": right["total_count"], "totalCpuUsage": right["total_cpu"] };
-                            return [2 /*return*/, rightProprties];
-                        }
-                    }
-                    return [2 /*return*/];
+                    result = _a.sent();
+                    return [4 /*yield*/, result.rows.find(function (rightObject) {
+                            if (rightObject["right_name"] === rightName) {
+                                return rightObject;
+                            }
+                        })];
+                case 2:
+                    right = _a.sent();
+                    rightProperties = { "totalApiCalls": right["total_count"], "totalCpuUsage": right["total_cpu"] };
+                    return [2 /*return*/, rightProperties];
             }
         });
     });
 }
 function getRightStats(rightName, owner) {
     return __awaiter(this, void 0, void 0, function () {
-        var instruments, instrumentList, rightProprties, totalCpuUsage, totalApiCalls, _i, instruments_1;
+        var instruments, instrumentList, rightProperties, totalCpuUsage, totalApiCalls, _i, instruments_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
