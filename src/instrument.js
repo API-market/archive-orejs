@@ -20,11 +20,12 @@ async function getAllInstruments(oreAccountName, additionalFilters = []) {
 
 function getRight(instrument, rightName) {
   const rights = instrument["instrument"]["rights"]
-  for (right of rights) {
-    if (right["right_name"] === rightName) {
-      return right
+  const right = rights.find(function(rightObject){
+    if(rightObject["right_name"] === rightName){
+      return rightObject
     }
-  }
+  })
+  return right
 }
 
 
@@ -75,11 +76,8 @@ async function getInstrumentsByRight(instrumentList, rightName){
 async function getInstrumentByOwner(instrumentList, owner){
   // Get all the instruments with a particular owner
   let instruments = []
-  for (instrument of instrumentList) {
-    if(instrument["owner"] === owner){
-      instruments.push(instrument)
-    }
-  } 
+  instruments = instrumentList.filter(instrument => instrument["owner"] === owner)
+  
   return instruments
 }
 
@@ -121,17 +119,21 @@ async function getApiCallStats(instrumentId, rightName){
     limit: -1
   })
 
-  for (let right of result.rows) {
-    if ( right["right_name"] === rightName) {
-      const rightProprties = {"totalApiCalls": right["total_count"], "totalCpuUsage": right["total_cpu"]}
-      return rightProprties
+  const right = await result.rows.find(function(rightObject){ 
+    if(rightObject["right_name"] === rightName)
+    {
+      return rightObject
     }
-  }
+  })
+
+  const rightProperties = {"totalApiCalls": right["total_count"], "totalCpuUsage": right["total_cpu"]}
+
+  return rightProperties
 }
 
 async function getRightStats(rightName, owner){
   // Returns the total cpu and api calls against a particular right across all the vouchers. If owner specified, then returns the toatal api calls and cpu usage for the owner.
-  let instruments, instrumentList, rightProprties
+  let instruments, instrumentList, rightProperties
   let totalCpuUsage = 0
   let totalApiCalls = 0
 
