@@ -45,7 +45,7 @@ async function connectAs(accountName, accountKey) {
  } 
 
   // overrideOfferId is passed in to specify the offer id for the new offer. If its value is 0, then the offer id is auto generated
-  const overrideOfferId = process.env.OVERRIDE_VOUCHER_ID || 0
+  const overrideOfferId = process.env.OVERRIDE_OFFER_ID || 0
 
   // Example instrument to be created
   let instrument = {  
@@ -103,9 +103,9 @@ await orejs.createOfferInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, instrument
 // example buyer account and offer id
 const buyer = "test2.apim"
 const offerId = 0
-
+const overrideVoucherId = process.env.OVERRIDE_VOUCHER_ID
 // Create voucher
-await orejs.createVoucherInstrument(process.env.ORE_OWNER_ACCOUNT_NAME,buyer,offerId)
+await orejs.createVoucherInstrument(process.env.ORE_OWNER_ACCOUNT_NAME,buyer,offerId, overrideVoucherId)
 
 //cleos get table instr.ore instr.ore tokens
   contractName = 'instr.ore'
