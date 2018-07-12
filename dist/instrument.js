@@ -248,9 +248,10 @@ function getRightStats(rightName, owner) {
         });
     });
 }
-function createOfferInstrument(oreAccountName, offerInstrumentData) {
+function createOfferInstrument(oreAccountName, offerInstrumentData, confirm) {
+    if (confirm === void 0) { confirm = true; }
     return __awaiter(this, void 0, void 0, function () {
-        var options, contract, instrument;
+        var options, contract;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -258,17 +259,21 @@ function createOfferInstrument(oreAccountName, offerInstrumentData) {
                     return [4 /*yield*/, this.eos.contract(APIM_CONTRACT_NAME, options)];
                 case 1:
                     contract = _a.sent();
-                    return [4 /*yield*/, contract.publishapi(oreAccountName, offerInstrumentData.issuer, offerInstrumentData.api_name, offerInstrumentData.additional_api_params, offerInstrumentData.api_payment_model, offerInstrumentData.api_price_in_cpu, offerInstrumentData.license_price_in_cpu, offerInstrumentData.api_description, offerInstrumentData.right_registry, offerInstrumentData.start_time, offerInstrumentData.end_time, options)];
-                case 2:
-                    instrument = _a.sent();
-                    return [2 /*return*/, instrument];
+                    if (confirm) {
+                        return [2 /*return*/, this.confirmTransaction(function () {
+                                return contract.publishapi(oreAccountName, offerInstrumentData.issuer, offerInstrumentData.api_name, offerInstrumentData.additional_api_params, offerInstrumentData.api_payment_model, offerInstrumentData.api_price_in_cpu, offerInstrumentData.license_price_in_cpu, offerInstrumentData.api_description, offerInstrumentData.right_registry, offerInstrumentData.start_time, offerInstrumentData.end_time, options);
+                            })];
+                    }
+                    return [2 /*return*/, contract.publishapi(oreAccountName, offerInstrumentData.issuer, offerInstrumentData.api_name, offerInstrumentData.additional_api_params, offerInstrumentData.api_payment_model, offerInstrumentData.api_price_in_cpu, offerInstrumentData.license_price_in_cpu, offerInstrumentData.api_description, offerInstrumentData.right_registry, offerInstrumentData.start_time, offerInstrumentData.end_time, options)];
             }
         });
     });
 }
-function createVoucherInstrument(creator, buyer, offerId) {
+function createVoucherInstrument(creator, buyer, offerId, overrideVoucherId, confirm) {
+    if (overrideVoucherId === void 0) { overrideVoucherId = 0; }
+    if (confirm === void 0) { confirm = true; }
     return __awaiter(this, void 0, void 0, function () {
-        var options, contract, instrument;
+        var options, contract;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -276,10 +281,12 @@ function createVoucherInstrument(creator, buyer, offerId) {
                     return [4 /*yield*/, this.eos.contract(APIM_CONTRACT_NAME, options)];
                 case 1:
                     contract = _a.sent();
-                    return [4 /*yield*/, contract.licenseapi(creator, buyer, offerId, options)];
-                case 2:
-                    instrument = _a.sent();
-                    return [2 /*return*/, instrument];
+                    if (confirm) {
+                        return [2 /*return*/, this.confirmTransaction(function () {
+                                return contract.licenseapi(creator, buyer, offerId, overrideVoucherId, options);
+                            })];
+                    }
+                    return [2 /*return*/, contract.licenseapi(creator, buyer, offerId, options)];
             }
         });
     });
