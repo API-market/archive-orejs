@@ -22,7 +22,7 @@ async function connectAs(accountName, accountKey) {
   //cleos push action manager.apim publishapi `[ "apiowner", "goodapi", ${OFFERS}]` -p apiowner@active
   let contractName = 'manager.apim'
   
-  // example rights to insert
+  // Example rights to insert
   let rights = {  
     "right_name": "hadron-food-api",
     "urls":[  
@@ -44,7 +44,10 @@ async function connectAs(accountName, accountKey) {
     ]
  } 
 
-  // example instrument to be created
+  // overrideOfferId is passed in to specify the offer id for the new offer. If its value is 0, then the offer id is auto generated
+  const overrideOfferId = process.env.OVERRIDE_VOUCHER_ID || 0
+
+  // Example instrument to be created
   let instrument = {  
     "creator":"app.apim",
     "issuer":"test1.apim",
@@ -80,27 +83,28 @@ async function connectAs(accountName, accountKey) {
        ]
     },
     "start_time":0,
-    "end_time":0
+    "end_time":0,
+    "override_offer_id":overrideOfferId
  }
 
-// initialise the orejs library as test user
+// Initialise the orejs library as test user
 let accountName = process.env.ORE_TESTA_ACCOUNT_NAME
 await connectAs(accountName, process.env.ORE_TESTA_ACCOUNT_KEY)
  
-// add right to rights registry
+// Add right to rights registry
 await orejs.setRightsInRegistry(accountName, rights)
 
-// initialise the orejs library as app.apim
+// Initialise the orejs library as app.apim
 await connectAs(process.env.ORE_OWNER_ACCOUNT_NAME, process.env.ORE_OWNER_ACCOUNT_KEY)
 
-// create offer
+// Create offer
 await orejs.createOfferInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, instrument)
 
 // example buyer account and offer id
 const buyer = "test2.apim"
 const offerId = 0
 
-// create voucher
+// Create voucher
 await orejs.createVoucherInstrument(process.env.ORE_OWNER_ACCOUNT_NAME,buyer,offerId)
 
 //cleos get table instr.ore instr.ore tokens

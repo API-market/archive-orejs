@@ -171,13 +171,17 @@ async function createOfferInstrument(oreAccountName, offerInstrumentData, confir
   return contract.publishapi(oreAccountName, offerInstrumentData.issuer, offerInstrumentData.api_name,offerInstrumentData.additional_api_params, offerInstrumentData.api_payment_model, offerInstrumentData.api_price_in_cpu, offerInstrumentData.license_price_in_cpu, offerInstrumentData.api_description, offerInstrumentData.right_registry, offerInstrumentData.start_time, offerInstrumentData.end_time, options)
 }
 
-async function createVoucherInstrument(creator, buyer, offerId, confirm = true){
+async function createVoucherInstrument(creator, buyer, offerId, overrideVoucherId, confirm = true){
+  // overrideVoucherId is passed in to specify the voucher id for the new voucher. If its value is 0, then the voucher id is auto generated
+  if(!overrideVoucherId){
+    overrideVoucherId = 0
+  }
   // Exercise an offer to get a voucher
   let options = {authorization: `${creator}@owner`}
   let contract = await this.eos.contract(APIM_CONTRACT_NAME, options)
   if (confirm) {
     return this.confirmTransaction(() => {
-      return contract.licenseapi(creator, buyer, offerId, options)
+      return contract.licenseapi(creator, buyer, offerId, overrideVoucherId, options)
     })
   }
   return contract.licenseapi(creator, buyer, offerId, options)
