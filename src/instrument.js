@@ -181,7 +181,7 @@ async function createVoucherInstrument(creator, buyer, offerId, overrideVoucherI
       return contract.licenseapi(creator, buyer, offerId, overrideVoucherId, options)
     })
   }
-  return contract.licenseapi(creator, buyer, offerId, options)
+  return contract.licenseapi(creator, buyer, offerId, overrideVoucherId, options)
 }
 
 module.exports = {
