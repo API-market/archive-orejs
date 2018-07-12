@@ -10,7 +10,7 @@ let options, balance, cpuContract, instrContract, contents, orejs
 
 async function connectAs(accountName, accountKey) {
   // Reinitialize the orejs library, with permissions for the current account...
-  orejs = require("../index").orejs(accountName, accountKey)
+  orejs = require("../index").orejs(accountName, accountKey, process.env.ORE_OWNER_ACCOUNT_OWNER_KEY)
   console.log("Private Key:", accountKey)
   console.log("Public Key:", ecc.privateToPublic(accountKey))
   options = {authorization: `${accountName}@active`}
@@ -71,6 +71,15 @@ function instrumentFor(accountName, version = Math.random().toString()) {
   }
 }
 
+async function logInstrumentCount() {
+  let instruments = await orejs.getAllTableRows({
+    code: 'instr.ore',
+    table: 'tokens',
+  })
+
+  console.log("Instruments Count:", instruments.length)
+}
+
 ;(async function() {
   connectAs(process.env.ORE_PAYER_ACCOUNT_NAME, process.env.ORE_PAYER_ACCOUNT_KEY)
 
@@ -113,23 +122,28 @@ function instrumentFor(accountName, version = Math.random().toString()) {
 
   await connectAs(account.oreAccountName, crypto.decrypt(account.privateKey, "password"))
 
+  logInstrumentCount()
 
-  for (let a = 0; a < 5; a++) {
+  for (let a = 0; a < 3; a++) {
     await orejs.createOfferInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, instrumentFor(account.oreAccountName))
   }
 
-  const offers = await orejs.getAllTableRows({
-    code: 'manager.apim',
-    table: 'offersdata',
-  })
-
-  console.log("Offers Count:", offers.length)
+  logInstrumentCount()
 
   ///////////////////////
   // License an API... //
   ///////////////////////
 
-  await orejs.exerciseInstrument(account.oreAccountName, 0)
+  for (let a = 0; a < 3; a++) {
+    try {
+      let transaction = await orejs.createVoucherInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, 0)
+      console.log("License Transaction:", transaction)
+    } catch(err) {
+      console.log(`Error: Licensing API:`, err)
+    }
+  }
+
+  logInstrumentCount()
 
   const rights = await orejs.getAllTableRows({
     code: 'rights.ore',
@@ -137,13 +151,6 @@ function instrumentFor(accountName, version = Math.random().toString()) {
   })
 
   console.log("Rights:", rights)
-
-  const instruments = await orejs.getAllTableRows({
-    code: 'instr.ore',
-    table: "tokens"
-  })
-
-  console.log("Instruments Count:", instruments.length)
 
   // Get the newly created EOS account...
   contents = await orejs.getOreAccountContents(account.oreAccountName)
