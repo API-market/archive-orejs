@@ -69,7 +69,7 @@ async function getInstrumentsByRight(instrumentList, rightName){
       instruments.push(instrument)
     }
   }
-  
+
   return instruments
 }
 
@@ -77,7 +77,7 @@ async function getInstrumentByOwner(instrumentList, owner){
   // Get all the instruments with a particular owner
   let instruments = []
   instruments = instrumentList.filter(instrument => instrument["owner"] === owner)
-  
+
   return instruments
 }
 
@@ -119,7 +119,7 @@ async function getApiCallStats(instrumentId, rightName){
     limit: -1
   })
 
-  const right = await result.rows.find(function(rightObject){ 
+  const right = await result.rows.find(function(rightObject){
     if(rightObject["right_name"] === rightName)
     {
       return rightObject
@@ -155,24 +155,32 @@ async function getRightStats(rightName, owner){
     totalCpuUsage += rightProperties["totalCpuUsage"]
     totalApiCalls += rightProperties["totalApiCalls"]
   }
-  return {totalCpuUsage, totalApiCalls}  
+  return {totalCpuUsage, totalApiCalls}
 }
 
 
-async function createOfferInstrument(oreAccountName, offerInstrumentData){
+async function createOfferInstrument(oreAccountName, offerInstrumentData, confirm = true){
   // Create an offer
   let options = {authorization: `${oreAccountName}@owner`}
   let contract = await this.eos.contract(APIM_CONTRACT_NAME, options)
-  let instrument = await contract.publishapi(oreAccountName, offerInstrumentData.issuer, offerInstrumentData.api_name,offerInstrumentData.additional_api_params, offerInstrumentData.api_payment_model, offerInstrumentData.api_price_in_cpu, offerInstrumentData.license_price_in_cpu, offerInstrumentData.api_description, offerInstrumentData.right_registry, offerInstrumentData.start_time, offerInstrumentData.end_time, options)
-  return instrument
+  if (confirm) {
+    return this.confirmTransaction(() => {
+      return contract.publishapi(oreAccountName, offerInstrumentData.issuer, offerInstrumentData.api_name,offerInstrumentData.additional_api_params, offerInstrumentData.api_payment_model, offerInstrumentData.api_price_in_cpu, offerInstrumentData.license_price_in_cpu, offerInstrumentData.api_description, offerInstrumentData.right_registry, offerInstrumentData.start_time, offerInstrumentData.end_time, options)
+    })
+  }
+  return contract.publishapi(oreAccountName, offerInstrumentData.issuer, offerInstrumentData.api_name,offerInstrumentData.additional_api_params, offerInstrumentData.api_payment_model, offerInstrumentData.api_price_in_cpu, offerInstrumentData.license_price_in_cpu, offerInstrumentData.api_description, offerInstrumentData.right_registry, offerInstrumentData.start_time, offerInstrumentData.end_time, options)
 }
 
-async function createVoucherInstrument(creator, buyer, offerId){
+async function createVoucherInstrument(creator, buyer, offerId, confirm = true){
   // Exercise an offer to get a voucher
   let options = {authorization: `${creator}@owner`}
   let contract = await this.eos.contract(APIM_CONTRACT_NAME, options)
-  let instrument = await contract.licenseapi(creator, buyer, offerId, options)
-  return instrument
+  if (confirm) {
+    return this.confirmTransaction(() => {
+      return contract.licenseapi(creator, buyer, offerId, options)
+    })
+  }
+  return contract.licenseapi(creator, buyer, offerId, options)
 }
 
 module.exports = {

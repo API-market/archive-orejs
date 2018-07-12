@@ -136,8 +136,7 @@ async function logInstrumentCount() {
 
   for (let a = 0; a < 3; a++) {
     try {
-      let transaction = await orejs.createVoucherInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, 0)
-      console.log("License Transaction:", transaction)
+      await orejs.createVoucherInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, 0)
     } catch(err) {
       console.log(`Error: Licensing API:`, err)
     }

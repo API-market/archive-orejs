@@ -5,36 +5,44 @@ const ACCOUNT_NAME_MAX_LENGTH = 12
 
 /* Private */
 
-async function createOreAccountWithKeys(activePublicKey, ownerPublicKey, options = {}) {
-  let oreAccountName = options.oreAccountName || generateAccountName()
-  let bytes = options.bytes || 8192
-  let stake_net_quantity = options.stake_net_quantity || 1
-  let stake_cpu_quantity = options.stake_cpu_quantity || 1
-  let transfer = options.transfer || 0
-  await this.eos.transaction(tr => {
+function newAccountTransaction(name, ownerPublicKey, activePublicKey, options = {}) {
+  options = {bytes: 8192, stakedNet: 1, stakedCpu: 1, transfer: 0, ...options}
+
+  return this.eos.transaction(tr => {
     tr.newaccount({
       creator: this.config.orePayerAccountName,
-      name: oreAccountName,
+      name: name,
       owner: ownerPublicKey,
       active: activePublicKey
     })
 
     tr.buyrambytes({
       payer: this.config.orePayerAccountName,
-      receiver: oreAccountName,
-      bytes: bytes
+      receiver: name,
+      bytes: options.bytes
     })
 
     tr.delegatebw({
       from: this.config.orePayerAccountName,
-      receiver: oreAccountName,
-      stake_net_quantity: `${stake_net_quantity}.0000 SYS`,
-      stake_cpu_quantity: `${stake_cpu_quantity}.0000 SYS`,
-      transfer: transfer
+      receiver: name,
+      stake_net_quantity: `${options.stakedNet}.0000 SYS`,
+      stake_cpu_quantity: `${options.stakedCpu}.0000 SYS`,
+      transfer: options.transfer
     })
   })
+}
 
-  return oreAccountName
+async function createOreAccountWithKeys(activePublicKey, ownerPublicKey, options = {}, confirm = false) {
+  let oreAccountName = options.oreAccountName || generateAccountName()
+  let transaction
+  if (confirm) {
+    transaction = await this.confirmTransaction(() => {
+      return newAccountTransaction.bind(this)(oreAccountName, ownerPublicKey, activePublicKey, options)
+    })
+  }
+
+  transaction = await newAccountTransaction.bind(this)(oreAccountName, ownerPublicKey, activePublicKey, options)
+  return {oreAccountName, transaction}
 }
 
 function encryptKeys(keys, password) {
@@ -62,11 +70,11 @@ function generateAccountName(encoding = {type: 'rfc4648', lc: true}){
 async function createOreAccount(password, ownerPublicKey, options = {}) {
   const keys = await Keygen.generateMasterKeys()
   // TODO Check for existing wallets, for name collisions
-  const oreAccountName = await createOreAccountWithKeys.bind(this)(keys.publicKeys.active, ownerPublicKey, options)
+  const {oreAccountName, transaction} = await createOreAccountWithKeys.bind(this)(keys.publicKeys.active, ownerPublicKey, options)
 
   encryptKeys.bind(this)(keys, password)
 
-  return { oreAccountName, privateKey: keys.privateKeys.active, publicKey: keys.publicKeys.active }
+  return { oreAccountName, privateKey: keys.privateKeys.active, publicKey: keys.publicKeys.active, transaction }
 }
 
 async function createOreWallet(password, oreAccountName, encryptedAccountOwnerPrivateKey, encryptedAccountActivePrivateKey) {
