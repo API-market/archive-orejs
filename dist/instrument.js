@@ -286,7 +286,7 @@ function createVoucherInstrument(creator, buyer, offerId, overrideVoucherId, con
                                 return contract.licenseapi(creator, buyer, offerId, overrideVoucherId, options);
                             })];
                     }
-                    return [2 /*return*/, contract.licenseapi(creator, buyer, offerId, options)];
+                    return [2 /*return*/, contract.licenseapi(creator, buyer, offerId, overrideVoucherId, options)];
             }
         });
     });
