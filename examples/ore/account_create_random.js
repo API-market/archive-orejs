@@ -157,9 +157,9 @@ function delay(ms = 1000) {
   // Get Usage Stats... //
   ////////////////////////
 
-  //let rightName = voucher.instrument.rights[0].right_name
-  //let instrumentStats = await orejs.getApiCallStats(voucher.id, rightName);
-  //console.log("Instrument Stats:", instrumentStats)
-  //let rightStats = await orejs.getRightStats(rightName, account.oreAccountName);
-  //console.log("Right Stats:", rightStats)
+  let rightName = voucher.instrument.rights[0].right_name
+  let instrumentStats = await orejs.getApiCallStats(voucher.id, rightName);
+  console.log("Instrument Stats:", instrumentStats)
+  let rightStats = await orejs.getRightStats(rightName, account.oreAccountName);
+  console.log("Right Stats:", rightStats)
 })()

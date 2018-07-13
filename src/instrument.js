@@ -29,7 +29,7 @@ function getRight(instrument, rightName) {
 }
 
 
-function rightExists(instrument, rightName){
+function rightExists(instrument, rightName) {
   // Checks if a right belongs to an instrument
   const rights = instrument["instrument"]["rights"]
   for (right of rights) {
@@ -61,7 +61,7 @@ async function getInstruments(oreAccountName, category = undefined, filters = []
   return rows
 }
 
-async function getInstrumentsByRight(instrumentList, rightName){
+async function getInstrumentsByRight(instrumentList, rightName) {
   // Gets all the instruments with a particular right
   let instruments = []
   for (instrument of instrumentList) {
@@ -73,7 +73,7 @@ async function getInstrumentsByRight(instrumentList, rightName){
   return instruments
 }
 
-async function getInstrumentByOwner(instrumentList, owner){
+async function getInstrumentByOwner(instrumentList, owner) {
   // Get all the instruments with a particular owner
   let instruments = []
   instruments = instrumentList.filter(instrument => instrument["owner"] === owner)
@@ -109,7 +109,7 @@ async function createInstrument(instrumentCreatorAccountName, instrumentOwnerAcc
   return instrument
 }
 
-async function getApiCallStats(instrumentId, rightName){
+async function getApiCallStats(instrumentId, rightName) {
   //calls the usagelog contract to get the total number of calls against a particular right
   let result = await this.eos.getTableRows({
     code: INSTR_USAGE_CONTRACT_NAME,
@@ -119,19 +119,19 @@ async function getApiCallStats(instrumentId, rightName){
     limit: -1
   })
 
-  const right = await result.rows.find(function(rightObject){
-    if(rightObject["right_name"] === rightName)
-    {
-      return rightObject
+  const rightProperties = {"totalApiCalls": 0, "totalCpuUsage": 0}
+
+  await result.rows.find(function(rightObject){
+    if (rightObject["right_name"] === rightName) {
+      rightProperties.totalApiCalls = right["total_count"]
+      rightProperties.totalCpuUsage = right["total_cpu"]
     }
   })
-
-  const rightProperties = {"totalApiCalls": right["total_count"], "totalCpuUsage": right["total_cpu"]}
 
   return rightProperties
 }
 
-async function getRightStats(rightName, owner){
+async function getRightStats(rightName, owner) {
   // Returns the total cpu and api calls against a particular right across all the vouchers. If owner specified, then returns the toatal api calls and cpu usage for the owner.
   let instruments, instrumentList, rightProperties
   let totalCpuUsage = 0
@@ -146,7 +146,7 @@ async function getRightStats(rightName, owner){
 
   instruments = await getInstrumentsByRight(instrumentList, rightName)
 
-  if(owner){
+  if (owner){
     instruments = await getInstrumentByOwner(instruments, owner)
   }
 
@@ -159,7 +159,7 @@ async function getRightStats(rightName, owner){
 }
 
 
-async function createOfferInstrument(oreAccountName, offerInstrumentData, confirm = true){
+async function createOfferInstrument(oreAccountName, offerInstrumentData, confirm = true) {
   // Create an offer
   let options = {authorization: `${oreAccountName}@owner`}
   let contract = await this.eos.contract(APIM_CONTRACT_NAME, options)
@@ -171,7 +171,7 @@ async function createOfferInstrument(oreAccountName, offerInstrumentData, confir
   return contract.publishapi(oreAccountName, offerInstrumentData.issuer, offerInstrumentData.api_name,offerInstrumentData.additional_api_params, offerInstrumentData.api_payment_model, offerInstrumentData.api_price_in_cpu, offerInstrumentData.license_price_in_cpu, offerInstrumentData.api_description, offerInstrumentData.right_registry, offerInstrumentData.start_time, offerInstrumentData.end_time, offerInstrumentData.override_offer_id, options)
 }
 
-async function createVoucherInstrument(creator, buyer, offerId, overrideVoucherId=0, confirm = true){
+async function createVoucherInstrument(creator, buyer, offerId, overrideVoucherId=0, confirm = true) {
   // Exercise an offer to get a voucher
   // overrideVoucherId is passed in to specify the voucher id for the new voucher. If its value is 0, then the voucher id is auto generated
   let options = {authorization: `${creator}@owner`}
