@@ -1,3 +1,11 @@
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -37,42 +45,52 @@ var Keygen = require('eosjs-keygen').Keygen;
 var base32 = require('base32.js');
 var ACCOUNT_NAME_MAX_LENGTH = 12;
 /* Private */
-function createOreAccountWithKeys(activePublicKey, ownerPublicKey, options) {
+function newAccountTransaction(name, ownerPublicKey, activePublicKey, options) {
+    var _this = this;
     if (options === void 0) { options = {}; }
+    options = __assign({ bytes: 8192, stakedNet: 1, stakedCpu: 1, transfer: 0 }, options);
+    return this.eos.transaction(function (tr) {
+        tr.newaccount({
+            creator: _this.config.orePayerAccountName,
+            name: name,
+            owner: ownerPublicKey,
+            active: activePublicKey
+        });
+        tr.buyrambytes({
+            payer: _this.config.orePayerAccountName,
+            receiver: name,
+            bytes: options.bytes
+        });
+        tr.delegatebw({
+            from: _this.config.orePayerAccountName,
+            receiver: name,
+            stake_net_quantity: options.stakedNet + ".0000 SYS",
+            stake_cpu_quantity: options.stakedCpu + ".0000 SYS",
+            transfer: options.transfer
+        });
+    });
+}
+function createOreAccountWithKeys(activePublicKey, ownerPublicKey, options, confirm) {
+    if (options === void 0) { options = {}; }
+    if (confirm === void 0) { confirm = false; }
     return __awaiter(this, void 0, void 0, function () {
-        var oreAccountName, bytes, stake_net_quantity, stake_cpu_quantity, transfer;
+        var oreAccountName, transaction;
         var _this = this;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     oreAccountName = options.oreAccountName || generateAccountName();
-                    bytes = options.bytes || 8192;
-                    stake_net_quantity = options.stake_net_quantity || 1;
-                    stake_cpu_quantity = options.stake_cpu_quantity || 1;
-                    transfer = options.transfer || 0;
-                    return [4 /*yield*/, this.eos.transaction(function (tr) {
-                            tr.newaccount({
-                                creator: _this.config.orePayerAccountName,
-                                name: oreAccountName,
-                                owner: ownerPublicKey,
-                                active: activePublicKey
-                            });
-                            tr.buyrambytes({
-                                payer: _this.config.orePayerAccountName,
-                                receiver: oreAccountName,
-                                bytes: bytes
-                            });
-                            tr.delegatebw({
-                                from: _this.config.orePayerAccountName,
-                                receiver: oreAccountName,
-                                stake_net_quantity: stake_net_quantity + ".0000 SYS",
-                                stake_cpu_quantity: stake_cpu_quantity + ".0000 SYS",
-                                transfer: transfer
-                            });
+                    if (!confirm) return [3 /*break*/, 2];
+                    return [4 /*yield*/, this.confirmTransaction(function () {
+                            return newAccountTransaction.bind(_this)(oreAccountName, ownerPublicKey, activePublicKey, options);
                         })];
                 case 1:
-                    _a.sent();
-                    return [2 /*return*/, oreAccountName];
+                    transaction = _a.sent();
+                    _a.label = 2;
+                case 2: return [4 /*yield*/, newAccountTransaction.bind(this)(oreAccountName, ownerPublicKey, activePublicKey, options)];
+                case 3:
+                    transaction = _a.sent();
+                    return [2 /*return*/, { oreAccountName: oreAccountName, transaction: transaction }];
             }
         });
     });
@@ -99,19 +117,19 @@ function generateAccountName(encoding) {
 function createOreAccount(password, ownerPublicKey, options) {
     if (options === void 0) { options = {}; }
     return __awaiter(this, void 0, void 0, function () {
-        var keys, oreAccountName;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
+        var keys, _a, oreAccountName, transaction;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
                 case 0: return [4 /*yield*/, Keygen.generateMasterKeys()
                     // TODO Check for existing wallets, for name collisions
                 ];
                 case 1:
-                    keys = _a.sent();
+                    keys = _b.sent();
                     return [4 /*yield*/, createOreAccountWithKeys.bind(this)(keys.publicKeys.active, ownerPublicKey, options)];
                 case 2:
-                    oreAccountName = _a.sent();
+                    _a = _b.sent(), oreAccountName = _a.oreAccountName, transaction = _a.transaction;
                     encryptKeys.bind(this)(keys, password);
-                    return [2 /*return*/, { oreAccountName: oreAccountName, privateKey: keys.privateKeys.active, publicKey: keys.publicKeys.active }];
+                    return [2 /*return*/, { oreAccountName: oreAccountName, privateKey: keys.privateKeys.active, publicKey: keys.publicKeys.active, transaction: transaction }];
             }
         });
     });

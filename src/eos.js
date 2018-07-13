@@ -68,6 +68,37 @@ async function keyProvider() {
 
 /* Public */
 
+// eosjs only confirms that transactions have been accepted
+// this confirms that the transaction has been written to the chain
+// by checking block produced immediately after the transaction
+async function confirmTransaction(func, blocksToCheck = 10, checkInterval = 200) {
+  // before making the transaction, check the current block id...
+  let latestBlock = await this.getLatestBlock()
+  let initialBlockId = latestBlock.block_num
+  // make the transaction...
+  let transaction = await func()
+  // check blocks for the transaction id...
+  return new Promise((resolve, reject) => {
+    let currentBlockId = initialBlockId + 1
+    let intConfirm = setInterval(async() => {
+      let latestBlock = await this.getLatestBlock()
+      if (currentBlockId <= latestBlock.block_num) {
+        if (currentBlockId != latestBlock.block_num) {
+          latestBlock = this.eos.getBlock(currentBlockId)
+        }
+        currentBlockId += 1
+      }
+      if (hasTransaction(latestBlock, transaction.transaction_id)) {
+        clearInterval(intConfirm)
+        resolve(transaction)
+      } else if (latestBlock.block_num >= initialBlockId + blocksToCheck) {
+        clearInterval(intConfirm)
+        reject("Transaction Confirmation Timeout")
+      }
+    }, checkInterval)
+  })
+}
+
 async function contract(contractName, accountName) {
   let options = {authorization: `${accountName}@active`}
   let contract = await this.eos.contract(contractName, options)
@@ -120,6 +151,23 @@ async function getAllTableRowsFiltered(params, filter, key_field="id") {
   return filterRows(result, filter)
 }
 
+async function getLatestBlock() {
+  let info = await this.eos.getInfo({})
+  let block = await this.eos.getBlock(info.last_irreversible_block_num)
+  return block
+}
+
+function hasTransaction(block, transactionId) {
+  if (block.transactions) {
+    for (let trans of block.transactions) {
+      if (trans.trx.id == transactionId) {
+        return true
+      }
+    }
+  }
+  return false
+}
+
 async function signVoucher(apiVoucherId) {
   return ecc.sign(apiVoucherId.toString(), this.config.keyProvider[0])
 }
@@ -130,10 +178,13 @@ function tableKey(oreAccountName) {
 }
 
 module.exports = {
+  confirmTransaction,
   contract,
   findOne,
   getAllTableRows,
   getAllTableRowsFiltered,
+  getLatestBlock,
+  hasTransaction,
   signVoucher,
   tableKey
 }
