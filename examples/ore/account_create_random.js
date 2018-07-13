@@ -35,7 +35,7 @@ function instrumentFor(accountName, version = Math.random().toString()) {
   return {
     "creator":process.env.ORE_OWNER_ACCOUNT_NAME,
     "issuer":accountName,
-    "api_name":`${accountName} : ${version}`,
+    "api_name":`${accountName}_${version}`,
     "additional_api_params":[
        {
         "name":"sla",
@@ -67,7 +67,8 @@ function instrumentFor(accountName, version = Math.random().toString()) {
        ]
     },
     "start_time":0,
-    "end_time":0
+    "end_time":0,
+    "override_offer_id":0
   }
 }
 
@@ -78,6 +79,14 @@ async function logInstrumentCount() {
   })
 
   console.log("Instruments Count:", instruments.length)
+}
+
+function delay(ms = 1000) {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve()
+    }, ms)
+  })
 }
 
 ;(async function() {
@@ -124,9 +133,11 @@ async function logInstrumentCount() {
 
   logInstrumentCount()
 
-  for (let a = 0; a < 3; a++) {
-    await orejs.createOfferInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, instrumentFor(account.oreAccountName))
-  }
+  let instrument = instrumentFor(account.oreAccountName)
+  let offerTx = await orejs.createOfferInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, instrument)
+  await delay()
+  let [offer] = await orejs.findInstruments(account.oreAccountName)
+  console.log("Offer:", offer, offer.instrument.rights)
 
   logInstrumentCount()
 
@@ -134,24 +145,21 @@ async function logInstrumentCount() {
   // License an API... //
   ///////////////////////
 
-  for (let a = 0; a < 3; a++) {
-    try {
-      await orejs.createVoucherInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, 0)
-    } catch(err) {
-      console.log(`Error: Licensing API:`, err)
-    }
-  }
+  // TODO Create a Voucher for the recently published Offer (ie, change 0 to offer.id)
+  let voucherTx = await orejs.createVoucherInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, 0)
+  await delay()
+  let [voucher] = await orejs.findInstruments(account.oreAccountName, true, 'apimarket.apiVoucher')
+  console.log("Voucher:", voucher, voucher.instrument.rights)
 
   logInstrumentCount()
 
-  const rights = await orejs.getAllTableRows({
-    code: 'rights.ore',
-    table: 'rights',
-  })
+  ////////////////////////
+  // Get Usage Stats... //
+  ////////////////////////
 
-  console.log("Rights:", rights)
-
-  // Get the newly created EOS account...
-  contents = await orejs.getOreAccountContents(account.oreAccountName)
-  console.log("Account Contents:", contents)
+  //let rightName = voucher.instrument.rights[0].right_name
+  //let instrumentStats = await orejs.getApiCallStats(voucher.id, rightName);
+  //console.log("Instrument Stats:", instrumentStats)
+  //let rightStats = await orejs.getRightStats(rightName, account.oreAccountName);
+  //console.log("Right Stats:", rightStats)
 })()
