@@ -144,8 +144,11 @@ function confirmTransaction(func, blocksToCheck, checkInterval) {
                                         case 0: return [4 /*yield*/, this.getLatestBlock()];
                                         case 1:
                                             latestBlock = _a.sent();
-                                            if (currentBlockId < latestBlock.block_num) {
-                                                latestBlock = this.eos.getBlock(currentBlockId);
+                                            if (currentBlockId <= latestBlock.block_num) {
+                                                if (currentBlockId != latestBlock.block_num) {
+                                                    latestBlock = this.eos.getBlock(currentBlockId);
+                                                }
+                                                currentBlockId += 1;
                                             }
                                             if (hasTransaction(latestBlock, transaction.transaction_id)) {
                                                 clearInterval(intConfirm);
@@ -155,7 +158,6 @@ function confirmTransaction(func, blocksToCheck, checkInterval) {
                                                 clearInterval(intConfirm);
                                                 reject("Transaction Confirmation Timeout");
                                             }
-                                            currentBlockId += 1;
                                             return [2 /*return*/];
                                     }
                                 });

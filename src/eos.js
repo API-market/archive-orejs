@@ -82,8 +82,11 @@ async function confirmTransaction(func, blocksToCheck = 10, checkInterval = 200)
     let currentBlockId = initialBlockId + 1
     let intConfirm = setInterval(async() => {
       let latestBlock = await this.getLatestBlock()
-      if (currentBlockId < latestBlock.block_num) {
-        latestBlock = this.eos.getBlock(currentBlockId)
+      if (currentBlockId <= latestBlock.block_num) {
+        if (currentBlockId != latestBlock.block_num) {
+          latestBlock = this.eos.getBlock(currentBlockId)
+        }
+        currentBlockId += 1
       }
       if (hasTransaction(latestBlock, transaction.transaction_id)) {
         clearInterval(intConfirm)
@@ -92,7 +95,6 @@ async function confirmTransaction(func, blocksToCheck = 10, checkInterval = 200)
         clearInterval(intConfirm)
         reject("Transaction Confirmation Timeout")
       }
-      currentBlockId += 1
     }, checkInterval)
   })
 }
