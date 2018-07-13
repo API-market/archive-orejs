@@ -179,7 +179,7 @@ function createInstrument(instrumentCreatorAccountName, instrumentOwnerAccountNa
 }
 function getApiCallStats(instrumentId, rightName) {
     return __awaiter(this, void 0, void 0, function () {
-        var result, right, rightProperties;
+        var result, rightProperties;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, this.eos.getTableRows({
@@ -191,14 +191,15 @@ function getApiCallStats(instrumentId, rightName) {
                     })];
                 case 1:
                     result = _a.sent();
+                    rightProperties = { "totalApiCalls": 0, "totalCpuUsage": 0 };
                     return [4 /*yield*/, result.rows.find(function (rightObject) {
                             if (rightObject["right_name"] === rightName) {
-                                return rightObject;
+                                rightProperties.totalApiCalls = right["total_count"];
+                                rightProperties.totalCpuUsage = right["total_cpu"];
                             }
                         })];
                 case 2:
-                    right = _a.sent();
-                    rightProperties = { "totalApiCalls": right["total_count"], "totalCpuUsage": right["total_cpu"] };
+                    _a.sent();
                     return [2 /*return*/, rightProperties];
             }
         });
