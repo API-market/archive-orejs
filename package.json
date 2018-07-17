@@ -4,7 +4,8 @@
   "description": "orejs is helper library (written in Javascript) to provide simple high-level access to the ore-protocol. Orejs uses eosJS as a wrapper to the EOS blockchain",
   "main": "./dist/index.js",
   "scripts": {
-    "build": "tsc --project ./tsconfig.json --pretty"
+    "build": "tsc --project ./tsconfig.json --pretty",
+    "test": "jest --runInBand --coverage"
   },
   "repository": {
     "type": "git",
@@ -17,6 +18,7 @@
   },
   "homepage": "https://github.com/api.market/orejs#readme",
   "devDependencies": {
+    "jest": "^23.4.1",
     "typescript": "^2.9.2"
   },
   "dependencies": {
