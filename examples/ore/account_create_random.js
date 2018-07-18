@@ -93,9 +93,9 @@ function delay(ms = 1000) {
 ;(async function() {
   connectAs(process.env.ORE_PAYER_ACCOUNT_NAME, process.env.ORE_PAYER_ACCOUNT_KEY)
 
-  // ///////////////////////////
-  // // Create the account... //
-  // ///////////////////////////
+  ///////////////////////////
+  // Create the account... //
+  ///////////////////////////
 
   const ownerPublicKey = ecc.privateToPublic(process.env.ORE_OWNER_ACCOUNT_KEY)
 
@@ -106,9 +106,9 @@ function delay(ms = 1000) {
   contents = await orejs.getOreAccountContents(account.oreAccountName)
   console.log("Account Contents:", contents)
 
-  // /////////////////////////////////////////
-  // // Give the new account some tokens... //
-  // /////////////////////////////////////////
+  ///////////////////////////////////////
+  // Give the new account some tokens... //
+  /////////////////////////////////////////
 
   await connectAs(process.env.ORE_CPU_ACCOUNT_NAME, process.env.ORE_CPU_ACCOUNT_KEY)
 
@@ -119,8 +119,7 @@ function delay(ms = 1000) {
   const transferMemo = "transfer"
 
   console.log("Issuing", amount, "CPU to", process.env.ORE_OWNER_ACCOUNT_NAME)
-  //await cpuContract.create(process.env.ORE_CPU_ACCOUNT_NAME, "100.0000 CPU", options)
-  await cpuContract.issue(process.env.ORE_OWNER_ACCOUNT_NAME, "100.0000 CPU", issueMemo,options)
+  await cpuContract.issue(process.env.ORE_OWNER_ACCOUNT_NAME, amount, issueMemo,options)
 
   await logBalances()
 
