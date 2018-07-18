@@ -1,16 +1,18 @@
 var CONTRACT_NAME = 'cpu.ore';
+var TOKEN_SYMBOL = 'CPU';
 /* Public */
 function cpuContract(accountName) {
     return this.contract(CONTRACT_NAME, accountName);
 }
 function approveCpu(fromAccountName, toAccountName, cpuAmount) {
-    return this.approveTransfer(fromAccountName, toAccountName, cpuAmount, CONTRACT_NAME);
+    return this.approveStandardTokenTransfer(fromAccountName, toAccountName, cpuAmount, CONTRACT_NAME);
 }
 function getCpuBalance(oreAccountName) {
-    return this.getBalance(oreAccountName, CONTRACT_NAME);
+    return this.getStandardTokenBalance(oreAccountName, TOKEN_SYMBOL, CONTRACT_NAME);
 }
-function transferCpu(fromAccountName, toAccountName, amount) {
-    return this.transferToken(fromAccountName, toAccountName, amount, CONTRACT_NAME);
+function transferCpu(fromAccountName, toAccountName, cpuAmount, memo) {
+    if (memo === void 0) { memo = ""; }
+    return this.transferStandardToken(fromAccountName, toAccountName, cpuAmount, memo, CONTRACT_NAME);
 }
 module.exports = {
     approveCpu: approveCpu,

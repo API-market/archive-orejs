@@ -5,6 +5,7 @@ var eos = require('./eos');
 var instrument = require('./instrument');
 var crypto = require('./modules/crypto');
 var ore = require('./tokens/ore');
+var oreStandardToken = require('./orestandardtoken');
 var rightsRegistry = require('./rightsregistry');
 var token = require('./token');
 var Orejs = /** @class */ (function () {
@@ -18,6 +19,7 @@ var Orejs = /** @class */ (function () {
         Object.assign(this, eos);
         Object.assign(this, instrument);
         Object.assign(this, ore);
+        Object.assign(this, oreStandardToken);
         Object.assign(this, rightsRegistry);
         Object.assign(this, token);
     }
