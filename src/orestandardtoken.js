@@ -1,6 +1,25 @@
 const TABLE_NAME = 'accounts'
 
 /* Public */
+function getTokenAmount(tokenAmount, tokenSymbol) {
+  try{
+    if(typeof tokenAmount === "number"){
+      const amount = parseFloat(tokenAmount).toFixed(4)
+      return amount.toString() + " " + tokenSymbol
+    } else if (typeof tokenAmount === "string"){
+      if(tokenAmount.split(" ")[1] === tokenSymbol){
+        return tokenAmount
+      }
+      else{
+        return tokenAmount + " " + tokenSymbol
+      }
+    } else {
+      throw err
+    }
+  } catch(err){
+    console.info(err)
+  }
+}
 
 async function issueStandardToken(toAccountName, tokenAmount, memo="", ownerAccountName, contractName) {
   const { contract, options } = await this.contract(contractName, ownerAccountName)
@@ -39,6 +58,7 @@ async function transferfrom(approvedAccountName, fromAccountName, toAccountName,
 
 module.exports = {
   approveStandardTokenTransfer,
+  getTokenAmount,
   getStandardTokenBalance,
   issueStandardToken,
   transferStandardToken,

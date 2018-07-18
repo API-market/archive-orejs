@@ -111,7 +111,7 @@ function delay(ms = 1000) {
 
   await logBalances()
 
-  const amount = "100.0000 CPU"
+  const amount = 100.0000
   const issueMemo = "issue"
   const transferMemo = "transfer"
 
@@ -120,48 +120,47 @@ function delay(ms = 1000) {
 
   await logBalances()
 
-  // await connectAs(process.env.ORE_OWNER_ACCOUNT_NAME, process.env.ORE_OWNER_ACCOUNT_KEY)
-  // console.log("Transfering", amount, "CPU from", process.env.ORE_OWNER_ACCOUNT_NAME, "to", account.oreAccountName)
-  // await orejs.transferCpu(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, amount)
+  await connectAs(process.env.ORE_OWNER_ACCOUNT_NAME, process.env.ORE_OWNER_ACCOUNT_KEY)
+  console.log("Transfering", amount, "CPU from", process.env.ORE_OWNER_ACCOUNT_NAME, "to", account.oreAccountName)
+  await orejs.transferCpu(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, amount)
 
-  // await logBalances(account.oreAccountName)
+  await logBalances(account.oreAccountName)
 
+  ///////////////////////
+  // Publish an API... //
+  ///////////////////////
 
-  // ///////////////////////
-  // // Publish an API... //
-  // ///////////////////////
+  await connectAs(account.oreAccountName, crypto.decrypt(account.privateKey, "password"))
 
-  // await connectAs(account.oreAccountName, crypto.decrypt(account.privateKey, "password"))
+  logInstrumentCount()
 
-  // logInstrumentCount()
+  let instrument = instrumentFor(account.oreAccountName)
+  let offerTx = await orejs.createOfferInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, instrument)
+  await delay()
+  let [offer] = await orejs.findInstruments(account.oreAccountName)
+  console.log("Offer:", offer, offer.instrument.rights)
 
-  // let instrument = instrumentFor(account.oreAccountName)
-  // let offerTx = await orejs.createOfferInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, instrument)
-  // await delay()
-  // let [offer] = await orejs.findInstruments(account.oreAccountName)
-  // console.log("Offer:", offer, offer.instrument.rights)
+  logInstrumentCount()
 
-  // logInstrumentCount()
+  ///////////////////////
+  // License an API... //
+  ///////////////////////
 
-  // ///////////////////////
-  // // License an API... //
-  // ///////////////////////
+  // // TODO Create a Voucher for the recently published Offer (ie, change 0 to offer.id)
+  let voucherTx = await orejs.createVoucherInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, 0)
+  await delay()
+  let [voucher] = await orejs.findInstruments(account.oreAccountName, true, 'apimarket.apiVoucher')
+  console.log("Voucher:", voucher, voucher.instrument.rights)
 
-  // // // TODO Create a Voucher for the recently published Offer (ie, change 0 to offer.id)
-  // let voucherTx = await orejs.createVoucherInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, 0)
-  // await delay()
-  // let [voucher] = await orejs.findInstruments(account.oreAccountName, true, 'apimarket.apiVoucher')
-  // console.log("Voucher:", voucher, voucher.instrument.rights)
+  logInstrumentCount()
 
-  // logInstrumentCount()
+  ////////////////////////
+  // Get Usage Stats... //
+  ////////////////////////
 
-  // ////////////////////////
-  // // Get Usage Stats... //
-  // ////////////////////////
-
-  // let rightName = voucher.instrument.rights[0].right_name
-  // let instrumentStats = await orejs.getApiCallStats(voucher.id, rightName);
-  // console.log("Instrument Stats:", instrumentStats)
-  // let rightStats = await orejs.getRightStats(rightName, account.oreAccountName);
-  // console.log("Right Stats:", rightStats)
+  let rightName = voucher.instrument.rights[0].right_name
+  let instrumentStats = await orejs.getApiCallStats(voucher.id, rightName);
+  console.log("Instrument Stats:", instrumentStats)
+  let rightStats = await orejs.getRightStats(rightName, account.oreAccountName);
+  console.log("Right Stats:", rightStats)
 })()

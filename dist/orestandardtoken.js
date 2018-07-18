@@ -35,6 +35,28 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 var TABLE_NAME = 'accounts';
 /* Public */
+function getTokenAmount(tokenAmount, tokenSymbol) {
+    try {
+        if (typeof tokenAmount === "number") {
+            var amount = parseFloat(tokenAmount).toFixed(4);
+            return amount.toString() + " " + tokenSymbol;
+        }
+        else if (typeof tokenAmount === "string") {
+            if (tokenAmount.split(" ")[1] === tokenSymbol) {
+                return tokenAmount;
+            }
+            else {
+                return tokenAmount + " " + tokenSymbol;
+            }
+        }
+        else {
+            throw err;
+        }
+    }
+    catch (err) {
+        console.info(err);
+    }
+}
 function issueStandardToken(toAccountName, tokenAmount, memo, ownerAccountName, contractName) {
     if (memo === void 0) { memo = ""; }
     return __awaiter(this, void 0, void 0, function () {
@@ -123,6 +145,7 @@ function transferfrom(approvedAccountName, fromAccountName, toAccountName, token
 }
 module.exports = {
     approveStandardTokenTransfer: approveStandardTokenTransfer,
+    getTokenAmount: getTokenAmount,
     getStandardTokenBalance: getStandardTokenBalance,
     issueStandardToken: issueStandardToken,
     transferStandardToken: transferStandardToken,
