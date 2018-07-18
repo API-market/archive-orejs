@@ -35,6 +35,23 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 var TABLE_NAME = 'accounts';
 /* Public */
+function issueStandardToken(toAccountName, tokenAmount, memo, ownerAccountName, contractName) {
+    if (memo === void 0) { memo = ""; }
+    return __awaiter(this, void 0, void 0, function () {
+        var _a, contract, options;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0: return [4 /*yield*/, this.contract(contractName, ownerAccountName)];
+                case 1:
+                    _a = _b.sent(), contract = _a.contract, options = _a.options;
+                    return [4 /*yield*/, contract.issue(toAccountName, tokenAmount.toString(), memo, options)];
+                case 2:
+                    _b.sent();
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
 // cleos push action cpu.ore approve '[""]
 function approveStandardTokenTransfer(fromAccountName, toAccountName, tokenAmount, contractName) {
     return __awaiter(this, void 0, void 0, function () {
@@ -87,9 +104,31 @@ function transferStandardToken(fromAccountName, toAccountName, tokenAmount, memo
         });
     });
 }
+// cleos push action cpu.ore transferfrom '["app.apim", "test1.apim", "test2.apim", "10.0000 CPU"]' -p app.apim
+function transferfrom(approvedAccountName, fromAccountName, toAccountName, tokenAmount, contractName) {
+    return __awaiter(this, void 0, void 0, function () {
+        var _a, contract, options;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    // Standard token transfer
+                    console.log("in transfer fron", approvedAccountName);
+                    return [4 /*yield*/, this.contract(contractName, approvedAccountName)];
+                case 1:
+                    _a = _b.sent(), contract = _a.contract, options = _a.options;
+                    return [4 /*yield*/, contract.transferfrom(approvedAccountName, fromAccountName, toAccountName, tokenAmount.toString(), options)];
+                case 2:
+                    _b.sent();
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
 module.exports = {
     approveStandardTokenTransfer: approveStandardTokenTransfer,
     getStandardTokenBalance: getStandardTokenBalance,
-    transferStandardToken: transferStandardToken
+    issueStandardToken: issueStandardToken,
+    transferStandardToken: transferStandardToken,
+    transferfrom: transferfrom
 };
 //# sourceMappingURL=orestandardtoken.js.map
