@@ -110,10 +110,7 @@ function transferfrom(approvedAccountName, fromAccountName, toAccountName, token
         var _a, contract, options;
         return __generator(this, function (_b) {
             switch (_b.label) {
-                case 0:
-                    // Standard token transfer
-                    console.log("in transfer fron", approvedAccountName);
-                    return [4 /*yield*/, this.contract(contractName, approvedAccountName)];
+                case 0: return [4 /*yield*/, this.contract(contractName, approvedAccountName)];
                 case 1:
                     _a = _b.sent(), contract = _a.contract, options = _a.options;
                     return [4 /*yield*/, contract.transferfrom(approvedAccountName, fromAccountName, toAccountName, tokenAmount.toString(), options)];

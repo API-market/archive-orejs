@@ -33,7 +33,6 @@ async function transferStandardToken(fromAccountName, toAccountName, tokenAmount
 // cleos push action cpu.ore transferfrom '["app.apim", "test1.apim", "test2.apim", "10.0000 CPU"]' -p app.apim
 async function transferfrom(approvedAccountName, fromAccountName, toAccountName, tokenAmount,contractName) {
   // Standard token transfer
-  console.log("in transfer fron", approvedAccountName)
   const { contract, options } = await this.contract(contractName, approvedAccountName)
   await contract.transferfrom(approvedAccountName, fromAccountName, toAccountName, tokenAmount.toString(), options);
 }
