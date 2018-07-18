@@ -19,7 +19,6 @@ async function connectAs(accountName, accountKey) {
 }
 
 async function logBalances(account = undefined) {
-  //balance = await orejs.getCpuBalance(process.env.ORE_CPU_ACCOUNT_NAME)
   balance = await orejs.getCpuBalance(process.env.ORE_CPU_ACCOUNT_NAME)
   console.log(process.env.ORE_CPU_ACCOUNT_NAME, "Balance:", balance)
 
