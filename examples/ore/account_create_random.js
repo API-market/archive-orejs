@@ -19,6 +19,7 @@ async function connectAs(accountName, accountKey) {
 }
 
 async function logBalances(account = undefined) {
+  //balance = await orejs.getCpuBalance(process.env.ORE_CPU_ACCOUNT_NAME)
   balance = await orejs.getCpuBalance(process.env.ORE_CPU_ACCOUNT_NAME)
   console.log(process.env.ORE_CPU_ACCOUNT_NAME, "Balance:", balance)
 
@@ -26,8 +27,8 @@ async function logBalances(account = undefined) {
   console.log(process.env.ORE_OWNER_ACCOUNT_NAME, "Balance:", balance)
 
   if (account) {
-    balance = await orejs.getCpuBalance(account.oreAccountName)
-    console.log(account.oreAccountName, "Balance:", balance)
+    balance = await orejs.getCpuBalance(account)
+    console.log(account, "Balance:", balance)
   }
 }
 
@@ -92,38 +93,42 @@ function delay(ms = 1000) {
 ;(async function() {
   connectAs(process.env.ORE_PAYER_ACCOUNT_NAME, process.env.ORE_PAYER_ACCOUNT_KEY)
 
-  ///////////////////////////
-  // Create the account... //
-  ///////////////////////////
+  // ///////////////////////////
+  // // Create the account... //
+  // ///////////////////////////
 
   const ownerPublicKey = ecc.privateToPublic(process.env.ORE_OWNER_ACCOUNT_KEY)
 
   let account = await orejs.createOreAccount(process.env.WALLET_PASSWORD, ownerPublicKey)
   console.log("Account Created:", account)
 
-  // Get the newly created EOS account...
+  // // Get the newly created EOS account...
   contents = await orejs.getOreAccountContents(account.oreAccountName)
   console.log("Account Contents:", contents)
 
-  /////////////////////////////////////////
-  // Give the new account some tokens... //
-  /////////////////////////////////////////
+  // /////////////////////////////////////////
+  // // Give the new account some tokens... //
+  // /////////////////////////////////////////
+
+  await connectAs(process.env.ORE_CPU_ACCOUNT_NAME, process.env.ORE_CPU_ACCOUNT_KEY)
 
   await logBalances()
 
-  const amount = 10
-  await connectAs(process.env.ORE_CPU_ACCOUNT_NAME, process.env.ORE_CPU_ACCOUNT_KEY)
-  console.log("Minting", amount, "CPU to", process.env.ORE_OWNER_ACCOUNT_NAME)
-  await cpuContract.mint(process.env.ORE_CPU_ACCOUNT_NAME, amount, options)
-  await cpuContract.transfer(process.env.ORE_CPU_ACCOUNT_NAME, process.env.ORE_OWNER_ACCOUNT_NAME, amount, options)
+  const amount = "100.0000 CPU"
+  const issueMemo = "issue"
+  const transferMemo = "transfer"
+
+  console.log("Issuing", amount, "CPU to", process.env.ORE_OWNER_ACCOUNT_NAME)
+  //await cpuContract.create(process.env.ORE_CPU_ACCOUNT_NAME, "100.0000 CPU", options)
+  await cpuContract.issue(process.env.ORE_OWNER_ACCOUNT_NAME, "100.0000 CPU", issueMemo,options)
 
   await logBalances()
 
   await connectAs(process.env.ORE_OWNER_ACCOUNT_NAME, process.env.ORE_OWNER_ACCOUNT_KEY)
   console.log("Transfering", amount, "CPU from", process.env.ORE_OWNER_ACCOUNT_NAME, "to", account.oreAccountName)
-  await cpuContract.transfer(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, amount, options)
+  await cpuContract.transfer(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, amount, transferMemo, options)
 
-  await logBalances(account)
+  await logBalances(account.oreAccountName)
 
   ///////////////////////
   // Publish an API... //
@@ -145,7 +150,7 @@ function delay(ms = 1000) {
   // License an API... //
   ///////////////////////
 
-  // TODO Create a Voucher for the recently published Offer (ie, change 0 to offer.id)
+  // // TODO Create a Voucher for the recently published Offer (ie, change 0 to offer.id)
   let voucherTx = await orejs.createVoucherInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, 0)
   await delay()
   let [voucher] = await orejs.findInstruments(account.oreAccountName, true, 'apimarket.apiVoucher')

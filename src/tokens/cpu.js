@@ -1,5 +1,5 @@
 const CONTRACT_NAME = 'cpu.ore'
-
+const TOKEN_SYMBOL = 'CPU'
 /* Public */
 
 function cpuContract(accountName) {
@@ -7,15 +7,15 @@ function cpuContract(accountName) {
 }
 
 function approveCpu(fromAccountName, toAccountName, cpuAmount) {
-  return this.approveTransfer(fromAccountName, toAccountName, cpuAmount, CONTRACT_NAME)
+  return this.approveStandardTokenTransfer(fromAccountName, toAccountName, cpuAmount, CONTRACT_NAME)
 }
 
 function getCpuBalance(oreAccountName) {
-  return this.getBalance(oreAccountName, CONTRACT_NAME)
+  return this.getStandardTokenBalance(oreAccountName, TOKEN_SYMBOL, CONTRACT_NAME)
 }
 
-function transferCpu(fromAccountName, toAccountName, amount) {
-  return this.transferToken(fromAccountName, toAccountName, amount, CONTRACT_NAME)
+function transferCpu(fromAccountName, toAccountName, cpuAmount, memo="") {
+  return this.transferStandardToken(fromAccountName, toAccountName, cpuAmount, memo, CONTRACT_NAME)
 }
 
 module.exports = {

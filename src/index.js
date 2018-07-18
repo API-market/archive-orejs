@@ -5,6 +5,7 @@ const eos = require('./eos')
 const instrument = require('./instrument')
 const crypto = require('./modules/crypto')
 const ore = require('./tokens/ore')
+const oreStandardToken = require('./orestandardtoken')
 const rightsRegistry = require('./rightsregistry')
 const token = require('./token')
 
@@ -21,6 +22,7 @@ class Orejs {
     Object.assign(this, eos)
     Object.assign(this, instrument)
     Object.assign(this, ore)
+    Object.assign(this, oreStandardToken)
     Object.assign(this, rightsRegistry)
     Object.assign(this, token)
 
