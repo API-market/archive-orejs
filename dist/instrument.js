@@ -194,8 +194,8 @@ function getApiCallStats(instrumentId, rightName) {
                     rightProperties = { "totalApiCalls": 0, "totalCpuUsage": 0 };
                     return [4 /*yield*/, result.rows.find(function (rightObject) {
                             if (rightObject["right_name"] === rightName) {
-                                rightProperties.totalApiCalls = right["total_count"];
-                                rightProperties.totalCpuUsage = right["total_cpu"];
+                                rightProperties.totalApiCalls = rightObject["total_count"];
+                                rightProperties.totalCpuUsage = rightObject["total_cpu"];
                             }
                         })];
                 case 2:
@@ -207,7 +207,7 @@ function getApiCallStats(instrumentId, rightName) {
 }
 function getRightStats(rightName, owner) {
     return __awaiter(this, void 0, void 0, function () {
-        var instruments, instrumentList, rightProperties, totalCpuUsage, totalApiCalls, _i, instruments_1;
+        var instruments, instrumentList, rightProperties, totalCpuUsage, totalApiCalls, _i, instruments_1, value, usageValue;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -238,7 +238,9 @@ function getRightStats(rightName, owner) {
                     return [4 /*yield*/, getApiCallStats.bind(this)(instrumentObject.id, rightName)];
                 case 6:
                     rightProperties = _a.sent();
-                    totalCpuUsage += rightProperties["totalCpuUsage"];
+                    value = parseFloat(rightProperties["totalCpuUsage"]);
+                    usageValue = value.toFixed(4);
+                    totalCpuUsage += Number(usageValue);
                     totalApiCalls += rightProperties["totalApiCalls"];
                     _a.label = 7;
                 case 7:
