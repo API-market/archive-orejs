@@ -123,8 +123,8 @@ async function getApiCallStats(instrumentId, rightName) {
 
   await result.rows.find(function(rightObject){
     if (rightObject["right_name"] === rightName) {
-      rightProperties.totalApiCalls = right["total_count"]
-      rightProperties.totalCpuUsage = right["total_cpu"]
+      rightProperties.totalApiCalls = rightObject["total_count"]
+      rightProperties.totalCpuUsage = rightObject["total_cpu"]
     }
   })
 
@@ -152,8 +152,12 @@ async function getRightStats(rightName, owner) {
 
   for (instrumentObject of instruments) {
     rightProperties = await getApiCallStats.bind(this)(instrumentObject.id, rightName)
-    totalCpuUsage += rightProperties["totalCpuUsage"]
-    totalApiCalls += rightProperties["totalApiCalls"]
+    const value = rightProperties["totalCpuUsage"]
+    if(Number(value)!= 0){
+      const usageValue = parseFloat(value.split(" ")[0]).toFixed(4)
+      totalCpuUsage += Number(usageValue)
+      totalApiCalls += rightProperties["totalApiCalls"]
+    }
   }
   return {totalCpuUsage, totalApiCalls}
 }
