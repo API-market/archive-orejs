@@ -46,7 +46,7 @@ function getTokenAmount(tokenAmount, tokenSymbol) {
                 return tokenAmount;
             }
             else {
-                return tokenAmount + " " + tokenSymbol;
+                return parseFloat(tokenAmount).toFixed(4).toString() + " " + tokenSymbol;
             }
         }
         else {
