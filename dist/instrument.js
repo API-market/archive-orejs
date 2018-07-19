@@ -238,12 +238,10 @@ function getRightStats(rightName, owner) {
                     return [4 /*yield*/, getApiCallStats.bind(this)(instrumentObject.id, rightName)];
                 case 6:
                     rightProperties = _a.sent();
-                    value = rightProperties["totalCpuUsage"];
-                    if (Number(value) != 0) {
-                        usageValue = parseFloat(value.split(" ")[0]).toFixed(4);
-                        totalCpuUsage += Number(usageValue);
-                        totalApiCalls += rightProperties["totalApiCalls"];
-                    }
+                    value = parseFloat(rightProperties["totalCpuUsage"]);
+                    usageValue = value.toFixed(4);
+                    totalCpuUsage += Number(usageValue);
+                    totalApiCalls += rightProperties["totalApiCalls"];
                     _a.label = 7;
                 case 7:
                     _i++;

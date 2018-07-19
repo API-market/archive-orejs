@@ -152,13 +152,11 @@ async function getRightStats(rightName, owner) {
 
   for (instrumentObject of instruments) {
     rightProperties = await getApiCallStats.bind(this)(instrumentObject.id, rightName)
-    const value = rightProperties["totalCpuUsage"]
-    if(Number(value)!= 0){
-      const usageValue = parseFloat(value.split(" ")[0]).toFixed(4)
-      totalCpuUsage += Number(usageValue)
-      totalApiCalls += rightProperties["totalApiCalls"]
+    const value = parseFloat(rightProperties["totalCpuUsage"])
+    const usageValue = value.toFixed(4)
+    totalCpuUsage += Number(usageValue)
+    totalApiCalls += rightProperties["totalApiCalls"]
     }
-  }
   return {totalCpuUsage, totalApiCalls}
 }
 
