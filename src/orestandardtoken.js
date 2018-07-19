@@ -36,7 +36,7 @@ async function approveStandardTokenTransfer(fromAccountName, toAccountName, toke
 // cleos get currency balance cpu.ore test1.apim CPU
 async function getStandardTokenBalance(accountName, tokenSymbol, contractName) {
   const balance = await this.eos.getCurrencyBalance(contractName, accountName, tokenSymbol)
-  if (balance){
+  if (balance && balance[0]){
     return parseFloat(balance[0].split(tokenSymbol)[0])
   }
   return parseFloat(0.0000)

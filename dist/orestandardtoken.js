@@ -100,7 +100,7 @@ function getStandardTokenBalance(accountName, tokenSymbol, contractName) {
                 case 0: return [4 /*yield*/, this.eos.getCurrencyBalance(contractName, accountName, tokenSymbol)];
                 case 1:
                     balance = _a.sent();
-                    if (balance) {
+                    if (balance && balance[0]) {
                         return [2 /*return*/, parseFloat(balance[0].split(tokenSymbol)[0])];
                     }
                     return [2 /*return*/, parseFloat(0.0000)];
