@@ -14,7 +14,7 @@ async function connectAs(accountName, accountKey) {
   console.log("Private Key:", accountKey)
   console.log("Public Key:", ecc.privateToPublic(accountKey))
   options = {authorization: `${accountName}@active`}
-  cpuContract = await orejs.eos.contract('cpu.ore', options)
+  cpuContract = await orejs.eos.contract('eosio.token', options)
   instrContract = await orejs.eos.contract('manager.apim', options)
 }
 
@@ -64,6 +64,7 @@ function instrumentFor(accountName, version = Math.random().toString()) {
         "app.apim"
        ]
     },
+    "instrument_template":"hadron-food-api",
     "start_time":0,
     "end_time":0,
     "override_offer_id":0
@@ -107,7 +108,7 @@ function delay(ms = 1000) {
   // Give the new account some tokens... //
   /////////////////////////////////////////
 
-  await connectAs(process.env.ORE_CPU_ACCOUNT_NAME, process.env.ORE_CPU_ACCOUNT_KEY)
+  // await connectAs(process.env.ORE_CPU_ACCOUNT_NAME, process.env.ORE_CPU_ACCOUNT_KEY)
 
   await logBalances()
 
@@ -115,8 +116,8 @@ function delay(ms = 1000) {
   const issueMemo = "issue"
   const transferMemo = "transfer"
 
-  console.log("Issuing", amount, "CPU to", process.env.ORE_OWNER_ACCOUNT_NAME)
-  await orejs.issueCpu(process.env.ORE_OWNER_ACCOUNT_NAME, amount, issueMemo,options)
+  // console.log("Issuing", amount, "CPU to", process.env.ORE_OWNER_ACCOUNT_NAME)
+  // await orejs.issueCpu(process.env.ORE_OWNER_ACCOUNT_NAME, amount, issueMemo,options)
 
   await logBalances()
 
@@ -126,28 +127,36 @@ function delay(ms = 1000) {
 
   await logBalances(account.oreAccountName)
 
-  ///////////////////////
-  // Publish an API... //
-  ///////////////////////
+  //await connectAs(process.env.ORE_ORE_ACCOUNT_NAME, process.env.ORE_ORE_ACCOUNT_KEY)
 
-  await connectAs(account.oreAccountName, crypto.decrypt(account.privateKey, "password"))
 
-  logInstrumentCount()
+  console.log("transfer", amount, "ORE to", account.oreAccountName)
+  await orejs.transferOre(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, amount)
 
-  let instrument = instrumentFor(account.oreAccountName)
-  let offerTx = await orejs.createOfferInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, instrument)
-  await delay()
-  let [offer] = await orejs.findInstruments(account.oreAccountName)
-  console.log("Offer:", offer, offer.instrument.rights)
+  await logBalances(account.oreAccountName)
+  // ///////////////////////
+  // // Publish an API... //
+  // ///////////////////////
 
-  logInstrumentCount()
+  // await connectAs(account.oreAccountName, crypto.decrypt(account.privateKey, "password"))
+
+  // logInstrumentCount()
+
+  // let instrument = instrumentFor(account.oreAccountName)
+  // let offerTx = await orejs.createOfferInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, instrument)
+  // await delay()
+  // let [offer] = await orejs.findInstruments(account.oreAccountName)
+  // console.log("Offer:", offer, offer.instrument.rights)
+
+  // logInstrumentCount()
 
   ///////////////////////
   // License an API... //
   ///////////////////////
 
+  await connectAs(process.env.ORE_OWNER_ACCOUNT_NAME, process.env.ORE_OWNER_ACCOUNT_OWNER_KEY)
   // // TODO Create a Voucher for the recently published Offer (ie, change 0 to offer.id)
-  let voucherTx = await orejs.createVoucherInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, 0)
+  let voucherTx = await orejs.createVoucherInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, 0, "hadron-offer")
   await delay()
   let [voucher] = await orejs.findInstruments(account.oreAccountName, true, 'apimarket.apiVoucher')
   console.log("Voucher:", voucher, voucher.instrument.rights)

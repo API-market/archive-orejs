@@ -1,4 +1,4 @@
-const CONTRACT_NAME = 'cpu.ore'
+const CONTRACT_NAME = 'eosio.token'
 const ORE_CPU_ACCOUNT_NAME = 'cpu.ore'
 const TOKEN_SYMBOL = 'CPU'
 let amount

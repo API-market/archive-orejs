@@ -1,4 +1,4 @@
-const CONTRACT_NAME = 'ore.ore'
+const CONTRACT_NAME = 'eosio.token'
 const ORE_ORE_ACCOUNT_NAME = 'ore.ore'
 const TOKEN_SYMBOL = 'ORE'
 let amount
