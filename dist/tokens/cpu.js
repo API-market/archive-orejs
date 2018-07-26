@@ -1,4 +1,4 @@
-var CONTRACT_NAME = 'cpu.ore';
+var CONTRACT_NAME = 'eosio.token';
 var ORE_CPU_ACCOUNT_NAME = 'cpu.ore';
 var TOKEN_SYMBOL = 'CPU';
 var amount;
