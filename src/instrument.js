@@ -176,7 +176,7 @@ async function createOfferInstrument(oreAccountName, offerInstrumentData, confir
 async function createVoucherInstrument(creator, buyer, offerId, overrideVoucherId=0, offerTemplate = "",confirm = true) {
   // Exercise an offer to get a voucher
   // overrideVoucherId is passed in to specify the voucher id for the new voucher. If its value is 0, then the voucher id is auto generated
-  // offerTemplate/offerId anyone of them could be passed in to get a voucher for that offer.
+  // either offerTemplate or offerId could be passed in to get a voucher for that offer.
   if(offerId === 0 && offerTemplate === ""){
     throw new Error(`Either pass in a valid offer id or a valid offer template`)
   }

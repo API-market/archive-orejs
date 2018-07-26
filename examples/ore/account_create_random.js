@@ -64,7 +64,7 @@ function instrumentFor(accountName, version = Math.random().toString()) {
         "app.apim"
        ]
     },
-    "instrument_template":"hadron-food-api",
+    "instrument_template":"cloud.hadron.contest-2018-07-v1",
     "start_time":0,
     "end_time":0,
     "override_offer_id":0
