@@ -156,7 +156,7 @@ function delay(ms = 1000) {
 
   await connectAs(process.env.ORE_OWNER_ACCOUNT_NAME, process.env.ORE_OWNER_ACCOUNT_OWNER_KEY)
   // // TODO Create a Voucher for the recently published Offer (ie, change 0 to offer.id)
-  let voucherTx = await orejs.createVoucherInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, 0, "hadron-offer")
+  let voucherTx = await orejs.createVoucherInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, 1)
   await delay()
   let [voucher] = await orejs.findInstruments(account.oreAccountName, true, 'apimarket.apiVoucher')
   console.log("Voucher:", voucher, voucher.instrument.rights)
