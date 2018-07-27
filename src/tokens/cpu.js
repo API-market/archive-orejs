@@ -1,4 +1,4 @@
-const CONTRACT_NAME = 'eosio.token'
+const CONTRACT_NAME = 'token.ore'
 const ORE_CPU_ACCOUNT_NAME = 'cpu.ore'
 const TOKEN_SYMBOL = 'CPU'
 let amount
@@ -14,6 +14,7 @@ function issueCpu(toAccountName, cpuAmount, memo=""){
 }
 function approveCpu(fromAccountName, toAccountName, cpuAmount) {
   amount = this.getTokenAmount(cpuAmount, TOKEN_SYMBOL)
+  console.log(amount)
   return this.approveStandardTokenTransfer(fromAccountName, toAccountName, amount, CONTRACT_NAME)
 }
 

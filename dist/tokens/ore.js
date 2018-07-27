@@ -1,4 +1,4 @@
-var CONTRACT_NAME = 'eosio.token';
+var CONTRACT_NAME = 'token.ore';
 var ORE_ORE_ACCOUNT_NAME = 'ore.ore';
 var TOKEN_SYMBOL = 'ORE';
 var amount;

@@ -6,7 +6,7 @@
 
 const ecc = require('eosjs-ecc')
 let {crypto} = require("../index")
-let options, balance, cpuContract, instrContract, contents, orejs
+let options, balance, cpuContract, insontract, contents, orejs
 
 async function connectAs(accountName, accountKey) {
   // Reinitialize the orejs library, with permissions for the current account...
@@ -14,7 +14,7 @@ async function connectAs(accountName, accountKey) {
   console.log("Private Key:", accountKey)
   console.log("Public Key:", ecc.privateToPublic(accountKey))
   options = {authorization: `${accountName}@active`}
-  cpuContract = await orejs.eos.contract('eosio.token', options)
+  cpuContract = await orejs.eos.contract('token.ore', options)
   instrContract = await orejs.eos.contract('manager.apim', options)
 }
 
@@ -132,7 +132,7 @@ function delay(ms = 1000) {
 
   console.log("transfer", amount, "ORE to", account.oreAccountName)
   await orejs.transferOre(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, amount)
-
+  await orejs.approveCpu(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, amount)
   await logBalances(account.oreAccountName)
   // ///////////////////////
   // // Publish an API... //
