@@ -1,4 +1,4 @@
-var CONTRACT_NAME = 'cpu.ore';
+var CONTRACT_NAME = 'token.ore';
 var ORE_CPU_ACCOUNT_NAME = 'cpu.ore';
 var TOKEN_SYMBOL = 'CPU';
 var amount;
@@ -13,6 +13,7 @@ function issueCpu(toAccountName, cpuAmount, memo) {
 }
 function approveCpu(fromAccountName, toAccountName, cpuAmount) {
     amount = this.getTokenAmount(cpuAmount, TOKEN_SYMBOL);
+    console.log(amount);
     return this.approveStandardTokenTransfer(fromAccountName, toAccountName, amount, CONTRACT_NAME);
 }
 function getCpuBalance(oreAccountName) {
