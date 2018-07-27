@@ -138,17 +138,17 @@ function delay(ms = 1000) {
   // // Publish an API... //
   // ///////////////////////
 
-  // await connectAs(account.oreAccountName, crypto.decrypt(account.privateKey, "password"))
+  await connectAs(account.oreAccountName, crypto.decrypt(account.privateKey, "password"))
 
-  // logInstrumentCount()
+  logInstrumentCount()
 
-  // let instrument = instrumentFor(account.oreAccountName)
-  // let offerTx = await orejs.createOfferInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, instrument)
-  // await delay()
-  // let [offer] = await orejs.findInstruments(account.oreAccountName)
-  // console.log("Offer:", offer, offer.instrument.rights)
+  let instrument = instrumentFor(account.oreAccountName)
+  let offerTx = await orejs.createOfferInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, instrument)
+  await delay()
+  let [offer] = await orejs.findInstruments(account.oreAccountName)
+  console.log("Offer:", offer, offer.instrument.rights)
 
-  // logInstrumentCount()
+  logInstrumentCount()
 
   ///////////////////////
   // License an API... //
