@@ -5,7 +5,7 @@
   "main": "./dist/index.js",
   "scripts": {
     "build": "tsc --project ./tsconfig.json --pretty",
-    "test": "jest --runInBand --coverage"
+    "test": "jest --runInBand --coverage --detectOpenHandles"
   },
   "repository": {
     "type": "git",
@@ -19,6 +19,7 @@
   "homepage": "https://github.com/api.market/orejs#readme",
   "devDependencies": {
     "jest": "^23.4.1",
+    "jest-fetch-mock": "^1.6.5",
     "typescript": "^2.9.2"
   },
   "dependencies": {

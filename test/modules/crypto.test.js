@@ -1,4 +1,3 @@
-const dotenv = require("dotenv")
 const { crypto } = require("../../src")
 
 describe("encryption/decryption of private keys with wallet passwords", () => {
