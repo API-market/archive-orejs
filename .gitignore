@@ -1,4 +1,5 @@
 .env
+coverage
 node_modules
 *.tmp
 tmp
