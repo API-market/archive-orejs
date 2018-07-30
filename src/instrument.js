@@ -123,8 +123,8 @@ async function getApiCallStats(instrumentId, rightName) {
 
   await result.rows.find(function(rightObject){
     if (rightObject["right_name"] === rightName) {
-      rightProperties.totalApiCalls = right["total_count"]
-      rightProperties.totalCpuUsage = right["total_cpu"]
+      rightProperties.totalApiCalls = rightObject["total_count"]
+      rightProperties.totalCpuUsage = rightObject["total_cpu"]
     }
   })
 
@@ -152,9 +152,11 @@ async function getRightStats(rightName, owner) {
 
   for (instrumentObject of instruments) {
     rightProperties = await getApiCallStats.bind(this)(instrumentObject.id, rightName)
-    totalCpuUsage += rightProperties["totalCpuUsage"]
+    const value = parseFloat(rightProperties["totalCpuUsage"])
+    const usageValue = value.toFixed(4)
+    totalCpuUsage += Number(usageValue)
     totalApiCalls += rightProperties["totalApiCalls"]
-  }
+    }
   return {totalCpuUsage, totalApiCalls}
 }
 
@@ -165,23 +167,27 @@ async function createOfferInstrument(oreAccountName, offerInstrumentData, confir
   let contract = await this.eos.contract(APIM_CONTRACT_NAME, options)
   if (confirm) {
     return this.confirmTransaction(() => {
-      return contract.publishapi(oreAccountName, offerInstrumentData.issuer, offerInstrumentData.api_name,offerInstrumentData.additional_api_params, offerInstrumentData.api_payment_model, offerInstrumentData.api_price_in_cpu, offerInstrumentData.license_price_in_cpu, offerInstrumentData.api_description, offerInstrumentData.right_registry, offerInstrumentData.start_time, offerInstrumentData.end_time, offerInstrumentData.override_offer_id, options)
+      return contract.publishapi(oreAccountName, offerInstrumentData.issuer, offerInstrumentData.api_name,offerInstrumentData.additional_api_params, offerInstrumentData.api_payment_model, offerInstrumentData.api_price_in_cpu, offerInstrumentData.license_price_in_cpu, offerInstrumentData.api_description, offerInstrumentData.right_registry, offerInstrumentData.instrument_template, offerInstrumentData.start_time, offerInstrumentData.end_time, offerInstrumentData.override_offer_id, options)
     })
   }
-  return contract.publishapi(oreAccountName, offerInstrumentData.issuer, offerInstrumentData.api_name,offerInstrumentData.additional_api_params, offerInstrumentData.api_payment_model, offerInstrumentData.api_price_in_cpu, offerInstrumentData.license_price_in_cpu, offerInstrumentData.api_description, offerInstrumentData.right_registry, offerInstrumentData.start_time, offerInstrumentData.end_time, offerInstrumentData.override_offer_id, options)
+  return contract.publishapi(oreAccountName, offerInstrumentData.issuer, offerInstrumentData.api_name,offerInstrumentData.additional_api_params, offerInstrumentData.api_payment_model, offerInstrumentData.api_price_in_cpu, offerInstrumentData.license_price_in_cpu, offerInstrumentData.api_description, offerInstrumentData.right_registry, offerInstrumentData.instrument_template, offerInstrumentData.start_time, offerInstrumentData.end_time, offerInstrumentData.override_offer_id, options)
 }
 
-async function createVoucherInstrument(creator, buyer, offerId, overrideVoucherId=0, confirm = true) {
+async function createVoucherInstrument(creator, buyer, offerId, overrideVoucherId=0, offerTemplate = "",confirm = true) {
   // Exercise an offer to get a voucher
   // overrideVoucherId is passed in to specify the voucher id for the new voucher. If its value is 0, then the voucher id is auto generated
+  // either offerTemplate or offerId could be passed in to get a voucher for that offer.
+  if(offerId === 0 && offerTemplate === ""){
+    throw new Error(`Either pass in a valid offer id or a valid offer template`)
+  }
   let options = {authorization: `${creator}@owner`}
   let contract = await this.eos.contract(APIM_CONTRACT_NAME, options)
   if (confirm) {
     return this.confirmTransaction(() => {
-      return contract.licenseapi(creator, buyer, offerId, overrideVoucherId, options)
+      return contract.licenseapi(creator, buyer, offerId, offerTemplate, overrideVoucherId, options)
     })
   }
-  return contract.licenseapi(creator, buyer, offerId, overrideVoucherId, options)
+  return contract.licenseapi(creator, buyer, offerId, offerTemplate, overrideVoucherId, options)
 }
 
 module.exports = {

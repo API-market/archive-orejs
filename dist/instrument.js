@@ -194,8 +194,8 @@ function getApiCallStats(instrumentId, rightName) {
                     rightProperties = { "totalApiCalls": 0, "totalCpuUsage": 0 };
                     return [4 /*yield*/, result.rows.find(function (rightObject) {
                             if (rightObject["right_name"] === rightName) {
-                                rightProperties.totalApiCalls = right["total_count"];
-                                rightProperties.totalCpuUsage = right["total_cpu"];
+                                rightProperties.totalApiCalls = rightObject["total_count"];
+                                rightProperties.totalCpuUsage = rightObject["total_cpu"];
                             }
                         })];
                 case 2:
@@ -207,7 +207,7 @@ function getApiCallStats(instrumentId, rightName) {
 }
 function getRightStats(rightName, owner) {
     return __awaiter(this, void 0, void 0, function () {
-        var instruments, instrumentList, rightProperties, totalCpuUsage, totalApiCalls, _i, instruments_1;
+        var instruments, instrumentList, rightProperties, totalCpuUsage, totalApiCalls, _i, instruments_1, value, usageValue;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -238,7 +238,9 @@ function getRightStats(rightName, owner) {
                     return [4 /*yield*/, getApiCallStats.bind(this)(instrumentObject.id, rightName)];
                 case 6:
                     rightProperties = _a.sent();
-                    totalCpuUsage += rightProperties["totalCpuUsage"];
+                    value = parseFloat(rightProperties["totalCpuUsage"]);
+                    usageValue = value.toFixed(4);
+                    totalCpuUsage += Number(usageValue);
                     totalApiCalls += rightProperties["totalApiCalls"];
                     _a.label = 7;
                 case 7:
@@ -262,32 +264,39 @@ function createOfferInstrument(oreAccountName, offerInstrumentData, confirm) {
                     contract = _a.sent();
                     if (confirm) {
                         return [2 /*return*/, this.confirmTransaction(function () {
-                                return contract.publishapi(oreAccountName, offerInstrumentData.issuer, offerInstrumentData.api_name, offerInstrumentData.additional_api_params, offerInstrumentData.api_payment_model, offerInstrumentData.api_price_in_cpu, offerInstrumentData.license_price_in_cpu, offerInstrumentData.api_description, offerInstrumentData.right_registry, offerInstrumentData.start_time, offerInstrumentData.end_time, offerInstrumentData.override_offer_id, options);
+                                return contract.publishapi(oreAccountName, offerInstrumentData.issuer, offerInstrumentData.api_name, offerInstrumentData.additional_api_params, offerInstrumentData.api_payment_model, offerInstrumentData.api_price_in_cpu, offerInstrumentData.license_price_in_cpu, offerInstrumentData.api_description, offerInstrumentData.right_registry, offerInstrumentData.instrument_template, offerInstrumentData.start_time, offerInstrumentData.end_time, offerInstrumentData.override_offer_id, options);
                             })];
                     }
-                    return [2 /*return*/, contract.publishapi(oreAccountName, offerInstrumentData.issuer, offerInstrumentData.api_name, offerInstrumentData.additional_api_params, offerInstrumentData.api_payment_model, offerInstrumentData.api_price_in_cpu, offerInstrumentData.license_price_in_cpu, offerInstrumentData.api_description, offerInstrumentData.right_registry, offerInstrumentData.start_time, offerInstrumentData.end_time, offerInstrumentData.override_offer_id, options)];
+                    return [2 /*return*/, contract.publishapi(oreAccountName, offerInstrumentData.issuer, offerInstrumentData.api_name, offerInstrumentData.additional_api_params, offerInstrumentData.api_payment_model, offerInstrumentData.api_price_in_cpu, offerInstrumentData.license_price_in_cpu, offerInstrumentData.api_description, offerInstrumentData.right_registry, offerInstrumentData.instrument_template, offerInstrumentData.start_time, offerInstrumentData.end_time, offerInstrumentData.override_offer_id, options)];
             }
         });
     });
 }
-function createVoucherInstrument(creator, buyer, offerId, overrideVoucherId, confirm) {
+function createVoucherInstrument(creator, buyer, offerId, overrideVoucherId, offerTemplate, confirm) {
     if (overrideVoucherId === void 0) { overrideVoucherId = 0; }
+    if (offerTemplate === void 0) { offerTemplate = ""; }
     if (confirm === void 0) { confirm = true; }
     return __awaiter(this, void 0, void 0, function () {
         var options, contract;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
+                    // Exercise an offer to get a voucher
+                    // overrideVoucherId is passed in to specify the voucher id for the new voucher. If its value is 0, then the voucher id is auto generated
+                    // either offerTemplate or offerId could be passed in to get a voucher for that offer.
+                    if (offerId === 0 && offerTemplate === "") {
+                        throw new Error("Either pass in a valid offer id or a valid offer template");
+                    }
                     options = { authorization: creator + "@owner" };
                     return [4 /*yield*/, this.eos.contract(APIM_CONTRACT_NAME, options)];
                 case 1:
                     contract = _a.sent();
                     if (confirm) {
                         return [2 /*return*/, this.confirmTransaction(function () {
-                                return contract.licenseapi(creator, buyer, offerId, overrideVoucherId, options);
+                                return contract.licenseapi(creator, buyer, offerId, offerTemplate, overrideVoucherId, options);
                             })];
                     }
-                    return [2 /*return*/, contract.licenseapi(creator, buyer, offerId, overrideVoucherId, options)];
+                    return [2 /*return*/, contract.licenseapi(creator, buyer, offerId, offerTemplate, overrideVoucherId, options)];
             }
         });
     });
