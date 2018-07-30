@@ -8,7 +8,7 @@ module.exports = {
     "<rootDir>/test"
   ], // Required to find __mocks__ in test dir
   setupFiles: [
-    "./setupJest.js"
+    "./test/setup.js"
   ],
   testMatch: [
     "<rootDir>/test/**/?(*.)(spec|test).js?(x)"
