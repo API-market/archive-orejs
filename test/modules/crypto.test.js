@@ -1,9 +1,16 @@
-const crypto = require('../../src/modules/crypto.js')
+const dotenv = require("dotenv")
+const { crypto } = require("../../src")
 
 describe("encryption/decryption of private keys with wallet passwords", () => {
-  const privateKey = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"
-  const walletPassword = "SimpleWalletPassword"
-  const encrypted = crypto.encrypt(privateKey, walletPassword)
+  let privateKey, walletPassword, encrypted
+
+  beforeAll(() => {
+    dotenv.config()
+
+    privateKey = process.env.ORE_PAYER_ACCOUNT_KEY
+    walletPassword = process.env.WALLET_PASSWORD
+    encrypted = crypto.encrypt(privateKey, walletPassword)
+  })
 
   test("returns an encrypted string", () => {
     expect(encrypted.toString()).toEqual(expect.not.stringContaining(privateKey))
