@@ -49,6 +49,7 @@ function mockInfo() {
 }
 
 module.exports = {
+  mock,
   mockBlock,
   mockInfo
 }
