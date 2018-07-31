@@ -6,6 +6,7 @@ function decrypt(encrypted, password) {
   try {
     return bytes.toString(CryptoJS.enc.Utf8);
   } catch(err) {
+    // NOTE Sometimes the CryptoJS lib fails to convert array buffers to UTF-8 strings, when decrypted with an incorrect password
     console.error("CryptoJS Decryption Error:", err)
     return ""
   }
