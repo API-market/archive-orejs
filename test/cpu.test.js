@@ -1,5 +1,5 @@
 const { Orejs } = require("../src")
-const { mock, mockInfo } = require("./helpers/fetch")
+const { expectFetch, mock, mockInfo } = require("./helpers/fetch")
 
 describe("cpu", () => {
   let orejs, oreAccountName
@@ -29,6 +29,7 @@ describe("cpu", () => {
 
     test("returns the cpu balance", async () => {
       const cpuBalance = await orejs.getCpuBalance(oreAccountName)
+      expectFetch(`${ORE_NETWORK_URI}/v1/chain/get_currency_balance`)
       expect(cpuBalance).toEqual(cpuBalance)
     })
   })

@@ -1,5 +1,5 @@
 const { Orejs } = require("../src")
-const { mockBlock, mockInfo } = require("./helpers/fetch")
+const { expectFetch, mockBlock, mockInfo } = require("./helpers/fetch")
 
 describe("token", () => {
   let orejs, oreAccountName
@@ -23,6 +23,7 @@ describe("token", () => {
     beforeEach(() => {
       block = mockBlock()
 
+      fetch.resetMocks()
       fetch.mockResponses(
         mockInfo(),
         block
@@ -31,6 +32,7 @@ describe("token", () => {
 
     test("returns the latest block", async () => {
       const blockNum = await orejs.getLatestBlock()
+      expectFetch(`${ORE_NETWORK_URI}/v1/chain/get_info`, `${ORE_NETWORK_URI}/v1/chain/get_block`)
       expect(JSON.stringify(blockNum)).toEqual(block[0])
     })
   })
@@ -72,7 +74,6 @@ describe("token", () => {
     test("signs a voucher", async () => {
       const voucherId = 0
       const sig = await orejs.signVoucher(voucherId)
-      console.log("SIG:", sig.toString())
       expect(sig.toString()).toEqual("SIG_K1_K7SnTcWTVuatvRepJ6vmmiHPEh3WWEYiVPB1nD9MZ3LWz91yUxR5fUWmSmNAAP9Dxs2MeKZuDUFoEVfBiKfRozaG2FzfvH")
     })
   })
