@@ -5,7 +5,9 @@
 // Usage: $ node ore/account_create_random
 
 const ecc = require('eosjs-ecc')
-let {crypto} = require("../index")
+let {
+  crypto
+} = require("../index")
 let options, balance, cpuContract, insontract, contents, orejs
 
 async function connectAs(accountName, accountKey) {
@@ -13,7 +15,9 @@ async function connectAs(accountName, accountKey) {
   orejs = require("../index").orejs(accountName, accountKey, process.env.ORE_OWNER_ACCOUNT_OWNER_KEY)
   console.log("Private Key:", accountKey)
   console.log("Public Key:", ecc.privateToPublic(accountKey))
-  options = {authorization: `${accountName}@active`}
+  options = {
+    authorization: `${accountName}@active`
+  }
   cpuContract = await orejs.eos.contract('token.ore', options)
   instrContract = await orejs.eos.contract('manager.apim', options)
 }
@@ -31,43 +35,37 @@ async function logBalances(account = undefined) {
 
 function instrumentFor(accountName, version = Math.random().toString()) {
   return {
-    "creator":process.env.ORE_OWNER_ACCOUNT_NAME,
-    "issuer":accountName,
-    "api_name":`${accountName}_${version}`,
-    "additional_api_params":[
-       {
-        "name":"sla",
-        "value":"high-availability"
-       }
-    ],
-    "api_payment_model":"paypercall",
-    "api_price_in_cpu":1,
-    "license_price_in_cpu":0,
-    "api_description":"returns an image feature vector for input image",
-    "right_registry":{
-       "right_name":"apimarket.manager.licenseApi",
-       "urls":[
-          {
-             "url":"ore://manager.apim/action/licenseapi",
-             "method":"post",
-             "matches_params":[
-                {
-                   "name":"sla",
-                   "value":"default"
-                }
-             ],
-             "token_life_span":100,
-             "is_default":1
-          }
-       ],
-       "whitelist":[
+    "creator": process.env.ORE_OWNER_ACCOUNT_NAME,
+    "issuer": accountName,
+    "api_name": `${accountName}_${version}`,
+    "additional_api_params": [{
+      "name": "sla",
+      "value": "high-availability"
+    }],
+    "api_payment_model": "paypercall",
+    "api_price_in_cpu": 1,
+    "license_price_in_cpu": 0,
+    "api_description": "returns an image feature vector for input image",
+    "right_registry": {
+      "right_name": "apimarket.manager.licenseApi",
+      "urls": [{
+        "url": "ore://manager.apim/action/licenseapi",
+        "method": "post",
+        "matches_params": [{
+          "name": "sla",
+          "value": "default"
+        }],
+        "token_life_span": 100,
+        "is_default": 1
+      }],
+      "whitelist": [
         "app.apim"
-       ]
+      ]
     },
-    "instrument_template":"cloud.hadron.contest-2018-07-v1",
-    "start_time":0,
-    "end_time":0,
-    "override_offer_id":0
+    "instrument_template": "cloud.hadron.contest-2018-07-v1",
+    "start_time": 0,
+    "end_time": 0,
+    "override_offer_id": 0
   }
 }
 
@@ -88,7 +86,8 @@ function delay(ms = 1000) {
   })
 }
 
-;(async function() {
+;
+(async function () {
   connectAs(process.env.ORE_PAYER_ACCOUNT_NAME, process.env.ORE_PAYER_ACCOUNT_KEY)
 
   ///////////////////////////
@@ -96,7 +95,7 @@ function delay(ms = 1000) {
   ///////////////////////////
 
   const ownerPublicKey = ecc.privateToPublic(process.env.ORE_OWNER_ACCOUNT_KEY)
-
+  console.log(ownerPublicKey)
   let account = await orejs.createOreAccount(process.env.WALLET_PASSWORD, ownerPublicKey)
   console.log("Account Created:", account)
 
@@ -112,7 +111,7 @@ function delay(ms = 1000) {
 
   await logBalances()
 
-  const amount = 100.0000
+  const amount = 1.0000
   const issueMemo = "issue"
   const transferMemo = "transfer"
 
@@ -142,11 +141,11 @@ function delay(ms = 1000) {
 
   logInstrumentCount()
 
-  let instrument = instrumentFor(account.oreAccountName)
-  let offerTx = await orejs.createOfferInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, instrument)
-  await delay()
-  let [offer] = await orejs.findInstruments(account.oreAccountName)
-  console.log("Offer:", offer, offer.instrument.rights)
+  // let instrument = instrumentFor(account.oreAccountName)
+  // let offerTx = await orejs.createOfferInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, instrument)
+  // await delay()
+  // let [offer] = await orejs.findInstruments(account.oreAccountName)
+  // console.log("Offer:", offer, offer.instrument.rights)
 
   logInstrumentCount()
 
@@ -156,7 +155,7 @@ function delay(ms = 1000) {
 
   await connectAs(process.env.ORE_OWNER_ACCOUNT_NAME, process.env.ORE_OWNER_ACCOUNT_OWNER_KEY)
   // // TODO Create a Voucher for the recently published Offer (ie, change 0 to offer.id)
-  let voucherTx = await orejs.createVoucherInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, 1)
+  let voucherTx = await orejs.createVoucherInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, 0, 0, "cloud.hadron.contest-2018-07-v1", false)
   await delay()
   let [voucher] = await orejs.findInstruments(account.oreAccountName, true, 'apimarket.apiVoucher')
   console.log("Voucher:", voucher, voucher.instrument.rights)
