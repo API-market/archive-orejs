@@ -1,20 +1,11 @@
-const { Orejs } = require("../src")
 const { expectFetch, mockBlock, mockInfo } = require("./helpers/fetch")
+const { constructOrejs } = require("./helpers/orejs")
 
 describe("token", () => {
-  let orejs, oreAccountName
+  let orejs
 
   beforeAll(() => {
-    oreAccountName = ORE_TESTA_ACCOUNT_NAME
-
-    fetch.mockResponses(mockInfo())
-
-    orejs = new Orejs({
-      httpEndpoint: ORE_NETWORK_URI,
-      keyProvider: [ORE_OWNER_ACCOUNT_KEY],
-      orePayerAccountName: ORE_PAYER_ACCOUNT_NAME,
-      sign: true
-    })
+    orejs = constructOrejs()
   })
 
   describe("getLatestBlock", () => {
@@ -24,10 +15,7 @@ describe("token", () => {
       block = mockBlock()
 
       fetch.resetMocks()
-      fetch.mockResponses(
-        mockInfo(),
-        block
-      )
+      fetch.mockResponses(mockInfo(), block)
     })
 
     test("returns the latest block", async () => {
@@ -82,7 +70,7 @@ describe("token", () => {
     let encodedAccountName
 
     beforeAll(() => {
-      encodedAccountName = orejs.tableKey(oreAccountName)
+      encodedAccountName = orejs.tableKey(ORE_TESTA_ACCOUNT_NAME)
     })
 
     test("returns a number", () => {
