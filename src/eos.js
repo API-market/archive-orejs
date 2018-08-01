@@ -8,16 +8,16 @@ function filterRows(rows, filter) {
 
   const result = [];
 
-  function fitsFilter(filters, row) {
+  function fitsFilter(filter, row) {
     let fits = true;
-    if (typeof filters === 'function') {
-      fits = filters(row);
-    } else if (typeof filters === 'object') {
-      for (const f in filters) {
-        if (filters[f] !== row[f]) fits = false;
+    if (typeof filter === 'function') {
+      fits = filter(row);
+    } else if (typeof filter === 'object') {
+      for (const f in filter) {
+        if (filter[f] != row[f]) fits = false;
       }
     } else {
-      throw new Error('filter must be a function or an object');
+      throw 'filter must be a function or an object';
     }
     return fits;
   }
@@ -25,18 +25,18 @@ function filterRows(rows, filter) {
   for (const r in rows) {
     const row = rows[r];
 
-    let fitFilter = true;
+    let fits_filter = true;
 
     if (filter instanceof Array) {
       for (const f in filter) {
         if (!filter[f]) continue;
-        fitFilter = fitFilter && fitsFilter(filter[f], row);
+        fits_filter = fits_filter && fitsFilter(filter[f], row);
       }
     } else {
-      fitFilter = fitsFilter(filter, row);
+      fits_filter = fitsFilter(filter, row);
     }
 
-    if (!fitFilter) continue;
+    if (!fits_filter) continue;
 
     result.push(rows[r]);
   }
@@ -60,7 +60,45 @@ async function getTableRowsPage(params, lower_bound = 0, page_size = -1, json = 
   return resp;
 }
 
+async function keyProvider() {
+  if (this.config.keyProvider instanceof Array) {
+    return this.config.keyProvider[0];
+  }
+  return this.config.keyProvider;
+}
+
 /* Public */
+
+// eosjs only confirms that transactions have been accepted
+// this confirms that the transaction has been written to the chain
+// by checking block produced immediately after the transaction
+async function confirmTransaction(func, blocksToCheck = 10, checkInterval = 200) {
+  // before making the transaction, check the current block id...
+  const latestBlock = await this.getLatestBlock();
+  const initialBlockId = latestBlock.block_num;
+  // make the transaction...
+  const transaction = await func();
+  // check blocks for the transaction id...
+  return new Promise((resolve, reject) => {
+    let currentBlockId = initialBlockId + 1;
+    const intConfirm = setInterval(async () => {
+      let latestBlock = await this.getLatestBlock();
+      if (currentBlockId <= latestBlock.block_num) {
+        if (currentBlockId != latestBlock.block_num) {
+          latestBlock = this.eos.getBlock(currentBlockId);
+        }
+        currentBlockId += 1;
+      }
+      if (hasTransaction(latestBlock, transaction.transaction_id)) {
+        clearInterval(intConfirm);
+        resolve(transaction);
+      } else if (latestBlock.block_num >= initialBlockId + blocksToCheck) {
+        clearInterval(intConfirm);
+        reject('Transaction Confirmation Timeout');
+      }
+    }, checkInterval);
+  });
+}
 
 async function contract(contractName, accountName) {
   const options = {
@@ -87,7 +125,6 @@ async function findOne(contractName, tableName, tableKey) {
   return results.rows[0];
 }
 
-// only good for tables with id key_field
 async function getAllTableRows(params, key_field = 'id') {
   let more = true;
   let results = [];
@@ -120,6 +157,23 @@ async function getAllTableRowsFiltered(params, filter, key_field = 'id') {
   return filterRows(result, filter);
 }
 
+async function getLatestBlock() {
+  const info = await this.eos.getInfo({});
+  const block = await this.eos.getBlock(info.last_irreversible_block_num);
+  return block;
+}
+
+function hasTransaction(block, transactionId) {
+  if (block.transactions) {
+    for (const trans of block.transactions) {
+      if (trans.trx.id == transactionId) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 async function signVoucher(apiVoucherId) {
   return ecc.sign(apiVoucherId.toString(), this.config.keyProvider[0]);
 }
@@ -130,10 +184,13 @@ function tableKey(oreAccountName) {
 }
 
 module.exports = {
+  confirmTransaction,
   contract,
   findOne,
   getAllTableRows,
   getAllTableRowsFiltered,
+  getLatestBlock,
+  hasTransaction,
   signVoucher,
   tableKey,
 };
