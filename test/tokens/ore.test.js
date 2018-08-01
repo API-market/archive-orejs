@@ -1,5 +1,5 @@
-const { expectFetch, mock, mockInfo } = require("./helpers/fetch")
-const { constructOrejs, mockContract } = require("./helpers/orejs")
+const { expectFetch, mock, mockInfo } = require("../helpers/fetch")
+const { constructOrejs, mockContract } = require("../helpers/orejs")
 
 describe("ore", () => {
   let orejs

@@ -28,7 +28,19 @@ function mockContract() {
   return contract
 }
 
+function mockTransaction() {
+  let mockTransaction = jest.fn()
+
+  let transaction = jest.fn()
+
+  mockTransaction.mockReturnValue(transaction)
+  orejs.eos.transaction = mockTransaction
+
+  return transaction
+}
+
 module.exports = {
   constructOrejs,
-  mockContract
+  mockContract,
+  mockTransaction
 }
