@@ -34,11 +34,9 @@ describe("cpu", () => {
     })
 
     describe("when authorized", () => {
-      describe("when has enough CPU", () => {
-        test("returns", async () => {
-          const result = await orejs.approveCpu(ORE_OWNER_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, cpuBalance)
-          expect(contract.approve).toHaveBeenCalledWith(ORE_OWNER_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, `${cpuBalance}.0000 CPU`, {'authorization': `${ORE_OWNER_ACCOUNT_NAME}@active`})
-        })
+      test("returns", async () => {
+        const result = await orejs.approveCpu(ORE_OWNER_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, cpuBalance)
+        expect(contract.approve).toHaveBeenCalledWith(ORE_OWNER_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, `${cpuBalance}.0000 CPU`, {'authorization': `${ORE_OWNER_ACCOUNT_NAME}@active`})
       })
     })
 
@@ -63,11 +61,9 @@ describe("cpu", () => {
     })
 
     describe("when authorized", () => {
-      describe("when has enough CPU", () => {
-        test("returns", async () => {
-          const result = await orejs.transferCpu(ORE_OWNER_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, cpuBalance)
-          expect(contract.transfer).toHaveBeenCalledWith(ORE_OWNER_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, `${cpuBalance}.0000 CPU`, "", {'authorization': `${ORE_OWNER_ACCOUNT_NAME}@active`})
-        })
+      test("returns", async () => {
+        const result = await orejs.transferCpu(ORE_OWNER_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, cpuBalance)
+        expect(contract.transfer).toHaveBeenCalledWith(ORE_OWNER_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, `${cpuBalance}.0000 CPU`, "", {'authorization': `${ORE_OWNER_ACCOUNT_NAME}@active`})
       })
     })
 
