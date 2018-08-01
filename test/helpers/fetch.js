@@ -1,15 +1,18 @@
-// PRIVATE...
+function expectFetch(...urls) {
+  expect(fetch.mock.calls.length).toEqual(urls.length);
+  urls.forEach((url, i) => {
+    expect(fetch.mock.calls[i][0]).toEqual(url);
+  });
+}
 
 function mock(body, status = 200) {
   return [
     JSON.stringify([
-      body
+      body,
     ]),
-    { status: status }
-  ]
+    { status },
+  ];
 }
-
-// PUBLIC...
 
 function mockBlock() {
   return mock({
@@ -27,8 +30,8 @@ function mockBlock() {
     block_extensions: [],
     id: '00090a0384aa271b99b94d25a3d069c4387625e972d05c21ffa17180d1f09ec2',
     block_num: 592387,
-    ref_block_prefix: 625850777
-  })
+    ref_block_prefix: 625850777,
+  });
 }
 
 function mockInfo() {
@@ -44,11 +47,13 @@ function mockInfo() {
     virtual_block_cpu_limit: 200000000,
     virtual_block_net_limit: 1048576000,
     block_cpu_limit: 199900,
-    block_net_limit: 1048576
-  })
+    block_net_limit: 1048576,
+  });
 }
 
 module.exports = {
+  expectFetch,
+  mock,
   mockBlock,
-  mockInfo
-}
+  mockInfo,
+};
