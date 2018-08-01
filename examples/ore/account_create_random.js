@@ -157,10 +157,10 @@ function delay(ms = 1000) {
   // /////////////////////
   await connectAs(process.env.ORE_OWNER_ACCOUNT_NAME, process.env.ORE_OWNER_ACCOUNT_OWNER_KEY);
   // // TODO Create a Voucher for the recently published Offer (ie, change 0 to offer.id)
-  const voucherTx = await orejs.createVoucherInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, 1, 0, '', false);
+  const voucherTx = await orejs.createVoucherInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, 0, 0, 'cloud.hadron.contest-2018-07-v1', false);
 
-  await delay();
-  await delay();
+  await delay(3000);
+
   const [voucher] = await orejs.findInstruments(account.oreAccountName, true, 'apimarket.apiVoucher');
   console.log('Voucher:', voucher, voucher.instrument.rights);
 
