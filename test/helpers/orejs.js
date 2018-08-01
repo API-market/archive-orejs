@@ -2,7 +2,7 @@ const { Orejs } = require("../../src")
 const { mockInfo } = require("./fetch")
 
 function constructOrejs() {
-  //fetch.mockResponses(mockInfo())
+  fetch.mockResponses(mockInfo())
 
   orejs = new Orejs({
     httpEndpoint: ORE_NETWORK_URI,
@@ -14,6 +14,21 @@ function constructOrejs() {
   return orejs
 }
 
+function mockContract() {
+  let mockContract = jest.fn()
+
+  let contract = {
+    approve: jest.fn(),
+    transfer: jest.fn()
+  }
+
+  mockContract.mockReturnValue(contract)
+  orejs.eos.contract = mockContract
+
+  return contract
+}
+
 module.exports = {
-  constructOrejs
+  constructOrejs,
+  mockContract
 }
