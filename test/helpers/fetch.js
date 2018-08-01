@@ -1,15 +1,8 @@
 function expectFetch(...urls) {
-<<<<<<< HEAD
   expect(fetch.mock.calls.length).toEqual(urls.length);
   urls.forEach((url, i) => {
     expect(fetch.mock.calls[i][0]).toEqual(url);
   });
-=======
-  expect(fetch.mock.calls.length).toEqual(urls.length)
-  urls.forEach((url, i) => {
-    expect(fetch.mock.calls[i][0]).toEqual(url)
-  })
->>>>>>> fc52a9a8d2360be8a0efaa73433517f54c7e0490
 }
 
 function mock(body, status = 200) {
@@ -17,7 +10,9 @@ function mock(body, status = 200) {
     JSON.stringify([
       body,
     ]),
-    { status },
+    {
+      status
+    },
   ];
 }
 
