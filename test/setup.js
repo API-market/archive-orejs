@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 global.fetch = require('jest-fetch-mock');
 
 global.ORE_NETWORK_URI = 'http://ore-staging.openrights.exchange:8888';
