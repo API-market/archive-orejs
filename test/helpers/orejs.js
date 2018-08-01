@@ -2,7 +2,7 @@ const { Orejs } = require("../../src")
 const { mockInfo } = require("./fetch")
 
 function constructOrejs() {
-  fetch.mockResponses(mockInfo())
+  //fetch.mockResponses(mockInfo())
 
   orejs = new Orejs({
     httpEndpoint: ORE_NETWORK_URI,
