@@ -3,9 +3,9 @@
 //
 // Usage: $ node eos/info
 
-const orejs = require("../index").orejs()
+const orejs = require('../index').orejs();
 
-;(async function () {
-  const info = await orejs.eos.getInfo({})
-  console.log(info)
-})()
+(async function () {
+  const info = await orejs.eos.getInfo({});
+  console.log(info);
+}());
