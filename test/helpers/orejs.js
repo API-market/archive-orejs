@@ -1,9 +1,5 @@
-const {
-  Orejs,
-} = require('../../src');
-const {
-  mockInfo,
-} = require('./fetch');
+const { Orejs } = require('../../src');
+const { mockInfo } = require('./fetch');
 
 function constructOrejs() {
   fetch.mockResponses(mockInfo());
@@ -18,6 +14,33 @@ function constructOrejs() {
   return orejs;
 }
 
+function mockContract() {
+  const mockContract = jest.fn();
+
+  const contract = {
+    approve: jest.fn(),
+    transfer: jest.fn(),
+  };
+
+  mockContract.mockReturnValue(contract);
+  orejs.eos.contract = mockContract;
+
+  return contract;
+}
+
+function mockTransaction() {
+  const mockTransaction = jest.fn();
+
+  const transaction = jest.fn();
+
+  mockTransaction.mockReturnValue(transaction);
+  orejs.eos.transaction = mockTransaction;
+
+  return transaction;
+}
+
 module.exports = {
   constructOrejs,
+  mockContract,
+  mockTransaction,
 };

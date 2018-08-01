@@ -1,9 +1,7 @@
 global.fetch = require('jest-fetch-mock');
 
-global.ORE_NETWORK_URI = 'http://ore-staging.openrights.exchange:8888';
-// global.ORE_NETWORK_URI = "http://127.0.0.1:8888"
-
 // The following account keys are not used in production...
+global.ORE_NETWORK_URI = 'http://127.0.0.1:8888';
 global.ORE_OWNER_ACCOUNT_NAME = 'app.apim';
 global.ORE_OWNER_ACCOUNT_KEY = '5KEzPGyFoyKBEDUbx4MjvCwTXJWwmR8h21fYWK5ycbuj1eezGXq';
 global.ORE_PAYER_ACCOUNT_NAME = 'eosio';

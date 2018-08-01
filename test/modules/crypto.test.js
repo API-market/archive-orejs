@@ -1,11 +1,9 @@
-const {
-  crypto,
-} = require('../../src');
+const { crypto } = require('../../src');
 
 describe('encryption/decryption of private keys with wallet passwords', () => {
-  let privateKey;
-  let walletPassword;
-  let encrypted;
+  let privateKey,
+    walletPassword,
+    encrypted;
 
   beforeAll(() => {
     privateKey = ORE_TESTA_ACCOUNT_KEY;

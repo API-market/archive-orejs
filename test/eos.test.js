@@ -1,11 +1,5 @@
-const {
-  expectFetch,
-  mockBlock,
-  mockInfo,
-} = require('./helpers/fetch');
-const {
-  constructOrejs,
-} = require('./helpers/orejs');
+const { expectFetch, mockBlock, mockInfo } = require('./helpers/fetch');
+const { constructOrejs } = require('./helpers/orejs');
 
 describe('token', () => {
   let orejs;
@@ -32,24 +26,18 @@ describe('token', () => {
   });
 
   describe('hasTransaction', () => {
-    let block;
-    let transactionId;
-    let transaction;
+    let block,
+      transactionId,
+      transaction;
 
     beforeAll(() => {
       transactionId = 'asdf';
-      transaction = {
-        trx: {
-          id: transactionId,
-        },
-      };
+      transaction = { trx: { id: transactionId } };
     });
 
     describe('when the block includes the transaction', () => {
       beforeAll(() => {
-        block = {
-          transactions: [transaction],
-        };
+        block = { transactions: [transaction] };
       });
 
       test('returns true', () => {
@@ -60,9 +48,7 @@ describe('token', () => {
 
     describe('when the block does not include the transaction', () => {
       beforeAll(() => {
-        block = {
-          transactions: [],
-        };
+        block = { transactions: [] };
       });
 
       test('returns false', () => {
