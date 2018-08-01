@@ -37,28 +37,24 @@ var TABLE_NAME = 'accounts';
 /* Public */
 function getTokenAmount(tokenAmount, tokenSymbol) {
     try {
-        if (typeof tokenAmount === "number") {
+        if (typeof tokenAmount === 'number') {
             var amount = parseFloat(tokenAmount).toFixed(4);
             return amount.toString() + " " + tokenSymbol;
         }
-        else if (typeof tokenAmount === "string") {
-            if (tokenAmount.split(" ")[1] === tokenSymbol) {
+        if (typeof tokenAmount === 'string') {
+            if (tokenAmount.split(' ')[1] === tokenSymbol) {
                 return tokenAmount;
             }
-            else {
-                return parseFloat(tokenAmount).toFixed(4).toString() + " " + tokenSymbol;
-            }
+            return parseFloat(tokenAmount).toFixed(4).toString() + " " + tokenSymbol;
         }
-        else {
-            throw err;
-        }
+        throw new Error('not a valid token amount');
     }
-    catch (err) {
-        console.info(err);
+    catch (e) {
+        return e;
     }
 }
 function issueStandardToken(toAccountName, tokenAmount, memo, ownerAccountName, contractName) {
-    if (memo === void 0) { memo = ""; }
+    if (memo === void 0) { memo = ''; }
     return __awaiter(this, void 0, void 0, function () {
         var _a, contract, options;
         return __generator(this, function (_b) {
@@ -110,7 +106,7 @@ function getStandardTokenBalance(accountName, tokenSymbol, contractName) {
 }
 // cleos push action cpu.ore transfer '["test1.apim", "test2.apim", "10.0000 CPU", "memo"]' -p test1.apim
 function transferStandardToken(fromAccountName, toAccountName, tokenAmount, memo, contractName) {
-    if (memo === void 0) { memo = ""; }
+    if (memo === void 0) { memo = ''; }
     return __awaiter(this, void 0, void 0, function () {
         var _a, contract, options;
         return __generator(this, function (_b) {
@@ -149,6 +145,6 @@ module.exports = {
     getStandardTokenBalance: getStandardTokenBalance,
     issueStandardToken: issueStandardToken,
     transferStandardToken: transferStandardToken,
-    transferfrom: transferfrom
+    transferfrom: transferfrom,
 };
 //# sourceMappingURL=orestandardtoken.js.map

@@ -15,6 +15,7 @@ function newAccountTransaction(name, ownerPublicKey, activePublicKey, options = 
     transfer: 0,
     ...options,
   };
+
   return this.eos.transaction((tr) => {
     tr.newaccount({
       creator: this.config.orePayerAccountName,
@@ -39,7 +40,6 @@ function newAccountTransaction(name, ownerPublicKey, activePublicKey, options = 
   });
 }
 
-
 function generateAccountName(encoding = {
   type: 'rfc4648',
   lc: true,
@@ -62,6 +62,7 @@ async function createOreAccountWithKeys(activePublicKey, ownerPublicKey, options
   if (confirm) {
     transaction = await this.confirmTransaction(() => newAccountTransaction.bind(this)(oreAccountName, ownerPublicKey, activePublicKey, options));
   }
+
   transaction = await newAccountTransaction.bind(this)(oreAccountName, ownerPublicKey, activePublicKey, options);
   return {
     oreAccountName,
@@ -69,11 +70,13 @@ async function createOreAccountWithKeys(activePublicKey, ownerPublicKey, options
   };
 }
 
-function encryptKeys(keys, password) {
+async function encryptKeys(keys, password) {
+  const encryptedKeys = keys;
   this.encryptedWalletPassword = this.encrypt(keys.masterPrivateKey, password).toString();
-  keys.masterPrivateKey = this.encryptedWalletPassword;
-  keys.privateKeys.owner = this.encrypt(keys.privateKeys.owner, password).toString();
-  keys.privateKeys.active = this.encrypt(keys.privateKeys.active, password).toString();
+  encryptedKeys.masterPrivateKey = this.encryptedWalletPassword;
+  encryptedKeys.privateKeys.owner = this.encrypt(keys.privateKeys.owner, password).toString();
+  encryptedKeys.privateKeys.active = this.encrypt(keys.privateKeys.active, password).toString();
+  return encryptedKeys;
 }
 
 /* Public */
@@ -86,25 +89,16 @@ async function createOreAccount(password, ownerPublicKey, options = {}) {
     transaction,
   } = await createOreAccountWithKeys.bind(this)(keys.publicKeys.active, ownerPublicKey, options);
 
-  encryptKeys.bind(this)(keys, password);
+  const encryptedKeys = await encryptKeys.bind(this)(keys, password);
+  keys.masterPrivateKey = encryptKeys.masterPrivateKey;
+  keys.privateKeys.owner = encryptedKeys.privateKeys.owner;
+  keys.privateKeys.active = encryptedKeys.privateKeys.active;
+
   return {
     oreAccountName,
     privateKey: keys.privateKeys.active,
     publicKey: keys.publicKeys.active,
     transaction,
-  };
-}
-
-async function createOreWallet(password, oreAccountName, encryptedAccountOwnerPrivateKey, encryptedAccountActivePrivateKey) {
-  // Create EOS Wallet
-  // userOreWalletName same as userOreAccountName
-
-  // Decrypt encryptedAccountOwnerPrivateKey and encryptedAccountActivePrivateKey using userWalletPassword
-  // Import both owner and acrtive keypairs (public and private)
-  // Encrypt newWalletPassword with userAccountPassword => encryptedWalletPassword
-  return {
-    oreAccountName,
-    encryptedWalletPassword,
   };
 }
 
@@ -123,7 +117,6 @@ async function unlockOreWallet(name, password) {
 
 module.exports = {
   createOreAccount,
-  createOreWallet,
   getOreAccountContents,
   unlockOreWallet,
 };

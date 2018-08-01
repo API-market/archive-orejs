@@ -22,9 +22,7 @@ async function getAllInstruments(oreAccountName, additionalFilters = []) {
 function getRight(instrument, rightName) {
   const {
     instrument: {
-      instrument: {
-        rights,
-      },
+      rights,
     } = {},
   } = instrument;
 
@@ -42,16 +40,12 @@ function rightExists(instrument, rightName) {
   // Checks if a right belongs to an instrument
   const {
     instrument: {
-      instrument: {
-        rights,
-      },
+      rights,
     } = {},
   } = instrument;
-
-  for (right of rights) {
-    if (right.right_name === rightName) {
-      return true;
-    }
+  const right = rights.find(rightObject => rightObject.right_name === rightName);
+  if (right !== undefined) {
+    return true;
   }
   return false;
 }
@@ -77,13 +71,7 @@ async function getInstruments(oreAccountName, category = undefined, filters = []
 
 async function getInstrumentsByRight(instrumentList, rightName) {
   // Gets all the instruments with a particular right
-  const instruments = [];
-  for (instrument of instrumentList) {
-    if (rightExists(instrument, rightName)) {
-      instruments.push(instrument);
-    }
-  }
-
+  const instruments = await instrumentList.filter(instrument => rightExists(instrument, rightName) === true);
   return instruments;
 }
 
@@ -141,25 +129,22 @@ async function getApiCallStats(instrumentId, rightName) {
     totalCpuUsage: 0,
   };
 
-  await result.rows.find((rightObject) => {
-    if (rightObject.right_name === rightName) {
-      rightProperties.totalApiCalls = rightObject.total_count;
-      rightProperties.totalCpuUsage = rightObject.total_cpu;
-    }
-  });
+  const rightObject = await result.rows.find(right => right.right_name === rightName);
+
+  if (rightObject !== undefined) {
+    rightProperties.totalApiCalls = rightObject.total_count;
+    rightProperties.totalCpuUsage = rightObject.total_cpu;
+  }
 
   return rightProperties;
 }
 
 async function getRightStats(rightName, owner) {
   // Returns the total cpu and api calls against a particular right across all the vouchers. If owner specified, then returns the toatal api calls and cpu usage for the owner.
-  let instruments,
-    instrumentList,
-    rightProperties;
-  let totalCpuUsage = 0;
-  let totalApiCalls = 0;
+  let instruments;
+  let rightProperties;
 
-  instrumentList = await this.getAllTableRows({
+  const instrumentList = await this.getAllTableRows({
     code: INSTR_CONTRACT_NAME,
     scope: INSTR_CONTRACT_NAME,
     table: INSTR_TABLE_NAME,
@@ -172,21 +157,26 @@ async function getRightStats(rightName, owner) {
     instruments = await getInstrumentByOwner(instruments, owner);
   }
 
-  for (instrumentObject of instruments) {
+  // Get the total cpu calls and cpu count across all the instruments
+  const results = instruments.map(async (instrumentObject) => {
     rightProperties = await getApiCallStats.bind(this)(instrumentObject.id, rightName);
     const value = parseFloat(rightProperties.totalCpuUsage);
     const usageValue = value.toFixed(4);
-    totalCpuUsage += Number(usageValue);
-    totalApiCalls += rightProperties.totalApiCalls;
-  }
+    return {
+      totalCpuUsage: rightProperties.totalCpuUsage,
+      totalApiCalls: usageValue,
+    };
+  });
+
+  const value = await Promise.all(results);
+
   return {
-    totalCpuUsage,
-    totalApiCalls,
+    totalCpuUsage: value.reduce((a, b) => a + parseFloat(b.totalCpuUsage), 0),
+    totalApiCalls: value.reduce((a, b) => a + parseFloat(b.totalApiCalls), 0),
   };
 }
 
-
-async function createOfferInstrument(oreAccountName, offerInstrumentData, confirm = true) {
+async function createOfferInstrument(oreAccountName, offerInstrumentData, confirm = false) {
   // Create an offer
   const options = {
     authorization: `${oreAccountName}@owner`,

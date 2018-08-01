@@ -8,7 +8,7 @@ const ecc = require('eosjs-ecc')
 let {
   crypto
 } = require("../index")
-let options, balance, cpuContract, insontract, contents, orejs
+let options, balance, contents, orejs
 
 async function connectAs(accountName, accountKey) {
   // Reinitialize the orejs library, with permissions for the current account...
@@ -62,7 +62,7 @@ function instrumentFor(accountName, version = Math.random().toString()) {
         "app.apim"
       ]
     },
-    "instrument_template": "cloud.hadron.contest-2018-07-v1",
+    "instrument_template": "testapi10",
     "start_time": 0,
     "end_time": 0,
     "override_offer_id": 0
@@ -107,7 +107,7 @@ function delay(ms = 1000) {
   // Give the new account some tokens... //
   /////////////////////////////////////////
 
-  // await connectAs(process.env.ORE_CPU_ACCOUNT_NAME, process.env.ORE_CPU_ACCOUNT_KEY)
+  await connectAs(process.env.ORE_CPU_ACCOUNT_NAME, process.env.ORE_CPU_ACCOUNT_KEY)
 
   await logBalances()
 
@@ -141,21 +141,22 @@ function delay(ms = 1000) {
 
   logInstrumentCount()
 
-  // let instrument = instrumentFor(account.oreAccountName)
-  // let offerTx = await orejs.createOfferInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, instrument)
-  // await delay()
-  // let [offer] = await orejs.findInstruments(account.oreAccountName)
-  // console.log("Offer:", offer, offer.instrument.rights)
+  let instrument = instrumentFor(account.oreAccountName)
+  let offerTx = await orejs.createOfferInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, instrument)
+  await delay()
+  let [offer] = await orejs.findInstruments(account.oreAccountName)
+  console.log("Offer:", offer, offer.instrument.rights)
 
   logInstrumentCount()
 
   ///////////////////////
   // License an API... //
   ///////////////////////
-
   await connectAs(process.env.ORE_OWNER_ACCOUNT_NAME, process.env.ORE_OWNER_ACCOUNT_OWNER_KEY)
   // // TODO Create a Voucher for the recently published Offer (ie, change 0 to offer.id)
-  let voucherTx = await orejs.createVoucherInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, 0, 0, "cloud.hadron.contest-2018-07-v1", false)
+  let voucherTx = await orejs.createVoucherInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, 1, 0, "", false)
+  console.log("Voucher created")
+  await delay()
   await delay()
   let [voucher] = await orejs.findInstruments(account.oreAccountName, true, 'apimarket.apiVoucher')
   console.log("Voucher:", voucher, voucher.instrument.rights)

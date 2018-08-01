@@ -60,13 +60,6 @@ async function getTableRowsPage(params, lower_bound = 0, page_size = -1, json = 
   return resp;
 }
 
-async function keyProvider() {
-  if (this.config.keyProvider instanceof Array) {
-    return this.config.keyProvider[0];
-  }
-  return this.config.keyProvider;
-}
-
 /* Public */
 
 async function contract(contractName, accountName) {

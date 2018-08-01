@@ -1,4 +1,4 @@
-Eos = require('eosjs');
+var Eos = require('eosjs');
 var accounts = require('./accounts');
 var cpu = require('./tokens/cpu');
 var eos = require('./eos');
@@ -31,6 +31,6 @@ var Orejs = /** @class */ (function () {
 }());
 module.exports = {
     crypto: crypto,
-    Orejs: Orejs
+    Orejs: Orejs,
 };
 //# sourceMappingURL=index.js.map
