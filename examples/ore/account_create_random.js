@@ -62,7 +62,7 @@ function instrumentFor(accountName, version = Math.random().toString()) {
         "app.apim"
       ]
     },
-    "instrument_template": "testapi10",
+    "instrument_template": "cloud.hadron.contest-2018-07-v1",
     "start_time": 0,
     "end_time": 0,
     "override_offer_id": 0
@@ -95,7 +95,7 @@ function delay(ms = 1000) {
   ///////////////////////////
 
   const ownerPublicKey = ecc.privateToPublic(process.env.ORE_OWNER_ACCOUNT_KEY)
-  console.log(ownerPublicKey)
+
   let account = await orejs.createOreAccount(process.env.WALLET_PASSWORD, ownerPublicKey)
   console.log("Account Created:", account)
 
@@ -155,7 +155,7 @@ function delay(ms = 1000) {
   await connectAs(process.env.ORE_OWNER_ACCOUNT_NAME, process.env.ORE_OWNER_ACCOUNT_OWNER_KEY)
   // // TODO Create a Voucher for the recently published Offer (ie, change 0 to offer.id)
   let voucherTx = await orejs.createVoucherInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, 1, 0, "", false)
-  console.log("Voucher created")
+
   await delay()
   await delay()
   let [voucher] = await orejs.findInstruments(account.oreAccountName, true, 'apimarket.apiVoucher')
