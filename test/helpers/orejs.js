@@ -1,46 +1,46 @@
-const { Orejs } = require('../../src');
-const { mockInfo } = require('./fetch');
+const { Orejs } = require("../../src")
+const { mockInfo } = require("./fetch")
 
 function constructOrejs() {
-  fetch.mockResponses(mockInfo());
+  fetch.mockResponses(mockInfo())
 
   orejs = new Orejs({
     httpEndpoint: ORE_NETWORK_URI,
     keyProvider: [ORE_OWNER_ACCOUNT_KEY],
     orePayerAccountName: ORE_PAYER_ACCOUNT_NAME,
-    sign: true,
-  });
+    sign: true
+  })
 
-  return orejs;
+  return orejs
 }
 
 function mockContract() {
-  const mockContract = jest.fn();
+  let mockContract = jest.fn()
 
-  const contract = {
+  let contract = {
     approve: jest.fn(),
-    transfer: jest.fn(),
-  };
+    transfer: jest.fn()
+  }
 
-  mockContract.mockReturnValue(contract);
-  orejs.eos.contract = mockContract;
+  mockContract.mockReturnValue(contract)
+  orejs.eos.contract = mockContract
 
-  return contract;
+  return contract
 }
 
 function mockTransaction() {
-  const mockTransaction = jest.fn();
+  let mockTransaction = jest.fn()
 
-  const transaction = jest.fn();
+  let transaction = jest.fn()
 
-  mockTransaction.mockReturnValue(transaction);
-  orejs.eos.transaction = mockTransaction;
+  mockTransaction.mockReturnValue(transaction)
+  orejs.eos.transaction = mockTransaction
 
-  return transaction;
+  return transaction
 }
 
 module.exports = {
   constructOrejs,
   mockContract,
-  mockTransaction,
-};
+  mockTransaction
+}

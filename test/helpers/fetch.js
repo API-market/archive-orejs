@@ -1,56 +1,42 @@
 function expectFetch(...urls) {
-  expect(fetch.mock.calls.length).toEqual(urls.length);
+  expect(fetch.mock.calls.length).toEqual(urls.length)
   urls.forEach((url, i) => {
-    expect(fetch.mock.calls[i][0]).toEqual(url);
-  });
+    expect(fetch.mock.calls[i][0]).toEqual(url)
+  })
 }
 
 function mock(body, status = 200) {
   return [
     JSON.stringify([
-      body,
+      body
     ]),
-    { status },
-  ];
+    { status: status }
+  ]
 }
 
 function mockAccount() {
   return mock({
-    account_name: 'y4dcmrzgiyte',
-    cpu_limit: { available: 12342451, max: 12342451, used: 0 },
+    account_name: "y4dcmrzgiyte",
+    cpu_limit: {available: 12342451, max: 12342451, used: 0},
     cpu_weight: 10000,
-    created: '2018-07-27T05:08:50.500',
+    created: "2018-07-27T05:08:50.500",
     head_block_num: 925723,
-    head_block_time: '2018-08-01T12:42:12.000',
-    last_code_update: '1970-01-01T00:00:00.000',
-    net_limit: { available: 64709992, max: 64709992, used: 0 },
+    head_block_time: "2018-08-01T12:42:12.000",
+    last_code_update: "1970-01-01T00:00:00.000",
+    net_limit: {available: 64709992, max: 64709992, used: 0},
     net_weight: 10000,
     permissions: [
-      {
-        parent: 'owner',
-        perm_name: 'active',
-        required_auth: {
-          accounts: [], keys: [{ key: 'EOS5QygD8vsKRXuVR8JMgLPjWwqzUyVGAJyvYaK7ffU4oPDmgwgqX', weight: 1 }], threshold: 1, waits: [],
-        },
-      },
-      {
-        parent: '',
-        perm_name: 'owner',
-        required_auth: {
-          accounts: [], keys: [{ key: 'EOS7xvHh4RwHJhMYXQE8r3d6AkVpxYUQEiopQi5jM1q1JYRyJZZzX', weight: 1 }], threshold: 1, waits: [],
-        },
-      },
+      {parent: "owner", perm_name: "active", required_auth: {accounts: [], keys: [{key: "EOS5QygD8vsKRXuVR8JMgLPjWwqzUyVGAJyvYaK7ffU4oPDmgwgqX", weight: 1}], threshold: 1, waits: []}},
+      {parent: "", perm_name: "owner", required_auth: {accounts: [], keys: [{key: "EOS7xvHh4RwHJhMYXQE8r3d6AkVpxYUQEiopQi5jM1q1JYRyJZZzX", weight: 1}], threshold: 1, waits: []}}
     ],
     privileged: false,
     ram_quota: 8150,
     ram_usage: 2996,
     refund_request: null,
     self_delegated_bandwidth: null,
-    total_resources: {
-      cpu_weight: '1.0000 SYS', net_weight: '1.0000 SYS', owner: 'y4dcmrzgiyte', ram_bytes: 8150,
-    },
-    voter_info: null,
-  });
+    total_resources: {cpu_weight: "1.0000 SYS", net_weight: "1.0000 SYS", owner: "y4dcmrzgiyte", ram_bytes: 8150},
+    voter_info: null
+  })
 }
 
 function mockBlock() {
@@ -69,8 +55,8 @@ function mockBlock() {
     block_extensions: [],
     id: '00090a0384aa271b99b94d25a3d069c4387625e972d05c21ffa17180d1f09ec2',
     block_num: 592387,
-    ref_block_prefix: 625850777,
-  });
+    ref_block_prefix: 625850777
+  })
 }
 
 function mockInfo() {
@@ -86,8 +72,8 @@ function mockInfo() {
     virtual_block_cpu_limit: 200000000,
     virtual_block_net_limit: 1048576000,
     block_cpu_limit: 199900,
-    block_net_limit: 1048576,
-  });
+    block_net_limit: 1048576
+  })
 }
 
 module.exports = {
@@ -95,5 +81,5 @@ module.exports = {
   mock,
   mockAccount,
   mockBlock,
-  mockInfo,
-};
+  mockInfo
+}
