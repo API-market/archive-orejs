@@ -2,6 +2,7 @@ const CONTRACT_NAME = 'token.ore'
 const ORE_CPU_ACCOUNT_NAME = 'cpu.ore'
 const TOKEN_SYMBOL = 'CPU'
 let amount
+
 /* Public */
 
 function cpuContract(accountName) {
@@ -12,9 +13,9 @@ function issueCpu(toAccountName, cpuAmount, memo=""){
   amount = this.getTokenAmount(cpuAmount, TOKEN_SYMBOL)
   return this.issueStandardToken(toAccountName, amount, memo, ORE_CPU_ACCOUNT_NAME, CONTRACT_NAME)
 }
+
 function approveCpu(fromAccountName, toAccountName, cpuAmount) {
   amount = this.getTokenAmount(cpuAmount, TOKEN_SYMBOL)
-  console.log(amount)
   return this.approveStandardTokenTransfer(fromAccountName, toAccountName, amount, CONTRACT_NAME)
 }
 

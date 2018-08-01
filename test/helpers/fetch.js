@@ -14,6 +14,31 @@ function mock(body, status = 200) {
   ]
 }
 
+function mockAccount() {
+  return mock({
+    account_name: "y4dcmrzgiyte",
+    cpu_limit: {available: 12342451, max: 12342451, used: 0},
+    cpu_weight: 10000,
+    created: "2018-07-27T05:08:50.500",
+    head_block_num: 925723,
+    head_block_time: "2018-08-01T12:42:12.000",
+    last_code_update: "1970-01-01T00:00:00.000",
+    net_limit: {available: 64709992, max: 64709992, used: 0},
+    net_weight: 10000,
+    permissions: [
+      {parent: "owner", perm_name: "active", required_auth: {accounts: [], keys: [{key: "EOS5QygD8vsKRXuVR8JMgLPjWwqzUyVGAJyvYaK7ffU4oPDmgwgqX", weight: 1}], threshold: 1, waits: []}},
+      {parent: "", perm_name: "owner", required_auth: {accounts: [], keys: [{key: "EOS7xvHh4RwHJhMYXQE8r3d6AkVpxYUQEiopQi5jM1q1JYRyJZZzX", weight: 1}], threshold: 1, waits: []}}
+    ],
+    privileged: false,
+    ram_quota: 8150,
+    ram_usage: 2996,
+    refund_request: null,
+    self_delegated_bandwidth: null,
+    total_resources: {cpu_weight: "1.0000 SYS", net_weight: "1.0000 SYS", owner: "y4dcmrzgiyte", ram_bytes: 8150},
+    voter_info: null
+  })
+}
+
 function mockBlock() {
   return mock({
     timestamp: '2018-07-30T14:24:24.000',
@@ -54,6 +79,7 @@ function mockInfo() {
 module.exports = {
   expectFetch,
   mock,
+  mockAccount,
   mockBlock,
   mockInfo
 }

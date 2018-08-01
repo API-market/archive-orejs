@@ -14,6 +14,33 @@ function constructOrejs() {
   return orejs
 }
 
+function mockContract() {
+  let mockContract = jest.fn()
+
+  let contract = {
+    approve: jest.fn(),
+    transfer: jest.fn()
+  }
+
+  mockContract.mockReturnValue(contract)
+  orejs.eos.contract = mockContract
+
+  return contract
+}
+
+function mockTransaction() {
+  let mockTransaction = jest.fn()
+
+  let transaction = jest.fn()
+
+  mockTransaction.mockReturnValue(transaction)
+  orejs.eos.transaction = mockTransaction
+
+  return transaction
+}
+
 module.exports = {
-  constructOrejs
+  constructOrejs,
+  mockContract,
+  mockTransaction
 }
