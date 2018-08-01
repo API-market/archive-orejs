@@ -11,7 +11,7 @@ function mock(body, status = 200) {
       body,
     ]),
     {
-      status
+      status,
     },
   ];
 }

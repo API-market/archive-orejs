@@ -1,8 +1,8 @@
 const {
-  Orejs
+  Orejs,
 } = require('../../src');
 const {
-  mockInfo
+  mockInfo,
 } = require('./fetch');
 
 function constructOrejs() {
