@@ -1,4 +1,9 @@
-// PRIVATE...
+function expectFetch(...urls) {
+  expect(fetch.mock.calls.length).toEqual(urls.length)
+  urls.forEach((url, i) => {
+    expect(fetch.mock.calls[i][0]).toEqual(url)
+  })
+}
 
 function mock(body, status = 200) {
   return [
@@ -8,8 +13,6 @@ function mock(body, status = 200) {
     { status: status }
   ]
 }
-
-// PUBLIC...
 
 function mockBlock() {
   return mock({
@@ -49,6 +52,8 @@ function mockInfo() {
 }
 
 module.exports = {
+  expectFetch,
+  mock,
   mockBlock,
   mockInfo
 }

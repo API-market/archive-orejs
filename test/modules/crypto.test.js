@@ -4,10 +4,8 @@ describe("encryption/decryption of private keys with wallet passwords", () => {
   let privateKey, walletPassword, encrypted
 
   beforeAll(() => {
-    dotenv.config()
-
-    privateKey = process.env.ORE_PAYER_ACCOUNT_KEY
-    walletPassword = process.env.WALLET_PASSWORD
+    privateKey = ORE_TESTA_ACCOUNT_KEY
+    walletPassword = WALLET_PASSWORD
     encrypted = crypto.encrypt(privateKey, walletPassword)
   })
 
