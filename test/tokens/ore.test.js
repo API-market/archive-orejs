@@ -25,7 +25,7 @@ describe('ore', () => {
       oreBalance = 30;
 
       fetch.resetMocks();
-      fetch.mockResponses(mock(`${oreBalance}.0000 ORE`));
+      fetch.mockResponses(mock([`${oreBalance}.0000 ORE`]));
     });
 
     test('returns the ore balance', async () => {
