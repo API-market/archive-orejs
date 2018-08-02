@@ -8,6 +8,7 @@
     "rules": {
         "no-new": [0],
         "no-unused-vars": "off",
+        "no-shadow": "off",
         "no-continue": "off",
         "max-len": [2, {
             "code": 600

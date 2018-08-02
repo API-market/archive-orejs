@@ -1,7 +1,11 @@
 const BigNumber = require('bignumber.js');
 const ecc = require('eosjs-ecc');
-
 /* Private */
+
+// Transform account names from base32 to their numeric representations
+function tableKey(oreAccountName) {
+  return new BigNumber(this.eos.format.encodeName(oreAccountName, false));
+}
 
 function filterRows(rows, filter) {
   if (!filter) return rows;
@@ -44,27 +48,14 @@ function filterRows(rows, filter) {
   return result;
 }
 
-async function getTableRowsPage(params, lower_bound = 0, page_size = -1, json = true) {
-  params = {
-    ...params,
-    json,
-    lower_bound: params.lower_bound || lower_bound,
-    scope: params.scope || params.code,
-    limit: page_size,
-    upper_bound: params.upper_bound,
-  };
-  if (!params.upper_bound) delete params.upper_bound;
-
-  const resp = await this.eos.getTableRows(params);
-
-  return resp;
-}
-
-async function keyProvider() {
-  if (this.config.keyProvider instanceof Array) {
-    return this.config.keyProvider[0];
+function hasTransaction(block, transactionId) {
+  if (block.transactions) {
+    const result = block.transactions.find(transaction => transaction.trx.id === transactionId);
+    if (result !== undefined) {
+      return true;
+    }
   }
-  return this.config.keyProvider;
+  return false;
 }
 
 /* Public */
@@ -74,7 +65,7 @@ async function keyProvider() {
 // by checking block produced immediately after the transaction
 async function confirmTransaction(func, blocksToCheck = 10, checkInterval = 200) {
   // before making the transaction, check the current block id...
-  const latestBlock = await this.getLatestBlock();
+  let latestBlock = await this.getLatestBlock();
   const initialBlockId = latestBlock.block_num;
   // make the transaction...
   const transaction = await func();
@@ -82,9 +73,9 @@ async function confirmTransaction(func, blocksToCheck = 10, checkInterval = 200)
   return new Promise((resolve, reject) => {
     let currentBlockId = initialBlockId + 1;
     const intConfirm = setInterval(async () => {
-      let latestBlock = await this.getLatestBlock();
+      latestBlock = await this.getLatestBlock();
       if (currentBlockId <= latestBlock.block_num) {
-        if (currentBlockId != latestBlock.block_num) {
+        if (currentBlockId !== latestBlock.block_num) {
           latestBlock = this.eos.getBlock(currentBlockId);
         }
         currentBlockId += 1;
@@ -94,7 +85,7 @@ async function confirmTransaction(func, blocksToCheck = 10, checkInterval = 200)
         resolve(transaction);
       } else if (latestBlock.block_num >= initialBlockId + blocksToCheck) {
         clearInterval(intConfirm);
-        reject('Transaction Confirmation Timeout');
+        reject(new Error('Transaction Confirmation Timeout'));
       }
     }, checkInterval);
   });
@@ -125,30 +116,20 @@ async function findOne(contractName, tableName, tableKey) {
   return results.rows[0];
 }
 
-async function getAllTableRows(params, key_field = 'id') {
-  let more = true;
+async function getAllTableRows(params, key_field = 'id', json = true) {
   let results = [];
-  let lower_bound = 0;
-
-  do {
-    const result = await getTableRowsPage.bind(this)(params, lower_bound);
-    more = result.more;
-
-    if (more) {
-      let last_key_value = result.rows[result.rows.length - 1][key_field];
-
-      // if it's an account_name convert it to its numeric representation
-      if (isNaN(last_key_value)) {
-        last_key_value = tableKey(last_key_value);
-      }
-
-      lower_bound = (new BigNumber(last_key_value)).plus(1).toFixed();
-    }
-
-    results = results.concat(result.rows);
-  } while (more);
-
-  return results;
+  const lowerBound = 0;
+  // const upperBound = -1;
+  const limit = -1;
+  const parameters = {
+    ...params,
+    json,
+    lower_bound: params.lower_bound || lowerBound,
+    scope: params.scope || params.code,
+    limit: params.limit || limit,
+  };
+  results = await this.eos.getTableRows(parameters);
+  return results.rows;
 }
 
 async function getAllTableRowsFiltered(params, filter, key_field = 'id') {
@@ -163,24 +144,8 @@ async function getLatestBlock() {
   return block;
 }
 
-function hasTransaction(block, transactionId) {
-  if (block.transactions) {
-    for (const trans of block.transactions) {
-      if (trans.trx.id == transactionId) {
-        return true;
-      }
-    }
-  }
-  return false;
-}
-
 async function signVoucher(apiVoucherId) {
   return ecc.sign(apiVoucherId.toString(), this.config.keyProvider[0]);
-}
-
-// Transform account names from base32 to their numeric representations
-function tableKey(oreAccountName) {
-  return new BigNumber(this.eos.format.encodeName(oreAccountName, false));
 }
 
 module.exports = {
