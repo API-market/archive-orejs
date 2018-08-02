@@ -31,6 +31,8 @@ describe('instrument', () => {
       fetch.mockResponses(instr)
     });
 
+    // TODO Cover edge cases
+
     test('returns an instrument', async () => {
       const instrument = await orejs.findInstruments(ORE_OWNER_ACCOUNT_NAME)
       expectFetch(`${ORE_NETWORK_URI}/v1/chain/get_table_rows`);
@@ -46,6 +48,7 @@ describe('instrument', () => {
     });
 
     test('returns a right', async () => {
+      // TODO
       //await orejs.getRight(instrument, rightName)
       //expect(JSON.stringify(accountContents)).toEqual(account[0])
     });
@@ -55,18 +58,17 @@ describe('instrument', () => {
     let contract;
 
     beforeEach(() => {
-      //contract = mockContract();
-
-      /*
       fetch.resetMocks()
-      fetch.mockResponses(mock({ totalCpuUsage: 28, totalApiCalls: 28 }))
-      */
+      fetch.mockResponses(mockInstrument(), mock({ totalCpuUsage: 28, totalApiCalls: 28 }))
     });
 
+    // TODO Cover edge cases
+
     test('returns stats', async () => {
-      //const stats = await orejs.getRightStats('rightName', ORE_TESTA_ACCOUNT_NAME)
-      //expectFetch(`${ORE_NETWORK_URI}/v1/chain/get_table_rows`);
-      //expect(JSON.stringify(accountContents)).toEqual(account[0])
+      const stats = await orejs.getRightStats('cloud.hadron.contest-2018-07', ORE_TESTA_ACCOUNT_NAME)
+      expectFetch(`${ORE_NETWORK_URI}/v1/chain/get_table_rows`);
+      // FIXME get second mock to return
+      //expect(stats).toEqual({ totalCpuUsage: 28, totalApiCalls: 28 })
     });
   });
 });
