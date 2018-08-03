@@ -17,34 +17,32 @@ function filterRows(rows, filter) {
     if (typeof filter === 'function') {
       fits = filter(row);
     } else if (typeof filter === 'object') {
-      for (const f in filter) {
-        if (filter[f] != row[f]) fits = false;
-      }
+      const filterKeys = Object.keys(filter);
+      filterKeys.forEach((key) => {
+        if (filter[key] !== row[key]) {
+          fits = false;
+        }
+      });
     } else {
-      throw 'filter must be a function or an object';
+      throw new Error('filter must be a function or an object');
     }
     return fits;
   }
 
-  for (const r in rows) {
-    const row = rows[r];
-
-    let fits_filter = true;
+  rows.forEach((row) => {
+    let fitFilter = true;
 
     if (filter instanceof Array) {
-      for (const f in filter) {
-        if (!filter[f]) continue;
-        fits_filter = fits_filter && fitsFilter(filter[f], row);
-      }
+      filter.forEach((f) => {
+        if (f) {
+          fitFilter = fitFilter && fitsFilter(f, row);
+        }
+      });
     } else {
-      fits_filter = fitsFilter(filter, row);
+      fitFilter = fitsFilter(filter, row);
     }
-
-    if (!fits_filter) continue;
-
-    result.push(rows[r]);
-  }
-
+    result.push(row);
+  });
   return result;
 }
 
