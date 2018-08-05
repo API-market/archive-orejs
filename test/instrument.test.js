@@ -1,4 +1,4 @@
-const { expectFetch, mock, mockInstrument } = require('./helpers/fetch');
+const { expectFetch, mock, mockInstruments } = require('./helpers/fetch');
 const { constructOrejs, mockContract } = require('./helpers/orejs');
 
 describe('instrument', () => {
@@ -22,21 +22,30 @@ describe('instrument', () => {
   });
 
   describe('findInstruments', () => {
-    let instr;
+    let instrumentMocks, active, inactive, unowned;
 
     beforeEach(() => {
-      instr = mockInstrument()
+      active = {owner: ORE_TESTA_ACCOUNT_NAME}
+      inactive = {owner: ORE_TESTA_ACCOUNT_NAME, instrument: {end_time: Date.now() - 1}}
+      unowned = {owner: ORE_OWNER_ACCOUNT_NAME}
+
+      instrumentMocks = mockInstruments([
+        active,
+        inactive,
+        unowned
+      ])
 
       fetch.resetMocks()
-      fetch.mockResponses(instr)
+      fetch.mockResponses(instrumentMocks)
     });
 
     // TODO Cover edge cases
+    //async function findInstruments(oreAccountName, activeOnly = true, category = undefined, rightName = undefined) {
 
-    test('returns an instrument', async () => {
-      const instrument = await orejs.findInstruments(ORE_OWNER_ACCOUNT_NAME)
+    test('returns all active instruments for account', async () => {
+      const instruments = await orejs.findInstruments(ORE_TESTA_ACCOUNT_NAME)
       expectFetch(`${ORE_NETWORK_URI}/v1/chain/get_table_rows`);
-      expect(instrument).toEqual(JSON.parse(instr[0]).rows)
+      expect(instruments).toEqual([JSON.parse(instrumentMocks[0]).rows[0]])
     });
   });
 
