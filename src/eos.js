@@ -41,7 +41,9 @@ function filterRows(rows, filter) {
     } else {
       fitFilter = fitsFilter(filter, row);
     }
-    result.push(row);
+    if (fitFilter) {
+      result.push(row);
+    }
   });
   return result;
 }

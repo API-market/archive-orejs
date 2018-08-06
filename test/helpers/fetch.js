@@ -120,7 +120,6 @@ function mockInstruments(instruments = [{}]) {
   return mock({
     rows: instruments.map((instrument) => {
       let instr = mockInstrument({id: idx, ...instrument})
-      console.log("Instr", instr)
       idx += 1
       return instr
     })
