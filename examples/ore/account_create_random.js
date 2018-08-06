@@ -131,6 +131,8 @@ function delay(ms = 1000) {
 
   // await connectAs(process.env.ORE_ORE_ACCOUNT_NAME, process.env.ORE_ORE_ACCOUNT_KEY)
 
+  const debug = await orejs.findInstruments('y4dgmryg44tk');
+  console.log('DEBUG:', debug);
 
   console.log('transfer', amount, 'ORE to', account.oreAccountName);
   await orejs.transferOre(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, amount);

@@ -25,7 +25,7 @@ describe('cpu', () => {
       cpuBalance = 30;
 
       fetch.resetMocks();
-      fetch.mockResponses(mock(`${cpuBalance}.0000 CPU`));
+      fetch.mockResponses(mock([`${cpuBalance}.0000 CPU`]));
     });
 
     test('returns the cpu balance', async () => {

@@ -7,15 +7,13 @@ function expectFetch(...urls) {
 
 function mock(body, status = 200) {
   return [
-    JSON.stringify([
-      body,
-    ]),
+    JSON.stringify(body),
     { status },
   ];
 }
 
 function mockAccount() {
-  return mock({
+  return mock([{
     account_name: 'y4dcmrzgiyte',
     cpu_limit: { available: 12342451, max: 12342451, used: 0 },
     cpu_weight: 10000,
@@ -50,11 +48,11 @@ function mockAccount() {
       cpu_weight: '1.0000 SYS', net_weight: '1.0000 SYS', owner: 'y4dcmrzgiyte', ram_bytes: 8150,
     },
     voter_info: null,
-  });
+  }]);
 }
 
 function mockBlock() {
-  return mock({
+  return mock([{
     timestamp: '2018-07-30T14:24:24.000',
     producer: 'eosio',
     confirmed: 0,
@@ -70,11 +68,11 @@ function mockBlock() {
     id: '00090a0384aa271b99b94d25a3d069c4387625e972d05c21ffa17180d1f09ec2',
     block_num: 592387,
     ref_block_prefix: 625850777,
-  });
+  }]);
 }
 
 function mockInfo() {
-  return mock({
+  return mock([{
     server_version: '75635168',
     chain_id: 'cf057bbfb72640471fd910bcb67639c22df9f92470936cddc1ade0e2f2e7dc4f',
     head_block_num: 591911,
@@ -87,7 +85,46 @@ function mockInfo() {
     virtual_block_net_limit: 1048576000,
     block_cpu_limit: 199900,
     block_net_limit: 1048576,
-  });
+  }]);
+}
+
+function mockInstrument(instrument = {}) {
+  return {
+    id: 0,
+    owner: 'app.apim',
+    minted_by: 'app.apim',
+    minted_at: Math.floor(Date.now() / 1000),
+    instrument: {
+      issuer: 'aikon.apim',
+      instrument_class: 'apimarket.apiVoucher',
+      description: 'process an image and returns the list of objects found',
+      instrument_template: '',
+      security_type: 'pass',
+      rights: [{
+        right_name: 'apimarket.manager.licenseApi',
+        description: 'creates an api voucher to access cloud.hadron.contest-2018-07',
+        price_in_cpu: '0',
+        additional_url_params: []
+      }],
+      parent_instrument_id: 1,
+      data: [],
+      start_time: Math.floor(Date.now() / 1000) - 1,
+      end_time: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30
+    },
+    ...instrument
+  }
+}
+
+function mockInstruments(instruments = [{}]) {
+  let idx = 1;
+  return mock({
+    rows: instruments.map((instrument) => {
+      let instr = mockInstrument({id: idx, ...instrument})
+      console.log("Instr", instr)
+      idx += 1
+      return instr
+    })
+  })
 }
 
 module.exports = {
@@ -96,4 +133,5 @@ module.exports = {
   mockAccount,
   mockBlock,
   mockInfo,
+  mockInstruments,
 };
