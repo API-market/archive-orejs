@@ -53,12 +53,12 @@ function approveTransfer(fromAccountName, toAccountName, tokenAmount, tokenName)
 }
 function getBalance(oreAccountName, tokenName) {
     return __awaiter(this, void 0, void 0, function () {
-        var table_key, account;
+        var tableKey, account;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    table_key = this.tableKey(oreAccountName);
-                    return [4 /*yield*/, this.findOne(tokenName, TABLE_NAME, table_key)];
+                    tableKey = this.tableKey(oreAccountName);
+                    return [4 /*yield*/, this.findOne(tokenName, TABLE_NAME, tableKey)];
                 case 1:
                     account = _a.sent();
                     if (account) {
@@ -88,6 +88,6 @@ function transferToken(fromAccountName, toAccountName, amount, tokenName) {
 module.exports = {
     approveTransfer: approveTransfer,
     getBalance: getBalance,
-    transferToken: transferToken
+    transferToken: transferToken,
 };
 //# sourceMappingURL=token.js.map

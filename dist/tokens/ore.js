@@ -7,7 +7,7 @@ function oreContract(accountName) {
     return this.contract(CONTRACT_NAME, accountName);
 }
 function issueOre(toAccountName, oreAmount, memo) {
-    if (memo === void 0) { memo = ""; }
+    if (memo === void 0) { memo = ''; }
     amount = this.getTokenAmount(oreAmount, TOKEN_SYMBOL);
     return this.issueStandardToken(toAccountName, amount, memo, ORE_ORE_ACCOUNT_NAME, CONTRACT_NAME);
 }
@@ -19,7 +19,7 @@ function getOreBalance(oreAccountName) {
     return this.getStandardTokenBalance(oreAccountName, TOKEN_SYMBOL, CONTRACT_NAME);
 }
 function transferOre(fromAccountName, toAccountName, oreAmount, memo) {
-    if (memo === void 0) { memo = ""; }
+    if (memo === void 0) { memo = ''; }
     amount = this.getTokenAmount(oreAmount, TOKEN_SYMBOL);
     return this.transferStandardToken(fromAccountName, toAccountName, amount, memo, CONTRACT_NAME);
 }
@@ -33,6 +33,6 @@ module.exports = {
     oreContract: oreContract,
     getOreBalance: getOreBalance,
     transferOre: transferOre,
-    transferOrefrom: transferOrefrom
+    transferOrefrom: transferOrefrom,
 };
 //# sourceMappingURL=ore.js.map

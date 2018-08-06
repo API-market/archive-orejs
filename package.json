@@ -4,6 +4,7 @@
   "description": "orejs is helper library (written in Javascript) to provide simple high-level access to the ore-protocol. Orejs uses eosJS as a wrapper to the EOS blockchain",
   "main": "./dist/index.js",
   "scripts": {
+    "lint": "./node_modules/.bin/eslint test/** src/** --fix",
     "build": "tsc --project ./tsconfig.json --pretty",
     "test": "jest --runInBand --coverage --detectOpenHandles"
   },
@@ -18,6 +19,11 @@
   },
   "homepage": "https://github.com/api.market/orejs#readme",
   "devDependencies": {
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb": "^17.0.0",
+    "eslint-plugin-import": "^2.13.0",
+    "eslint-plugin-jsx-a11y": "^6.1.1",
+    "eslint-plugin-react": "^7.10.0",
     "jest": "^23.4.1",
     "jest-fetch-mock": "^1.6.5",
     "typescript": "^2.9.2"

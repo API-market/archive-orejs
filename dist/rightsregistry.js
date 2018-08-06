@@ -33,15 +33,13 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var RIGHT_CONTRACT_NAME = "rights.ore";
+var RIGHT_CONTRACT_NAME = 'rights.ore';
 function setRightsInRegistry(oreAccountName, rightData) {
     return __awaiter(this, void 0, void 0, function () {
         var _a, contract, options, right;
         return __generator(this, function (_b) {
             switch (_b.label) {
-                case 0: return [4 /*yield*/, this.contract(RIGHT_CONTRACT_NAME, oreAccountName)
-                    // upsertright(account_name issuer, string &right_name, vector<ore_types::endpoint_url> urls, vector<account_name> issuer_whitelist)
-                ];
+                case 0: return [4 /*yield*/, this.contract(RIGHT_CONTRACT_NAME, oreAccountName)];
                 case 1:
                     _a = _b.sent(), contract = _a.contract, options = _a.options;
                     return [4 /*yield*/, contract.upsertright(oreAccountName, rightData.right_name, rightData.urls, rightData.issuer_whitelist, options)];
@@ -53,6 +51,6 @@ function setRightsInRegistry(oreAccountName, rightData) {
     });
 }
 module.exports = {
-    setRightsInRegistry: setRightsInRegistry
+    setRightsInRegistry: setRightsInRegistry,
 };
 //# sourceMappingURL=rightsregistry.js.map

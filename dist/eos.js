@@ -41,43 +41,43 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var BigNumber = require("bignumber.js");
+var BigNumber = require('bignumber.js');
 var ecc = require('eosjs-ecc');
 /* Private */
 function filterRows(rows, filter) {
     if (!filter)
         return rows;
     var result = [];
-    function fitsFilter(filter, row) {
+    function fitsFilter(filters, row) {
         var fits = true;
-        if (typeof filter === 'function') {
-            fits = filter(row);
+        if (typeof filters === 'function') {
+            fits = filters(row);
         }
-        else if (typeof filter === 'object') {
-            for (var f in filter) {
-                if (filter[f] != row[f])
+        else if (typeof filters === 'object') {
+            for (var f in filters) {
+                if (filters[f] !== row[f])
                     fits = false;
             }
         }
         else {
-            throw "filter must be a function or an object";
+            throw new Error('filter must be a function or an object');
         }
         return fits;
     }
     for (var r in rows) {
         var row = rows[r];
-        var fits_filter = true;
+        var fitFilter = true;
         if (filter instanceof Array) {
             for (var f in filter) {
                 if (!filter[f])
                     continue;
-                fits_filter = fits_filter && fitsFilter(filter[f], row);
+                fitFilter = fitFilter && fitsFilter(filter[f], row);
             }
         }
         else {
-            fits_filter = fitsFilter(filter, row);
+            fitFilter = fitsFilter(filter, row);
         }
-        if (!fits_filter)
+        if (!fitFilter)
             continue;
         result.push(rows[r]);
     }
@@ -103,81 +103,23 @@ function getTableRowsPage(params, lower_bound, page_size, json) {
         });
     });
 }
-function keyProvider() {
-    return __awaiter(this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            if (this.config.keyProvider instanceof Array) {
-                return [2 /*return*/, this.config.keyProvider[0]];
-            }
-            return [2 /*return*/, this.config.keyProvider];
-        });
-    });
-}
 /* Public */
-// eosjs only confirms that transactions have been accepted
-// this confirms that the transaction has been written to the chain
-// by checking block produced immediately after the transaction
-function confirmTransaction(func, blocksToCheck, checkInterval) {
-    if (blocksToCheck === void 0) { blocksToCheck = 10; }
-    if (checkInterval === void 0) { checkInterval = 200; }
-    return __awaiter(this, void 0, void 0, function () {
-        var latestBlock, initialBlockId, transaction;
-        var _this = this;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, this.getLatestBlock()];
-                case 1:
-                    latestBlock = _a.sent();
-                    initialBlockId = latestBlock.block_num;
-                    return [4 /*yield*/, func()
-                        // check blocks for the transaction id...
-                    ];
-                case 2:
-                    transaction = _a.sent();
-                    // check blocks for the transaction id...
-                    return [2 /*return*/, new Promise(function (resolve, reject) {
-                            var currentBlockId = initialBlockId + 1;
-                            var intConfirm = setInterval(function () { return __awaiter(_this, void 0, void 0, function () {
-                                var latestBlock;
-                                return __generator(this, function (_a) {
-                                    switch (_a.label) {
-                                        case 0: return [4 /*yield*/, this.getLatestBlock()];
-                                        case 1:
-                                            latestBlock = _a.sent();
-                                            if (currentBlockId <= latestBlock.block_num) {
-                                                if (currentBlockId != latestBlock.block_num) {
-                                                    latestBlock = this.eos.getBlock(currentBlockId);
-                                                }
-                                                currentBlockId += 1;
-                                            }
-                                            if (hasTransaction(latestBlock, transaction.transaction_id)) {
-                                                clearInterval(intConfirm);
-                                                resolve(transaction);
-                                            }
-                                            else if (latestBlock.block_num >= initialBlockId + blocksToCheck) {
-                                                clearInterval(intConfirm);
-                                                reject("Transaction Confirmation Timeout");
-                                            }
-                                            return [2 /*return*/];
-                                    }
-                                });
-                            }); }, checkInterval);
-                        })];
-            }
-        });
-    });
-}
 function contract(contractName, accountName) {
     return __awaiter(this, void 0, void 0, function () {
         var options, contract;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    options = { authorization: accountName + "@active" };
+                    options = {
+                        authorization: accountName + "@active",
+                    };
                     return [4 /*yield*/, this.eos.contract(contractName, options)];
                 case 1:
                     contract = _a.sent();
-                    return [2 /*return*/, { contract: contract, options: options }];
+                    return [2 /*return*/, {
+                            contract: contract,
+                            options: options,
+                        }];
             }
         });
     });
@@ -195,7 +137,7 @@ function findOne(contractName, tableName, tableKey) {
                         lower_bound: tableKey.toString(),
                         scope: contractName.toString(),
                         table: tableName.toString(),
-                        upper_bound: tableKey.plus(1).toString()
+                        upper_bound: tableKey.plus(1).toString(),
                     })];
                 case 1:
                     results = _a.sent();
@@ -204,8 +146,9 @@ function findOne(contractName, tableName, tableKey) {
         });
     });
 }
+// only good for tables with id key_field
 function getAllTableRows(params, key_field) {
-    if (key_field === void 0) { key_field = "id"; }
+    if (key_field === void 0) { key_field = 'id'; }
     return __awaiter(this, void 0, void 0, function () {
         var more, results, lower_bound, result, last_key_value;
         return __generator(this, function (_a) {
@@ -221,7 +164,7 @@ function getAllTableRows(params, key_field) {
                     more = result.more;
                     if (more) {
                         last_key_value = result.rows[result.rows.length - 1][key_field];
-                        //if it's an account_name convert it to its numeric representation
+                        // if it's an account_name convert it to its numeric representation
                         if (isNaN(last_key_value)) {
                             last_key_value = tableKey(last_key_value);
                         }
@@ -238,7 +181,7 @@ function getAllTableRows(params, key_field) {
     });
 }
 function getAllTableRowsFiltered(params, filter, key_field) {
-    if (key_field === void 0) { key_field = "id"; }
+    if (key_field === void 0) { key_field = 'id'; }
     return __awaiter(this, void 0, void 0, function () {
         var result;
         return __generator(this, function (_a) {
@@ -250,33 +193,6 @@ function getAllTableRowsFiltered(params, filter, key_field) {
             }
         });
     });
-}
-function getLatestBlock() {
-    return __awaiter(this, void 0, void 0, function () {
-        var info, block;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, this.eos.getInfo({})];
-                case 1:
-                    info = _a.sent();
-                    return [4 /*yield*/, this.eos.getBlock(info.last_irreversible_block_num)];
-                case 2:
-                    block = _a.sent();
-                    return [2 /*return*/, block];
-            }
-        });
-    });
-}
-function hasTransaction(block, transactionId) {
-    if (block.transactions) {
-        for (var _i = 0, _a = block.transactions; _i < _a.length; _i++) {
-            var trans = _a[_i];
-            if (trans.trx.id == transactionId) {
-                return true;
-            }
-        }
-    }
-    return false;
 }
 function signVoucher(apiVoucherId) {
     return __awaiter(this, void 0, void 0, function () {
@@ -290,14 +206,11 @@ function tableKey(oreAccountName) {
     return new BigNumber(this.eos.format.encodeName(oreAccountName, false));
 }
 module.exports = {
-    confirmTransaction: confirmTransaction,
     contract: contract,
     findOne: findOne,
     getAllTableRows: getAllTableRows,
     getAllTableRowsFiltered: getAllTableRowsFiltered,
-    getLatestBlock: getLatestBlock,
-    hasTransaction: hasTransaction,
     signVoucher: signVoucher,
-    tableKey: tableKey
+    tableKey: tableKey,
 };
 //# sourceMappingURL=eos.js.map
