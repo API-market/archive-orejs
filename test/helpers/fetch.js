@@ -89,6 +89,13 @@ function mockInfo() {
 }
 
 function mockInstrument(instrument = {}) {
+  let innerInstrument = {};
+  
+  if (instrument.instrument) {
+    innerInstrument = instrument.instrument;
+    delete instrument.instrument;
+  }
+
   return {
     id: 0,
     owner: 'app.apim',
@@ -109,7 +116,8 @@ function mockInstrument(instrument = {}) {
       parent_instrument_id: 1,
       data: [],
       start_time: Math.floor(Date.now() / 1000) - 1,
-      end_time: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30
+      end_time: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30, // Expires in 30 days
+      ...innerInstrument
     },
     ...instrument
   }

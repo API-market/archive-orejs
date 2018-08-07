@@ -22,16 +22,20 @@ describe('instrument', () => {
   });
 
   describe('findInstruments', () => {
-    let instrumentMocks, active, inactive, unowned;
+    let instrumentMocks, active, additionalRighted, expired, uncategorized, unowned;
 
     beforeEach(() => {
       active = {owner: ORE_TESTA_ACCOUNT_NAME}
-      inactive = {owner: ORE_TESTA_ACCOUNT_NAME, instrument: {end_time: Date.now() - 1}}
+      expired = {owner: ORE_TESTA_ACCOUNT_NAME, instrument: {end_time: Math.floor(Date.now() / 1000) - 1}}
+      uncategorized = {owner: ORE_TESTA_ACCOUNT_NAME, instrument: {instrument_class: 'apimarket.uncategorized'}}
+      additionalRighted = {owner: ORE_TESTA_ACCOUNT_NAME, instrument: {instrument_class: 'apimarket.uncategorized', rights: [{right_name: 'apimarket.nobody.licenseApi'}]}}
       unowned = {owner: ORE_OWNER_ACCOUNT_NAME}
 
       instrumentMocks = mockInstruments([
         active,
-        inactive,
+        additionalRighted,
+        expired,
+        uncategorized,
         unowned
       ])
 
@@ -40,13 +44,23 @@ describe('instrument', () => {
     });
 
     // TODO Cover edge cases
-    //async function findInstruments(oreAccountName, activeOnly = true, category = undefined, rightName = undefined) {
 
     test('returns all active instruments for account', async () => {
       let instruments = await orejs.findInstruments(ORE_TESTA_ACCOUNT_NAME)
       expectFetch(`${ORE_NETWORK_URI}/v1/chain/get_table_rows`);
-      //instruments = orejs.getInstrumentByOwner(instruments, ORE_TESTA_ACCOUNT_NAME)
-      expect(instruments).toEqual([JSON.parse(instrumentMocks[0]).rows[0]])
+      expect(instruments).toEqual([JSON.parse(instrumentMocks[0]).rows[0], JSON.parse(instrumentMocks[0]).rows[1], JSON.parse(instrumentMocks[0]).rows[3]])
+    });
+
+    test('filters by category', async () => {
+      let instruments = await orejs.findInstruments(ORE_TESTA_ACCOUNT_NAME, true, 'apimarket.uncategorized')
+      expectFetch(`${ORE_NETWORK_URI}/v1/chain/get_table_rows`);
+      expect(instruments).toEqual([JSON.parse(instrumentMocks[0]).rows[1], JSON.parse(instrumentMocks[0]).rows[3]])
+    });
+
+    test('filters by right', async () => {
+      let instruments = await orejs.findInstruments(ORE_TESTA_ACCOUNT_NAME, true, 'apimarket.uncategorized', 'apimarket.nobody.licenseApi')
+      expectFetch(`${ORE_NETWORK_URI}/v1/chain/get_table_rows`);
+      expect(instruments).toEqual([JSON.parse(instrumentMocks[0]).rows[1]])
     });
   });
 
