@@ -90,7 +90,7 @@ function mockInfo() {
 
 function mockInstrument(instrument = {}) {
   let innerInstrument = {};
-  
+
   if (instrument.instrument) {
     innerInstrument = instrument.instrument;
     delete instrument.instrument;
@@ -140,5 +140,6 @@ module.exports = {
   mockAccount,
   mockBlock,
   mockInfo,
+  mockInstrument,
   mockInstruments,
 };

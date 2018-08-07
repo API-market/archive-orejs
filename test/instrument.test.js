@@ -1,4 +1,4 @@
-const { expectFetch, mock, mockInstruments } = require('./helpers/fetch');
+const { expectFetch, mock, mockInstrument, mockInstruments } = require('./helpers/fetch');
 const { constructOrejs, mockContract } = require('./helpers/orejs');
 
 describe('instrument', () => {
@@ -18,6 +18,8 @@ describe('instrument', () => {
       options = {"authorization": `${ORE_OWNER_ACCOUNT_NAME}@owner`}
       contract = mockContract();
     });
+
+    // TODO Cover edge cases
 
     test('returns', async () => {
       await orejs.createVoucherInstrument(ORE_OWNER_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, offerId)
@@ -69,16 +71,18 @@ describe('instrument', () => {
   });
 
   describe('getRight', () => {
-    let contract;
+    let instrument, rightName;
 
     beforeEach(() => {
-      //contract = mockContract();
+      rightName = 'apimarket.nobody.licenseApi';
+      instrument = mockInstrument({owner: ORE_TESTA_ACCOUNT_NAME, instrument: {instrument_class: 'apimarket.uncategorized', rights: [{right_name: rightName}]}})
     });
 
+    // TODO Cover edge cases
+
     test('returns a right', async () => {
-      // TODO
-      //await orejs.getRight(instrument, rightName)
-      //expect(JSON.stringify(accountContents)).toEqual(account[0])
+      let right = await orejs.getRight(instrument, rightName)
+      expect(right).toEqual(instrument.instrument.rights[0])
     });
   });
 
