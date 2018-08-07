@@ -28,8 +28,6 @@ describe('instrument', () => {
       contract = mockContract();
     });
 
-    // TODO Cover edge cases
-
     test('returns', async () => {
       await orejs.createVoucherInstrument(ORE_OWNER_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, offerId);
       expect(contract.licenseapi).toHaveBeenCalledWith(ORE_OWNER_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, offerId, offerTemplate, overrideVoucherId, options);
@@ -62,8 +60,6 @@ describe('instrument', () => {
       fetch.resetMocks();
       fetch.mockResponses(instrumentMocks);
     });
-
-    // TODO Cover edge cases
 
     test('returns all active instruments for account', async () => {
       const instruments = await orejs.findInstruments(ORE_TESTA_ACCOUNT_NAME);
@@ -129,15 +125,20 @@ describe('instrument', () => {
       totalCount = 20;
 
       fetch.resetMocks();
-      fetch.mockResponses(mockInstruments([{ owner: ORE_TESTA_ACCOUNT_NAME, instrument: { rights: [{ right_name: rightName }] } }]), mock({ rows: [{ right_name: rightName, total_cpu: `${totalCpu}.0000 CPU`, total_count: totalCount }] }));
+      fetch.mockResponses(
+        mockInstruments([
+          { owner: ORE_TESTA_ACCOUNT_NAME, instrument: { rights: [{ right_name: rightName }] } },
+          { owner: ORE_TESTA_ACCOUNT_NAME, instrument: { rights: [{ right_name: rightName }] } },
+        ]),
+        mock({ rows: [{ right_name: rightName, total_cpu: `${totalCpu}.0000 CPU`, total_count: totalCount }] }),
+        mock({ rows: [{ right_name: rightName, total_cpu: `${totalCpu}.0000 CPU`, total_count: totalCount }] }),
+      );
     });
 
-    // TODO Cover edge cases
-
-    test('returns stats', async () => {
+    test('returns summed stats', async () => {
       const stats = await orejs.getRightStats(rightName, ORE_TESTA_ACCOUNT_NAME);
-      expectFetch(`${ORE_NETWORK_URI}/v1/chain/get_table_rows`, `${ORE_NETWORK_URI}/v1/chain/get_table_rows`);
-      expect(stats).toEqual({ totalCpuUsage: totalCpu, totalApiCalls: totalCount });
+      expectFetch(`${ORE_NETWORK_URI}/v1/chain/get_table_rows`, `${ORE_NETWORK_URI}/v1/chain/get_table_rows`, `${ORE_NETWORK_URI}/v1/chain/get_table_rows`);
+      expect(stats).toEqual({ totalCpuUsage: totalCpu * 2, totalApiCalls: totalCount * 2 });
     });
   });
 });
