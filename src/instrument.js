@@ -30,6 +30,7 @@ function getRight(instrument, rightName) {
     if (rightObject.right_name === rightName) {
       return rightObject;
     }
+    return undefined;
   });
   return right;
 }

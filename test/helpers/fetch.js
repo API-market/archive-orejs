@@ -89,10 +89,9 @@ function mockInfo() {
 }
 
 function mockInstrument(instrument = {}) {
-  let innerInstrument = {};
+  const innerInstrument = instrument.instrument || {};
 
   if (instrument.instrument) {
-    innerInstrument = instrument.instrument;
     delete instrument.instrument;
   }
 
@@ -111,27 +110,27 @@ function mockInstrument(instrument = {}) {
         right_name: 'apimarket.manager.licenseApi',
         description: 'creates an api voucher to access cloud.hadron.contest-2018-07',
         price_in_cpu: '0',
-        additional_url_params: []
+        additional_url_params: [],
       }],
       parent_instrument_id: 1,
       data: [],
       start_time: Math.floor(Date.now() / 1000) - 1,
       end_time: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30, // Expires in 30 days
-      ...innerInstrument
+      ...innerInstrument,
     },
-    ...instrument
-  }
+    ...instrument,
+  };
 }
 
 function mockInstruments(instruments = [{}]) {
   let idx = 1;
   return mock({
     rows: instruments.map((instrument) => {
-      let instr = mockInstrument({id: idx, ...instrument})
-      idx += 1
-      return instr
-    })
-  })
+      const instr = mockInstrument({ id: idx, ...instrument });
+      idx += 1;
+      return instr;
+    }),
+  });
 }
 
 module.exports = {
