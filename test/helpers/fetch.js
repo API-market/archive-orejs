@@ -91,15 +91,12 @@ function mockInfo() {
 function mockInstrument(instrument = {}) {
   const innerInstrument = instrument.instrument || {};
 
-  if (instrument.instrument) {
-    delete instrument.instrument;
-  }
-
   return {
     id: 0,
     owner: 'app.apim',
     minted_by: 'app.apim',
     minted_at: Math.floor(Date.now() / 1000),
+    ...instrument,
     instrument: {
       issuer: 'aikon.apim',
       instrument_class: 'apimarket.apiVoucher',
@@ -118,7 +115,6 @@ function mockInstrument(instrument = {}) {
       end_time: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30, // Expires in 30 days
       ...innerInstrument,
     },
-    ...instrument,
   };
 }
 
