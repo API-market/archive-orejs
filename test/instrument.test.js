@@ -86,6 +86,46 @@ describe('instrument', () => {
     });
   });
 
+  describe('getInstruments', () => {
+    let instrumentMocks;
+    let active;
+    let additionalRighted;
+    let expired;
+    let uncategorized;
+    let unowned;
+
+    beforeEach(() => {
+      active = { owner: ORE_TESTA_ACCOUNT_NAME };
+      expired = { owner: ORE_TESTA_ACCOUNT_NAME, instrument: { end_time: Math.floor(Date.now() / 1000) - 1 } };
+      uncategorized = { owner: ORE_TESTA_ACCOUNT_NAME, instrument: { instrument_class: 'apimarket.uncategorized' } };
+      additionalRighted = { owner: ORE_TESTA_ACCOUNT_NAME, instrument: { instrument_class: 'apimarket.uncategorized', rights: [{ right_name: 'apimarket.nobody.licenseApi' }] } };
+      unowned = { owner: ORE_OWNER_ACCOUNT_NAME };
+
+      instrumentMocks = mockInstruments([
+        active,
+        additionalRighted,
+        expired,
+        uncategorized,
+        unowned,
+      ]);
+
+      fetch.resetMocks();
+      fetch.mockResponses(instrumentMocks);
+    });
+
+    test('returns all instruments', async () => {
+      const instruments = await orejs.getInstruments(ORE_TESTA_ACCOUNT_NAME, false);
+      expectFetch(`${ORE_NETWORK_URI}/v1/chain/get_table_rows`);
+      expect(instruments).toEqual([JSON.parse(instrumentMocks[0]).rows[0], JSON.parse(instrumentMocks[0]).rows[1], JSON.parse(instrumentMocks[0]).rows[2], JSON.parse(instrumentMocks[0]).rows[3]]);
+    });
+
+    test('filters by category', async () => {
+      const instruments = await orejs.getInstruments(ORE_TESTA_ACCOUNT_NAME, 'apimarket.uncategorized');
+      expectFetch(`${ORE_NETWORK_URI}/v1/chain/get_table_rows`);
+      expect(instruments).toEqual([JSON.parse(instrumentMocks[0]).rows[1], JSON.parse(instrumentMocks[0]).rows[3]]);
+    });
+  });
+
   describe('getRight', () => {
     let instrument;
     let rightName;
