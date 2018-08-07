@@ -9,15 +9,19 @@ describe('instrument', () => {
   });
 
   describe('createVoucherInstrument', () => {
-    let contract;
+    let contract, offerId, offerTemplate, overrideVoucherId, options;
 
     beforeEach(() => {
-      //contract = mockContract();
+      offerId = 1;
+      offerTemplate = "";
+      overrideVoucherId = 0;
+      options = {"authorization": `${ORE_OWNER_ACCOUNT_NAME}@owner`}
+      contract = mockContract();
     });
 
     test('returns', async () => {
-      //await orejs.createVoucherInstrument(ORE_OWNER_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, 1)
-      //expect(JSON.stringify(accountContents)).toEqual(account[0])
+      await orejs.createVoucherInstrument(ORE_OWNER_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, offerId)
+      expect(contract.licenseapi).toHaveBeenCalledWith(ORE_OWNER_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, offerId, offerTemplate, overrideVoucherId, options)
     });
   });
 
