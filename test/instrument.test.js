@@ -87,17 +87,34 @@ describe('instrument', () => {
   describe('getRight', () => {
     let instrument;
     let rightName;
+    let rights;
 
     beforeEach(() => {
-      rightName = 'apimarket.nobody.licenseApi';
-      instrument = mockInstrument({ owner: ORE_TESTA_ACCOUNT_NAME, instrument: { instrument_class: 'apimarket.uncategorized', rights: [{ right_name: rightName }] } });
+      rightName = 'apimarket.somebody.licenseApi';
     });
 
-    // TODO Cover edge cases
+    describe('when multiple rights exist', async () => {
+      beforeEach(() => {
+        rights = [{ right_name: 'apimarket.left.licenseApi' }, { right_name: rightName }, { right_name: 'apimarket.right.licenseApi' }];
+        instrument = mockInstrument({ owner: ORE_TESTA_ACCOUNT_NAME, instrument: { instrument_class: 'apimarket.uncategorized', rights } });
+      });
 
-    test('returns a right', async () => {
-      const right = await orejs.getRight(instrument, rightName);
-      expect(right).toEqual(instrument.instrument.rights[0]);
+      test('returns the correct right', async () => {
+        const right = await orejs.getRight(instrument, rightName);
+        expect(right).toEqual(instrument.instrument.rights[1]);
+      });
+    });
+
+    describe('when the right does not exist', async () => {
+      beforeEach(() => {
+        rights = [{ right_name: 'apimarket.left.licenseApi' }, { right_name: 'apimarket.right.licenseApi' }];
+        instrument = mockInstrument({ owner: ORE_TESTA_ACCOUNT_NAME, instrument: { instrument_class: 'apimarket.uncategorized', rights } });
+      });
+
+      test('returns nothing', async () => {
+        const right = await orejs.getRight(instrument, rightName);
+        expect(right).toEqual(undefined);
+      });
     });
   });
 

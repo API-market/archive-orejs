@@ -89,7 +89,24 @@ function mockInfo() {
 }
 
 function mockInstrument(instrument = {}) {
-  const innerInstrument = instrument.instrument || {};
+  const innerInstrument = {
+    issuer: 'aikon.apim',
+    instrument_class: 'apimarket.apiVoucher',
+    description: 'process an image and returns the list of objects found',
+    instrument_template: '',
+    security_type: 'pass',
+    rights: [{
+      right_name: 'apimarket.manager.licenseApi',
+      description: 'creates an api voucher to access cloud.hadron.contest-2018-07',
+      price_in_cpu: '0',
+      additional_url_params: [],
+    }],
+    parent_instrument_id: 1,
+    data: [],
+    start_time: Math.floor(Date.now() / 1000) - 1,
+    end_time: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30, // Expires in 30 days
+    ...instrument.instrument,
+  };
 
   return {
     id: 0,
@@ -97,24 +114,7 @@ function mockInstrument(instrument = {}) {
     minted_by: 'app.apim',
     minted_at: Math.floor(Date.now() / 1000),
     ...instrument,
-    instrument: {
-      issuer: 'aikon.apim',
-      instrument_class: 'apimarket.apiVoucher',
-      description: 'process an image and returns the list of objects found',
-      instrument_template: '',
-      security_type: 'pass',
-      rights: [{
-        right_name: 'apimarket.manager.licenseApi',
-        description: 'creates an api voucher to access cloud.hadron.contest-2018-07',
-        price_in_cpu: '0',
-        additional_url_params: [],
-      }],
-      parent_instrument_id: 1,
-      data: [],
-      start_time: Math.floor(Date.now() / 1000) - 1,
-      end_time: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30, // Expires in 30 days
-      ...innerInstrument,
-    },
+    instrument: innerInstrument,
   };
 }
 
