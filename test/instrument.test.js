@@ -87,20 +87,23 @@ describe('instrument', () => {
   });
 
   describe('getRightStats', () => {
-    let contract;
+    let rightName, totalCpu, totalCount;
 
     beforeEach(() => {
-      //fetch.resetMocks()
-      //fetch.mockResponses(mockInstrument(), mock({ totalCpuUsage: 28, totalApiCalls: 28 }))
+      rightName = 'cloud.hadron.contest-2018-07';
+      totalCpu = 10;
+      totalCount = 20;
+
+      fetch.resetMocks()
+      fetch.mockResponses(mockInstruments([{owner: ORE_TESTA_ACCOUNT_NAME, instrument: {rights: [{right_name: rightName}]}}]), mock({rows: [{right_name: rightName, total_cpu: `${totalCpu}.0000 CPU`, total_count: totalCount }]}))
     });
 
     // TODO Cover edge cases
 
     test('returns stats', async () => {
-      //const stats = await orejs.getRightStats('cloud.hadron.contest-2018-07', ORE_TESTA_ACCOUNT_NAME)
-      //expectFetch(`${ORE_NETWORK_URI}/v1/chain/get_table_rows`);
-      // FIXME get second mock to return
-      //expect(stats).toEqual({ totalCpuUsage: 28, totalApiCalls: 28 })
+      const stats = await orejs.getRightStats(rightName, ORE_TESTA_ACCOUNT_NAME)
+      expectFetch(`${ORE_NETWORK_URI}/v1/chain/get_table_rows`, `${ORE_NETWORK_URI}/v1/chain/get_table_rows`);
+      expect(stats).toEqual({ totalCpuUsage: totalCpu, totalApiCalls: totalCount })
     });
   });
 });
