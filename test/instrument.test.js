@@ -67,6 +67,12 @@ describe('instrument', () => {
       expect(instruments).toEqual([JSON.parse(instrumentMocks[0]).rows[0], JSON.parse(instrumentMocks[0]).rows[1], JSON.parse(instrumentMocks[0]).rows[3]]);
     });
 
+    test('returns all instruments', async () => {
+      const instruments = await orejs.findInstruments(ORE_TESTA_ACCOUNT_NAME, false);
+      expectFetch(`${ORE_NETWORK_URI}/v1/chain/get_table_rows`);
+      expect(instruments).toEqual([JSON.parse(instrumentMocks[0]).rows[0], JSON.parse(instrumentMocks[0]).rows[1], JSON.parse(instrumentMocks[0]).rows[2], JSON.parse(instrumentMocks[0]).rows[3]]);
+    });
+
     test('filters by category', async () => {
       const instruments = await orejs.findInstruments(ORE_TESTA_ACCOUNT_NAME, true, 'apimarket.uncategorized');
       expectFetch(`${ORE_NETWORK_URI}/v1/chain/get_table_rows`);
