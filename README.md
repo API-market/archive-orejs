@@ -1,3 +1,5 @@
+![CircleCi](https://circleci.com/gh/API-market/orejs.svg?style=shield&circle-token=:circle-token)
+
 # OREJS Spec
 
 orejs is helper library (written in Javascript) to provide simple high-level access to the ore-protocol. Orejs uses eosJS as a wrapper to the EOS blockchain.
