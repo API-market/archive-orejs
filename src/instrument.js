@@ -30,7 +30,7 @@ function getRight(instrument, rightName) {
     if (rightObject.right_name === rightName) {
       return rightObject;
     }
-    return new Error('right name not found');
+    return undefined;
   });
   return right;
 }
@@ -160,12 +160,7 @@ async function getRightStats(rightName, owner) {
   // Get the total cpu calls and cpu count across all the instruments
   const results = instruments.map(async (instrumentObject) => {
     rightProperties = await getApiCallStats.bind(this)(instrumentObject.id, rightName);
-    const value = parseFloat(rightProperties.totalCpuUsage);
-    const usageValue = value.toFixed(4);
-    return {
-      totalCpuUsage: rightProperties.totalCpuUsage,
-      totalApiCalls: usageValue,
-    };
+    return rightProperties;
   });
 
   const value = await Promise.all(results);

@@ -27,6 +27,7 @@ function mockContract() {
 
   const contract = {
     approve: jest.fn(),
+    licenseapi: jest.fn(),
     transfer: jest.fn(),
   };
 
