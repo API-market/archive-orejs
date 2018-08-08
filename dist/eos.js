@@ -44,66 +44,110 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 var BigNumber = require('bignumber.js');
 var ecc = require('eosjs-ecc');
 /* Private */
+// Transform account names from base32 to their numeric representations
+function tableKey(oreAccountName) {
+    return new BigNumber(this.eos.format.encodeName(oreAccountName, false));
+}
 function filterRows(rows, filter) {
     if (!filter)
         return rows;
     var result = [];
-    function fitsFilter(filters, row) {
+    function fitsFilter(filter, row) {
         var fits = true;
-        if (typeof filters === 'function') {
-            fits = filters(row);
+        if (typeof filter === 'function') {
+            fits = filter(row);
         }
-        else if (typeof filters === 'object') {
-            for (var f in filters) {
-                if (filters[f] !== row[f])
+        else if (typeof filter === 'object') {
+            var filterKeys = Object.keys(filter);
+            filterKeys.forEach(function (key) {
+                if (filter[key] !== row[key]) {
                     fits = false;
-            }
+                }
+            });
         }
         else {
             throw new Error('filter must be a function or an object');
         }
         return fits;
     }
-    for (var r in rows) {
-        var row = rows[r];
+    rows.forEach(function (row) {
         var fitFilter = true;
         if (filter instanceof Array) {
-            for (var f in filter) {
-                if (!filter[f])
-                    continue;
-                fitFilter = fitFilter && fitsFilter(filter[f], row);
-            }
+            filter.forEach(function (f) {
+                if (f) {
+                    fitFilter = fitFilter && fitsFilter(f, row);
+                }
+            });
         }
         else {
             fitFilter = fitsFilter(filter, row);
         }
-        if (!fitFilter)
-            continue;
-        result.push(rows[r]);
-    }
+        if (fitFilter) {
+            result.push(row);
+        }
+    });
     return result;
 }
-function getTableRowsPage(params, lower_bound, page_size, json) {
-    if (lower_bound === void 0) { lower_bound = 0; }
-    if (page_size === void 0) { page_size = -1; }
-    if (json === void 0) { json = true; }
+function hasTransaction(block, transactionId) {
+    if (block.transactions) {
+        var result = block.transactions.find(function (transaction) { return transaction.trx.id === transactionId; });
+        if (result !== undefined) {
+            return true;
+        }
+    }
+    return false;
+}
+/* Public */
+// eosjs only confirms that transactions have been accepted
+// this confirms that the transaction has been written to the chain
+// by checking block produced immediately after the transaction
+function confirmTransaction(func, blocksToCheck, checkInterval) {
+    if (blocksToCheck === void 0) { blocksToCheck = 10; }
+    if (checkInterval === void 0) { checkInterval = 200; }
     return __awaiter(this, void 0, void 0, function () {
-        var resp;
+        var latestBlock, initialBlockId, transaction;
+        var _this = this;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0:
-                    params = __assign({}, params, { json: json, lower_bound: params.lower_bound || lower_bound, scope: params.scope || params.code, limit: page_size, upper_bound: params.upper_bound });
-                    if (!params.upper_bound)
-                        delete params.upper_bound;
-                    return [4 /*yield*/, this.eos.getTableRows(params)];
+                case 0: return [4 /*yield*/, this.getLatestBlock()];
                 case 1:
-                    resp = _a.sent();
-                    return [2 /*return*/, resp];
+                    latestBlock = _a.sent();
+                    initialBlockId = latestBlock.block_num;
+                    return [4 /*yield*/, func()];
+                case 2:
+                    transaction = _a.sent();
+                    // check blocks for the transaction id...
+                    return [2 /*return*/, new Promise(function (resolve, reject) {
+                            var currentBlockId = initialBlockId + 1;
+                            var intConfirm = setInterval(function () { return __awaiter(_this, void 0, void 0, function () {
+                                return __generator(this, function (_a) {
+                                    switch (_a.label) {
+                                        case 0: return [4 /*yield*/, this.getLatestBlock()];
+                                        case 1:
+                                            latestBlock = _a.sent();
+                                            if (currentBlockId <= latestBlock.block_num) {
+                                                if (currentBlockId !== latestBlock.block_num) {
+                                                    latestBlock = this.eos.getBlock(currentBlockId);
+                                                }
+                                                currentBlockId += 1;
+                                            }
+                                            if (hasTransaction(latestBlock, transaction.transaction_id)) {
+                                                clearInterval(intConfirm);
+                                                resolve(transaction);
+                                            }
+                                            else if (latestBlock.block_num >= initialBlockId + blocksToCheck) {
+                                                clearInterval(intConfirm);
+                                                reject(new Error('Transaction Confirmation Timeout'));
+                                            }
+                                            return [2 /*return*/];
+                                    }
+                                });
+                            }); }, checkInterval);
+                        })];
             }
         });
     });
 }
-/* Public */
 function contract(contractName, accountName) {
     return __awaiter(this, void 0, void 0, function () {
         var options, contract;
@@ -146,36 +190,22 @@ function findOne(contractName, tableName, tableKey) {
         });
     });
 }
-// only good for tables with id key_field
-function getAllTableRows(params, key_field) {
+function getAllTableRows(params, key_field, json) {
     if (key_field === void 0) { key_field = 'id'; }
+    if (json === void 0) { json = true; }
     return __awaiter(this, void 0, void 0, function () {
-        var more, results, lower_bound, result, last_key_value;
+        var results, lowerBound, limit, parameters;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    more = true;
                     results = [];
-                    lower_bound = 0;
-                    _a.label = 1;
-                case 1: return [4 /*yield*/, getTableRowsPage.bind(this)(params, lower_bound)];
-                case 2:
-                    result = _a.sent();
-                    more = result.more;
-                    if (more) {
-                        last_key_value = result.rows[result.rows.length - 1][key_field];
-                        // if it's an account_name convert it to its numeric representation
-                        if (isNaN(last_key_value)) {
-                            last_key_value = tableKey(last_key_value);
-                        }
-                        lower_bound = (new BigNumber(last_key_value)).plus(1).toFixed();
-                    }
-                    results = results.concat(result.rows);
-                    _a.label = 3;
-                case 3:
-                    if (more) return [3 /*break*/, 1];
-                    _a.label = 4;
-                case 4: return [2 /*return*/, results];
+                    lowerBound = 0;
+                    limit = -1;
+                    parameters = __assign({}, params, { json: json, lower_bound: params.lower_bound || lowerBound, scope: params.scope || params.code, limit: params.limit || limit });
+                    return [4 /*yield*/, this.eos.getTableRows(parameters)];
+                case 1:
+                    results = _a.sent();
+                    return [2 /*return*/, results.rows];
             }
         });
     });
@@ -194,6 +224,22 @@ function getAllTableRowsFiltered(params, filter, key_field) {
         });
     });
 }
+function getLatestBlock() {
+    return __awaiter(this, void 0, void 0, function () {
+        var info, block;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, this.eos.getInfo({})];
+                case 1:
+                    info = _a.sent();
+                    return [4 /*yield*/, this.eos.getBlock(info.last_irreversible_block_num)];
+                case 2:
+                    block = _a.sent();
+                    return [2 /*return*/, block];
+            }
+        });
+    });
+}
 function signVoucher(apiVoucherId) {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
@@ -201,15 +247,14 @@ function signVoucher(apiVoucherId) {
         });
     });
 }
-// Transform account names from base32 to their numeric representations
-function tableKey(oreAccountName) {
-    return new BigNumber(this.eos.format.encodeName(oreAccountName, false));
-}
 module.exports = {
+    confirmTransaction: confirmTransaction,
     contract: contract,
     findOne: findOne,
     getAllTableRows: getAllTableRows,
     getAllTableRowsFiltered: getAllTableRowsFiltered,
+    getLatestBlock: getLatestBlock,
+    hasTransaction: hasTransaction,
     signVoucher: signVoucher,
     tableKey: tableKey,
 };

@@ -66,7 +66,7 @@ function getRight(instrument, rightName) {
         if (rightObject.right_name === rightName) {
             return rightObject;
         }
-        return new Error('right name not found');
+        return undefined;
     });
     return right;
 }
@@ -227,18 +227,12 @@ function getRightStats(rightName, owner) {
                     _a.label = 4;
                 case 4:
                     results = instruments.map(function (instrumentObject) { return __awaiter(_this, void 0, void 0, function () {
-                        var value, usageValue;
                         return __generator(this, function (_a) {
                             switch (_a.label) {
                                 case 0: return [4 /*yield*/, getApiCallStats.bind(this)(instrumentObject.id, rightName)];
                                 case 1:
                                     rightProperties = _a.sent();
-                                    value = parseFloat(rightProperties.totalCpuUsage);
-                                    usageValue = value.toFixed(4);
-                                    return [2 /*return*/, {
-                                            totalCpuUsage: rightProperties.totalCpuUsage,
-                                            totalApiCalls: usageValue,
-                                        }];
+                                    return [2 /*return*/, rightProperties];
                             }
                         });
                     }); });
@@ -277,7 +271,7 @@ function createOfferInstrument(oreAccountName, offerInstrumentData, confirm) {
 function createVoucherInstrument(creator, buyer, offerId, overrideVoucherId, offerTemplate, confirm) {
     if (overrideVoucherId === void 0) { overrideVoucherId = 0; }
     if (offerTemplate === void 0) { offerTemplate = ''; }
-    if (confirm === void 0) { confirm = true; }
+    if (confirm === void 0) { confirm = false; }
     return __awaiter(this, void 0, void 0, function () {
         var options, contract;
         return __generator(this, function (_a) {
