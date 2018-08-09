@@ -7,7 +7,6 @@ const crypto = require('./modules/crypto');
 const ore = require('./tokens/ore');
 const oreStandardToken = require('./orestandardtoken');
 const rightsRegistry = require('./rightsregistry');
-const token = require('./token');
 
 
 class Orejs {
@@ -23,7 +22,6 @@ class Orejs {
     Object.assign(this, ore);
     Object.assign(this, oreStandardToken);
     Object.assign(this, rightsRegistry);
-    Object.assign(this, token);
   }
 
   constructEos(config) {
