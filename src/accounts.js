@@ -111,12 +111,7 @@ async function getOreAccountContents(oreAccountName) {
   // return { cpuBalance, instruments }
 }
 
-async function unlockOreWallet(name, password) {
-  return []; // keys
-}
-
 module.exports = {
   createOreAccount,
   getOreAccountContents,
-  unlockOreWallet,
 };
