@@ -97,23 +97,6 @@ async function findInstruments(oreAccountName, activeOnly = true, category = und
   return rows;
 }
 
-async function createInstrument(instrumentCreatorAccountName, instrumentOwnerAccountName, instrumentData) {
-  // Confirms that issuer in Instrument matches signature of transaction
-  // Creates an instrument token, populate with params, save to issuer account
-  const {
-    contract,
-    options,
-  } = await this.contract(INSTR_CONTRACT_NAME, instrumentCreatorAccountName);
-
-  const instrument = await contract.mint({
-    minter: instrumentCreatorAccountName,
-    owner: instrumentOwnerAccountName,
-    instrument: instrumentData,
-  }, options);
-
-  return instrument;
-}
-
 async function getApiCallStats(instrumentId, rightName) {
   // calls the usagelog contract to get the total number of calls against a particular right
   const result = await this.eos.getTableRows({
@@ -206,7 +189,6 @@ module.exports = {
   getInstruments,
   getApiCallStats,
   getRightStats,
-  createInstrument,
   createOfferInstrument,
   createVoucherInstrument,
 };
