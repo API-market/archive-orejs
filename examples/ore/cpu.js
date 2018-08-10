@@ -64,7 +64,7 @@ async function connectAs(accountName) {
   console.log('Transferring...');
 
   await connectAs(BROKER);
-  await cpuContract.transferfrom(BROKER, FROM, TO, 1, options);
+  await cpuContract.transferFrom(BROKER, FROM, TO, 1, options);
 
   logBalances();
 }());
