@@ -4,6 +4,8 @@ const INSTR_USAGE_CONTRACT_NAME = 'usagelog.ore';
 const INSTR_TABLE_NAME = 'tokens';
 const LOG_COUNT_TABLE_NAME = 'counts';
 
+const ecc = require('eosjs-ecc');
+
 /* Private */
 
 async function getAllInstruments(oreAccountName, additionalFilters = []) {
@@ -170,6 +172,10 @@ async function createVoucherInstrument(creator, buyer, offerId, overrideVoucherI
   return this;
 }
 
+async function signVoucher(apiVoucherId) {
+  return ecc.sign(apiVoucherId.toString(), this.config.keyProvider[0]);
+}
+
 module.exports = {
   getRight,
   findInstruments,
@@ -178,4 +184,5 @@ module.exports = {
   getRightStats,
   createOfferInstrument,
   createVoucherInstrument,
+  signVoucher,
 };

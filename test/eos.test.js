@@ -74,14 +74,6 @@ describe('token', () => {
     });
   });
 
-  describe('signVoucher', () => {
-    test('signs a voucher', async () => {
-      const voucherId = 0;
-      const sig = await orejs.signVoucher(voucherId);
-      expect(sig.toString()).toEqual('SIG_K1_K7SnTcWTVuatvRepJ6vmmiHPEh3WWEYiVPB1nD9MZ3LWz91yUxR5fUWmSmNAAP9Dxs2MeKZuDUFoEVfBiKfRozaG2FzfvH');
-    });
-  });
-
   describe('tableKey', () => {
     let encodedAccountName;
 
