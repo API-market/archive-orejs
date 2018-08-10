@@ -19,6 +19,15 @@ async function getAllInstruments(oreAccountName, additionalFilters = []) {
   return rows;
 }
 
+function isActive(instrument) {
+  const startTime = instrument.instrument.start_time;
+  const endTime = instrument.instrument.end_time;
+  const currentTime = Math.floor(Date.now() / 1000);
+  return (currentTime > startTime && currentTime < endTime);
+}
+
+/* Public */
+
 function getRight(instrument, rightName) {
   const {
     instrument: {
@@ -35,30 +44,6 @@ function getRight(instrument, rightName) {
   return right;
 }
 
-
-function rightExists(instrument, rightName) {
-  // Checks if a right belongs to an instrument
-  const {
-    instrument: {
-      rights,
-    } = {},
-  } = instrument;
-  const right = rights.find(rightObject => rightObject.right_name === rightName);
-  if (right !== undefined) {
-    return true;
-  }
-  return false;
-}
-
-function isActive(instrument) {
-  const startTime = instrument.instrument.start_time;
-  const endTime = instrument.instrument.end_time;
-  const currentTime = Math.floor(Date.now() / 1000);
-  return (currentTime > startTime && currentTime < endTime);
-}
-
-/* Public */
-
 async function getInstruments(oreAccountName, category = undefined, filters = []) {
   // Gets the instruments belonging to a particular category
   if (category) {
@@ -71,7 +56,7 @@ async function getInstruments(oreAccountName, category = undefined, filters = []
 
 async function getInstrumentsByRight(instrumentList, rightName) {
   // Gets all the instruments with a particular right
-  const instruments = await instrumentList.filter(instrument => rightExists(instrument, rightName) === true);
+  const instruments = await instrumentList.filter(instrument => getRight(instrument, rightName) !== undefined);
   return instruments;
 }
 
