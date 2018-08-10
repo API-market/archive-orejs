@@ -103,7 +103,7 @@ function delay(ms = 1000) {
   console.log('Account Created:', account);
 
   // // Get the newly created EOS account...
-  contents = await orejs.getOreAccountContents(account.oreAccountName);
+  contents = await orejs.eos.getAccount(account.oreAccountName);
   console.log('Account Contents:', contents);
 
   // /////////////////////////////////////

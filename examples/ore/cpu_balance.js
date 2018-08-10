@@ -9,6 +9,5 @@ const CPU_CONTRACT_NAME = 'cpu.ore';
   process.env.CHAIN_ID = info.chain_id;
 
   const balance = await orejs.getCpuBalance(USER);
-  // let balance = await orejs.getOreAccountContents(USER)
   console.log(`${USER} balance:`, balance);
 }());

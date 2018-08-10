@@ -1,6 +1,7 @@
 /* global ORE_OWNER_ACCOUNT_NAME:true */
 /* global ORE_TESTA_ACCOUNT_NAME:true */
 /* global ORE_NETWORK_URI:true */
+
 const {
   expectFetch, mock, mockInstrument, mockInstruments,
 } = require('./helpers/fetch');
@@ -166,31 +167,11 @@ describe('instrument', () => {
     });
   });
 
-  describe('getRightStats', () => {
-    let rightName;
-    let totalCpu;
-    let totalCount;
-
-    beforeEach(() => {
-      rightName = 'cloud.hadron.contest-2018-07';
-      totalCpu = 10;
-      totalCount = 20;
-
-      fetch.resetMocks();
-      fetch.mockResponses(
-        mockInstruments([
-          { owner: ORE_TESTA_ACCOUNT_NAME, instrument: { rights: [{ right_name: rightName }] } },
-          { owner: ORE_TESTA_ACCOUNT_NAME, instrument: { rights: [{ right_name: rightName }] } },
-        ]),
-        mock({ rows: [{ right_name: rightName, total_cpu: `${totalCpu}.0000 CPU`, total_count: totalCount }] }),
-        mock({ rows: [{ right_name: rightName, total_cpu: `${totalCpu}.0000 CPU`, total_count: totalCount }] }),
-      );
-    });
-
-    test('returns summed stats', async () => {
-      const stats = await orejs.getRightStats(rightName, ORE_TESTA_ACCOUNT_NAME);
-      expectFetch(`${ORE_NETWORK_URI}/v1/chain/get_table_rows`, `${ORE_NETWORK_URI}/v1/chain/get_table_rows`, `${ORE_NETWORK_URI}/v1/chain/get_table_rows`);
-      expect(stats).toEqual({ totalCpuUsage: totalCpu * 2, totalApiCalls: totalCount * 2 });
+  describe('signVoucher', () => {
+    test('signs a voucher', async () => {
+      const voucherId = 0;
+      const sig = await orejs.signVoucher(voucherId);
+      expect(sig.toString()).toEqual('SIG_K1_K7SnTcWTVuatvRepJ6vmmiHPEh3WWEYiVPB1nD9MZ3LWz91yUxR5fUWmSmNAAP9Dxs2MeKZuDUFoEVfBiKfRozaG2FzfvH');
     });
   });
 });

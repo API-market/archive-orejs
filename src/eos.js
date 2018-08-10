@@ -1,5 +1,4 @@
 const BigNumber = require('bignumber.js');
-const ecc = require('eosjs-ecc');
 /* Private */
 
 // Transform account names from base32 to their numeric representations
@@ -144,10 +143,6 @@ async function getLatestBlock() {
   return block;
 }
 
-async function signVoucher(apiVoucherId) {
-  return ecc.sign(apiVoucherId.toString(), this.config.keyProvider[0]);
-}
-
 module.exports = {
   confirmTransaction,
   contract,
@@ -156,6 +151,5 @@ module.exports = {
   getAllTableRowsFiltered,
   getLatestBlock,
   hasTransaction,
-  signVoucher,
   tableKey,
 };

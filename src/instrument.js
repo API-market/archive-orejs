@@ -1,8 +1,8 @@
 const APIM_CONTRACT_NAME = 'manager.apim';
 const INSTR_CONTRACT_NAME = 'instr.ore';
-const INSTR_USAGE_CONTRACT_NAME = 'usagelog.ore';
 const INSTR_TABLE_NAME = 'tokens';
-const LOG_COUNT_TABLE_NAME = 'counts';
+
+const ecc = require('eosjs-ecc');
 
 /* Private */
 
@@ -18,6 +18,15 @@ async function getAllInstruments(oreAccountName, additionalFilters = []) {
 
   return rows;
 }
+
+function isActive(instrument) {
+  const startTime = instrument.instrument.start_time;
+  const endTime = instrument.instrument.end_time;
+  const currentTime = Math.floor(Date.now() / 1000);
+  return (currentTime > startTime && currentTime < endTime);
+}
+
+/* Public */
 
 function getRight(instrument, rightName) {
   const {
@@ -35,30 +44,6 @@ function getRight(instrument, rightName) {
   return right;
 }
 
-
-function rightExists(instrument, rightName) {
-  // Checks if a right belongs to an instrument
-  const {
-    instrument: {
-      rights,
-    } = {},
-  } = instrument;
-  const right = rights.find(rightObject => rightObject.right_name === rightName);
-  if (right !== undefined) {
-    return true;
-  }
-  return false;
-}
-
-function isActive(instrument) {
-  const startTime = instrument.instrument.start_time;
-  const endTime = instrument.instrument.end_time;
-  const currentTime = Math.floor(Date.now() / 1000);
-  return (currentTime > startTime && currentTime < endTime);
-}
-
-/* Public */
-
 async function getInstruments(oreAccountName, category = undefined, filters = []) {
   // Gets the instruments belonging to a particular category
   if (category) {
@@ -67,20 +52,6 @@ async function getInstruments(oreAccountName, category = undefined, filters = []
 
   const rows = await getAllInstruments.bind(this)(oreAccountName, filters);
   return rows;
-}
-
-async function getInstrumentsByRight(instrumentList, rightName) {
-  // Gets all the instruments with a particular right
-  const instruments = await instrumentList.filter(instrument => rightExists(instrument, rightName) === true);
-  return instruments;
-}
-
-async function getInstrumentByOwner(instrumentList, owner) {
-  // Get all the instruments with a particular owner
-  let instruments = [];
-  instruments = instrumentList.filter(instrument => instrument.owner === owner);
-
-  return instruments;
 }
 
 async function findInstruments(oreAccountName, activeOnly = true, category = undefined, rightName = undefined) {
@@ -97,80 +68,6 @@ async function findInstruments(oreAccountName, activeOnly = true, category = und
   return rows;
 }
 
-async function createInstrument(instrumentCreatorAccountName, instrumentOwnerAccountName, instrumentData) {
-  // Confirms that issuer in Instrument matches signature of transaction
-  // Creates an instrument token, populate with params, save to issuer account
-  const {
-    contract,
-    options,
-  } = await this.contract(INSTR_CONTRACT_NAME, instrumentCreatorAccountName);
-
-  const instrument = await contract.mint({
-    minter: instrumentCreatorAccountName,
-    owner: instrumentOwnerAccountName,
-    instrument: instrumentData,
-  }, options);
-
-  return instrument;
-}
-
-async function getApiCallStats(instrumentId, rightName) {
-  // calls the usagelog contract to get the total number of calls against a particular right
-  const result = await this.eos.getTableRows({
-    code: INSTR_USAGE_CONTRACT_NAME,
-    json: true,
-    scope: instrumentId,
-    table: LOG_COUNT_TABLE_NAME,
-    limit: -1,
-  });
-
-  const rightProperties = {
-    totalApiCalls: 0,
-    totalCpuUsage: 0,
-  };
-
-  const rightObject = await result.rows.find(right => right.right_name === rightName);
-
-  if (rightObject !== undefined) {
-    rightProperties.totalApiCalls = rightObject.total_count;
-    rightProperties.totalCpuUsage = rightObject.total_cpu;
-  }
-
-  return rightProperties;
-}
-
-async function getRightStats(rightName, owner) {
-  // Returns the total cpu and api calls against a particular right across all the vouchers. If owner specified, then returns the toatal api calls and cpu usage for the owner.
-  let instruments;
-  let rightProperties;
-
-  const instrumentList = await this.getAllTableRows({
-    code: INSTR_CONTRACT_NAME,
-    scope: INSTR_CONTRACT_NAME,
-    table: INSTR_TABLE_NAME,
-    limit: -1,
-  });
-
-  instruments = await getInstrumentsByRight(instrumentList, rightName);
-
-  if (owner) {
-    instruments = await getInstrumentByOwner(instruments, owner);
-  }
-
-  // Get the total cpu calls and cpu count across all the instruments
-  const results = instruments.map(async (instrumentObject) => {
-    rightProperties = await getApiCallStats.bind(this)(instrumentObject.id, rightName);
-    return rightProperties;
-  });
-
-  const value = await Promise.all(results);
-
-  return {
-    totalCpuUsage: value.reduce((a, b) => a + parseFloat(b.totalCpuUsage), 0),
-    totalApiCalls: value.reduce((a, b) => a + parseFloat(b.totalApiCalls), 0),
-  };
-}
-
 async function createOfferInstrument(oreAccountName, offerInstrumentData, confirm = false) {
   // Create an offer
   const options = {
@@ -180,7 +77,8 @@ async function createOfferInstrument(oreAccountName, offerInstrumentData, confir
   if (confirm) {
     return this.confirmTransaction(() => contract.publishapi(oreAccountName, offerInstrumentData.issuer, offerInstrumentData.api_name, offerInstrumentData.additional_api_params, offerInstrumentData.api_payment_model, offerInstrumentData.api_price_in_cpu, offerInstrumentData.license_price_in_cpu, offerInstrumentData.api_description, offerInstrumentData.right_registry, offerInstrumentData.instrument_template, offerInstrumentData.start_time, offerInstrumentData.end_time, offerInstrumentData.override_offer_id, options));
   }
-  return contract.publishapi(oreAccountName, offerInstrumentData.issuer, offerInstrumentData.api_name, offerInstrumentData.additional_api_params, offerInstrumentData.api_payment_model, offerInstrumentData.api_price_in_cpu, offerInstrumentData.license_price_in_cpu, offerInstrumentData.api_description, offerInstrumentData.right_registry, offerInstrumentData.instrument_template, offerInstrumentData.start_time, offerInstrumentData.end_time, offerInstrumentData.override_offer_id, options);
+  contract.publishapi(oreAccountName, offerInstrumentData.issuer, offerInstrumentData.api_name, offerInstrumentData.additional_api_params, offerInstrumentData.api_payment_model, offerInstrumentData.api_price_in_cpu, offerInstrumentData.license_price_in_cpu, offerInstrumentData.api_description, offerInstrumentData.right_registry, offerInstrumentData.instrument_template, offerInstrumentData.start_time, offerInstrumentData.end_time, offerInstrumentData.override_offer_id, options);
+  return this;
 }
 
 async function createVoucherInstrument(creator, buyer, offerId, overrideVoucherId = 0, offerTemplate = '', confirm = false) {
@@ -197,16 +95,19 @@ async function createVoucherInstrument(creator, buyer, offerId, overrideVoucherI
   if (confirm) {
     return this.confirmTransaction(() => contract.licenseapi(creator, buyer, offerId, offerTemplate, overrideVoucherId, options));
   }
-  return contract.licenseapi(creator, buyer, offerId, offerTemplate, overrideVoucherId, options);
+  contract.licenseapi(creator, buyer, offerId, offerTemplate, overrideVoucherId, options);
+  return this;
+}
+
+async function signVoucher(apiVoucherId) {
+  return ecc.sign(apiVoucherId.toString(), this.config.keyProvider[0]);
 }
 
 module.exports = {
   getRight,
   findInstruments,
   getInstruments,
-  getApiCallStats,
-  getRightStats,
-  createInstrument,
   createOfferInstrument,
   createVoucherInstrument,
+  signVoucher,
 };
