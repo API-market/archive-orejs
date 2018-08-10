@@ -38,21 +38,4 @@ describe('account', () => {
       expect(ecc.privateToPublic(orejs.decrypt(account.privateKey, WALLET_PASSWORD))).toEqual(account.publicKey);
     });
   });
-
-  describe('getOreAccountContents', () => {
-    let account;
-
-    beforeEach(() => {
-      account = mockAccount();
-
-      fetch.resetMocks();
-      fetch.mockResponses(account);
-    });
-
-    test('returns the account contents', async () => {
-      const accountContents = await orejs.getOreAccountContents('y4dcmrzgiyte');
-      expectFetch(`${ORE_NETWORK_URI}/v1/chain/get_account`);
-      expect(JSON.stringify(accountContents)).toEqual(account[0]);
-    });
-  });
 });

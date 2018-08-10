@@ -102,16 +102,6 @@ async function createOreAccount(password, ownerPublicKey, options = {}) {
   };
 }
 
-async function getOreAccountContents(oreAccountName) {
-  // const cpuBalance = this.getCpuBalance(oreAccountName)
-  // const instruments = this.getInstruments(oreAccountName)
-  const account = await this.eos.getAccount(oreAccountName);
-
-  return account;
-  // return { cpuBalance, instruments }
-}
-
 module.exports = {
   createOreAccount,
-  getOreAccountContents,
 };
