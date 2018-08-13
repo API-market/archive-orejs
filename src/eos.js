@@ -143,6 +143,35 @@ async function getLatestBlock() {
   return block;
 }
 
+async function getInstrumentsResult(params) {
+  let keyType;
+  let index;
+  let results = [];
+  const lowerBound = 0;
+  const limit = -1;
+  if (params.key_name === 'owner') {
+    keyType = 'i64';
+    index = 2;
+  } else if (params.key_name === 'instrumentTemplate') {
+    keyType = 'i64';
+    index = 3;
+  } else {
+    // indexed by instrumentClass
+    keyType = 'i64';
+    index = 4;
+  }
+  const parameters = {
+    ...params,
+    json: true,
+    lower_bound: params.lower_bound || lowerBound,
+    scope: params.scope || params.code,
+    limit: params.limit || limit,
+    key_type: keyType,
+    index_position: index,
+  };
+  results = await this.eos.getTableRows(parameters);
+  return results.rows;
+}
 module.exports = {
   confirmTransaction,
   contract,
@@ -150,6 +179,7 @@ module.exports = {
   getAllTableRows,
   getAllTableRowsFiltered,
   getLatestBlock,
+  getInstrumentsResult,
   hasTransaction,
   tableKey,
 };
