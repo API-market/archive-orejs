@@ -6,47 +6,6 @@ function tableKey(oreAccountName) {
   return new BigNumber(this.eos.format.encodeName(oreAccountName, false));
 }
 
-function filterRows(rows, filter) {
-  if (!filter) return rows;
-
-  const result = [];
-
-  function fitsFilter(filter, row) {
-    let fits = true;
-    if (typeof filter === 'function') {
-      fits = filter(row);
-    } else if (typeof filter === 'object') {
-      const filterKeys = Object.keys(filter);
-      filterKeys.forEach((key) => {
-        if (filter[key] !== row[key]) {
-          fits = false;
-        }
-      });
-    } else {
-      throw new Error('filter must be a function or an object');
-    }
-    return fits;
-  }
-
-  rows.forEach((row) => {
-    let fitFilter = true;
-
-    if (filter instanceof Array) {
-      filter.forEach((f) => {
-        if (f) {
-          fitFilter = fitFilter && fitsFilter(f, row);
-        }
-      });
-    } else {
-      fitFilter = fitsFilter(filter, row);
-    }
-    if (fitFilter) {
-      result.push(row);
-    }
-  });
-  return result;
-}
-
 function hasTransaction(block, transactionId) {
   if (block.transactions) {
     const result = block.transactions.find(transaction => transaction.trx.id === transactionId);
@@ -131,43 +90,44 @@ async function getAllTableRows(params, key_field = 'id', json = true) {
   return results.rows;
 }
 
-async function getAllTableRowsFiltered(params, filter, key_field = 'id') {
-  const result = await getAllTableRows.bind(this)(params, key_field);
-
-  return filterRows(result, filter);
-}
-
 async function getLatestBlock() {
   const info = await this.eos.getInfo({});
   const block = await this.eos.getBlock(info.last_irreversible_block_num);
   return block;
 }
 
-async function getInstrumentsResult(params) {
+async function getInstruments(params) {
+  // Returns instruments indexed by owner/instrumentTemplate/instrumentClass
+  // Returns all instruments by default
   let keyType;
   let index;
   let results = [];
   const lowerBound = 0;
+  const upperBound = -1;
   const limit = -1;
   if (params.key_name === 'owner') {
     keyType = 'i64';
     index = 2;
-  } else if (params.key_name === 'instrumentTemplate') {
+  } else if (params.key_name === 'instrument_template') {
     keyType = 'i64';
     index = 3;
-  } else {
-    // indexed by instrumentClass
+  } else if (params.key_name === 'instrument_class') {
     keyType = 'i64';
     index = 4;
+  } else {
+    // index by instrument_id
+    keyType = 'i64';
+    index = 1;
   }
   const parameters = {
     ...params,
     json: true,
     lower_bound: params.lower_bound || lowerBound,
+    upper_bound: params.upper_bound || upperBound,
     scope: params.scope || params.code,
     limit: params.limit || limit,
-    key_type: keyType,
-    index_position: index,
+    key_type: keyType || 'i64',
+    index_position: index || 1,
   };
   results = await this.eos.getTableRows(parameters);
   return results.rows;
@@ -177,9 +137,8 @@ module.exports = {
   contract,
   findOne,
   getAllTableRows,
-  getAllTableRowsFiltered,
   getLatestBlock,
-  getInstrumentsResult,
+  getInstruments,
   hasTransaction,
   tableKey,
 };

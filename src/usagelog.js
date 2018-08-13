@@ -14,7 +14,7 @@ async function getInstrumentsByRight(instrumentList, rightName) {
 async function getInstrumentByOwner(owner) {
   // Get all the instruments with a particular owner
   const tableKey = this.tableKey(owner);
-  const instruments = this.getInstrumentsResult({
+  const instruments = this.getInstruments({
     code: 'instr.ore',
     table: 'tokens',
     lower_bound: tableKey.toString(),

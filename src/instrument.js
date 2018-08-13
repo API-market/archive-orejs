@@ -5,18 +5,13 @@ const INSTR_TABLE_NAME = 'tokens';
 const ecc = require('eosjs-ecc');
 
 /* Private */
-
-async function getAllInstruments(oreAccountName, additionalFilters = []) {
-  additionalFilters.push({
-    owner: oreAccountName,
+async function getAllInstruments() {
+  // Returns all the instruments
+  const instruments = await this.getInstruments({
+    code: 'instr.ore',
+    table: 'tokens',
   });
-
-  const rows = await this.getAllTableRowsFiltered({
-    code: INSTR_CONTRACT_NAME,
-    table: INSTR_TABLE_NAME,
-  }, additionalFilters);
-
-  return rows;
+  return instruments;
 }
 
 function isActive(instrument) {
@@ -44,28 +39,27 @@ function getRight(instrument, rightName) {
   return right;
 }
 
-async function getInstruments(oreAccountName, category = undefined, filters = []) {
-  // Gets the instruments belonging to a particular category
-  if (category) {
-    filters.push(row => row.instrument.instrument_class === category);
-  }
-
-  const rows = await getAllInstruments.bind(this)(oreAccountName, filters);
-  return rows;
-}
-
 async function findInstruments(oreAccountName, activeOnly = true, category = undefined, rightName = undefined) {
   // Where args is search criteria could include (category, rights_name)
+  // It gets all the instruments owned by a user using secondary index on the owner key
   // Note: this requires an index on the rights collection (to filter right names)
-  const filters = [];
+
+  const tableKey = this.tableKey(oreAccountName);
+  let instruments = await this.getInstruments({
+    code: 'instr.ore',
+    table: 'tokens',
+    lower_bound: tableKey.toString(),
+    upper_bound: tableKey.plus(1).toString(),
+    key_name: 'owner',
+  });
   if (activeOnly) {
-    filters.push(row => isActive(row));
+    instruments = instruments.filter(element => isActive(element));
   }
   if (rightName) {
-    filters.push(row => getRight(row, rightName));
+    instruments = await this.getInstrumentsByRight.bind(this)(instruments, rightName);
   }
-  const rows = await getInstruments.bind(this)(oreAccountName, category, filters);
-  return rows;
+
+  return instruments;
 }
 
 async function createOfferInstrument(oreAccountName, offerInstrumentData, confirm = false) {
@@ -105,8 +99,8 @@ async function signVoucher(apiVoucherId) {
 
 module.exports = {
   getRight,
+  getAllInstruments,
   findInstruments,
-  getInstruments,
   createOfferInstrument,
   createVoucherInstrument,
   signVoucher,
