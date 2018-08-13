@@ -1,3 +1,11 @@
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -38,6 +46,49 @@ var INSTR_CONTRACT_NAME = 'instr.ore';
 var INSTR_TABLE_NAME = 'tokens';
 var ecc = require('eosjs-ecc');
 /* Private */
+function isActive(instrument) {
+    var startTime = instrument.instrument.start_time;
+    var endTime = instrument.instrument.end_time;
+    var currentTime = Math.floor(Date.now() / 1000);
+    return (currentTime > startTime && currentTime < endTime);
+}
+/* Public */
+function getInstruments(params) {
+    return __awaiter(this, void 0, void 0, function () {
+        var keyType, index, results, lowerBound, upperBound, limit, parameters;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    results = [];
+                    lowerBound = 0;
+                    upperBound = -1;
+                    limit = -1;
+                    if (params.key_name === 'owner') {
+                        keyType = 'i64';
+                        index = 2;
+                    }
+                    else if (params.key_name === 'instrument_template') {
+                        keyType = 'i64';
+                        index = 3;
+                    }
+                    else if (params.key_name === 'instrument_class') {
+                        keyType = 'i64';
+                        index = 4;
+                    }
+                    else {
+                        // index by instrument_id
+                        keyType = 'i64';
+                        index = 1;
+                    }
+                    parameters = __assign({}, params, { json: true, lower_bound: params.lower_bound || lowerBound, upper_bound: params.upper_bound || upperBound, scope: params.scope || params.code, limit: params.limit || limit, key_type: keyType || 'i64', index_position: index || 1 });
+                    return [4 /*yield*/, this.eos.getTableRows(parameters)];
+                case 1:
+                    results = _a.sent();
+                    return [2 /*return*/, results.rows];
+            }
+        });
+    });
+}
 function getAllInstruments() {
     return __awaiter(this, void 0, void 0, function () {
         var instruments;
@@ -54,13 +105,6 @@ function getAllInstruments() {
         });
     });
 }
-function isActive(instrument) {
-    var startTime = instrument.instrument.start_time;
-    var endTime = instrument.instrument.end_time;
-    var currentTime = Math.floor(Date.now() / 1000);
-    return (currentTime > startTime && currentTime < endTime);
-}
-/* Public */
 function getRight(instrument, rightName) {
     var _a = instrument.instrument, rights = (_a === void 0 ? {} : _a).rights;
     var right = rights.find(function (rightObject) {
@@ -163,6 +207,7 @@ function signVoucher(apiVoucherId) {
     });
 }
 module.exports = {
+    getInstruments: getInstruments,
     getRight: getRight,
     getAllInstruments: getAllInstruments,
     findInstruments: findInstruments,

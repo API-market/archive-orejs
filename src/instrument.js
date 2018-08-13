@@ -5,15 +5,6 @@ const INSTR_TABLE_NAME = 'tokens';
 const ecc = require('eosjs-ecc');
 
 /* Private */
-async function getAllInstruments() {
-  // Returns all the instruments
-  const instruments = await this.getInstruments({
-    code: 'instr.ore',
-    table: 'tokens',
-  });
-  return instruments;
-}
-
 function isActive(instrument) {
   const startTime = instrument.instrument.start_time;
   const endTime = instrument.instrument.end_time;
@@ -22,6 +13,51 @@ function isActive(instrument) {
 }
 
 /* Public */
+async function getInstruments(params) {
+  // Returns instruments indexed by owner/instrumentTemplate/instrumentClass
+  // Returns all instruments by default
+  let keyType;
+  let index;
+  let results = [];
+  const lowerBound = 0;
+  const upperBound = -1;
+  const limit = -1;
+  if (params.key_name === 'owner') {
+    keyType = 'i64';
+    index = 2;
+  } else if (params.key_name === 'instrument_template') {
+    keyType = 'i64';
+    index = 3;
+  } else if (params.key_name === 'instrument_class') {
+    keyType = 'i64';
+    index = 4;
+  } else {
+    // index by instrument_id
+    keyType = 'i64';
+    index = 1;
+  }
+  const parameters = {
+    ...params,
+    json: true,
+    lower_bound: params.lower_bound || lowerBound,
+    upper_bound: params.upper_bound || upperBound,
+    scope: params.scope || params.code,
+    limit: params.limit || limit,
+    key_type: keyType || 'i64',
+    index_position: index || 1,
+  };
+  results = await this.eos.getTableRows(parameters);
+  return results.rows;
+}
+
+async function getAllInstruments() {
+  // Returns all the instruments
+  const instruments = await this.getInstruments({
+    code: 'instr.ore',
+    table: 'tokens',
+  });
+  return instruments;
+}
 
 function getRight(instrument, rightName) {
   const {
@@ -98,6 +134,7 @@ async function signVoucher(apiVoucherId) {
 }
 
 module.exports = {
+  getInstruments,
   getRight,
   getAllInstruments,
   findInstruments,

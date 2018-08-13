@@ -185,49 +185,12 @@ function getLatestBlock() {
         });
     });
 }
-function getInstruments(params) {
-    return __awaiter(this, void 0, void 0, function () {
-        var keyType, index, results, lowerBound, upperBound, limit, parameters;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    results = [];
-                    lowerBound = 0;
-                    upperBound = -1;
-                    limit = -1;
-                    if (params.key_name === 'owner') {
-                        keyType = 'i64';
-                        index = 2;
-                    }
-                    else if (params.key_name === 'instrument_template') {
-                        keyType = 'i64';
-                        index = 3;
-                    }
-                    else if (params.key_name === 'instrument_class') {
-                        keyType = 'i64';
-                        index = 4;
-                    }
-                    else {
-                        // index by instrument_id
-                        keyType = 'i64';
-                        index = 1;
-                    }
-                    parameters = __assign({}, params, { json: true, lower_bound: params.lower_bound || lowerBound, upper_bound: params.upper_bound || upperBound, scope: params.scope || params.code, limit: params.limit || limit, key_type: keyType || 'i64', index_position: index || 1 });
-                    return [4 /*yield*/, this.eos.getTableRows(parameters)];
-                case 1:
-                    results = _a.sent();
-                    return [2 /*return*/, results.rows];
-            }
-        });
-    });
-}
 module.exports = {
     confirmTransaction: confirmTransaction,
     contract: contract,
     findOne: findOne,
     getAllTableRows: getAllTableRows,
     getLatestBlock: getLatestBlock,
-    getInstruments: getInstruments,
     hasTransaction: hasTransaction,
     tableKey: tableKey,
 };
