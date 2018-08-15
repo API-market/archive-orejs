@@ -1,20 +1,20 @@
-const CryptoJS = require('crypto-js');
+const sjcl = require('sjcl');
 
 // Decrypts the encrypted eos key with wallet password
-function decrypt(encrypted, password) {
-  const bytes = CryptoJS.AES.decrypt(encrypted.toString(), password);
+function decrypt(encrypted, key) {
   try {
-    return bytes.toString(CryptoJS.enc.Utf8);
+    const encryptedData = JSON.stringify(Object.assign(JSON.parse(encrypted), { mode: 'gcm' }));
+    return sjcl.decrypt(key, encryptedData);
   } catch (err) {
-    // NOTE Sometimes the CryptoJS lib fails to convert array buffers to UTF-8 strings, when decrypted with an incorrect password
-    console.error('CryptoJS Decryption Error:', err);
+    console.error('Decryption Error:', err);
     return '';
   }
 }
 
 // Encrypts the EOS private key with wallet password
-function encrypt(unencrypted, password) {
-  return CryptoJS.AES.encrypt(unencrypted, password);
+function encrypt(unencrypted, key) {
+  const { iv, salt, ct } = JSON.parse(sjcl.encrypt(key, unencrypted, { mode: 'gcm' }));
+  return JSON.stringify({ iv, salt, ct });
 }
 
 module.exports = {
