@@ -94,7 +94,7 @@ function getAllInstruments() {
         var instruments;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, this.getInstruments({
+                case 0: return [4 /*yield*/, getInstruments.bind(this)({
                         code: 'instr.ore',
                         table: 'tokens',
                     })];
@@ -115,6 +115,12 @@ function getRight(instrument, rightName) {
     });
     return right;
 }
+function hasCategory(instrument, category) {
+    if (instrument.instrument.instrument_class === category) {
+        return true;
+    }
+    return false;
+}
 function findInstruments(oreAccountName, activeOnly, category, rightName) {
     if (activeOnly === void 0) { activeOnly = true; }
     if (category === void 0) { category = undefined; }
@@ -125,7 +131,7 @@ function findInstruments(oreAccountName, activeOnly, category, rightName) {
             switch (_a.label) {
                 case 0:
                     tableKey = this.tableKey(oreAccountName);
-                    return [4 /*yield*/, this.getInstruments({
+                    return [4 /*yield*/, getInstruments.bind(this)({
                             code: 'instr.ore',
                             table: 'tokensv2',
                             lower_bound: tableKey.toString(),
@@ -136,6 +142,9 @@ function findInstruments(oreAccountName, activeOnly, category, rightName) {
                     instruments = _a.sent();
                     if (activeOnly) {
                         instruments = instruments.filter(function (element) { return isActive(element); });
+                    }
+                    if (category) {
+                        instruments = instruments.filter(function (element) { return hasCategory(element, category); });
                     }
                     if (!rightName) return [3 /*break*/, 3];
                     return [4 /*yield*/, this.getInstrumentsByRight.bind(this)(instruments, rightName)];
@@ -207,7 +216,6 @@ function signVoucher(apiVoucherId) {
     });
 }
 module.exports = {
-    getInstruments: getInstruments,
     getRight: getRight,
     getAllInstruments: getAllInstruments,
     findInstruments: findInstruments,
