@@ -52,7 +52,7 @@ async function getInstruments(params) {
 
 async function getAllInstruments() {
   // Returns all the instruments
-  const instruments = await this.getInstruments({
+  const instruments = await getInstruments.bind(this)({
     code: 'instr.ore',
     table: 'tokens',
   });
@@ -75,13 +75,20 @@ function getRight(instrument, rightName) {
   return right;
 }
 
+function hasCategory(instrument, category) {
+  if (instrument.instrument.instrument_class === category) {
+    return true;
+  }
+  return false;
+}
+
 async function findInstruments(oreAccountName, activeOnly = true, category = undefined, rightName = undefined) {
   // Where args is search criteria could include (category, rights_name)
   // It gets all the instruments owned by a user using secondary index on the owner key
   // Note: this requires an index on the rights collection (to filter right names)
 
   const tableKey = this.tableKey(oreAccountName);
-  let instruments = await this.getInstruments({
+  let instruments = await getInstruments.bind(this)({
     code: 'instr.ore',
     table: 'tokensv2',
     lower_bound: tableKey.toString(),
@@ -92,6 +99,11 @@ async function findInstruments(oreAccountName, activeOnly = true, category = und
   if (activeOnly) {
     instruments = instruments.filter(element => isActive(element));
   }
+
+  if (category) {
+    instruments = instruments.filter(element => hasCategory(element, category));
+  }
+
   if (rightName) {
     instruments = await this.getInstrumentsByRight.bind(this)(instruments, rightName);
   }
@@ -135,7 +147,6 @@ async function signVoucher(apiVoucherId) {
 }
 
 module.exports = {
-  getInstruments,
   getRight,
   getAllInstruments,
   findInstruments,

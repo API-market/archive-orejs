@@ -54,17 +54,14 @@ function getInstrumentsByRight(instrumentList, rightName) {
 }
 function getInstrumentByOwner(owner) {
     return __awaiter(this, void 0, void 0, function () {
-        var tableKey, instruments;
+        var instruments;
         return __generator(this, function (_a) {
-            tableKey = this.tableKey(owner);
-            instruments = this.getInstruments({
-                code: 'instr.ore',
-                table: 'tokensv2',
-                lower_bound: tableKey.toString(),
-                upper_bound: tableKey.plus(1).toString(),
-                key_name: 'owner',
-            });
-            return [2 /*return*/, instruments];
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, this.findInstruments(owner)];
+                case 1:
+                    instruments = _a.sent();
+                    return [2 /*return*/, instruments];
+            }
         });
     });
 }
@@ -101,27 +98,28 @@ function getApiCallStats(instrumentId, rightName) {
 }
 function getRightStats(rightName, owner) {
     return __awaiter(this, void 0, void 0, function () {
-        var instruments, rightProperties, instrumentList, results, value;
+        var instruments, rightProperties, results, value;
         var _this = this;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, this.getAllTableRows({
+                case 0:
+                    if (!owner) return [3 /*break*/, 2];
+                    return [4 /*yield*/, getInstrumentByOwner.bind(this)(owner)];
+                case 1:
+                    instruments = _a.sent();
+                    return [3 /*break*/, 4];
+                case 2: return [4 /*yield*/, this.getAllTableRows({
                         code: INSTR_CONTRACT_NAME,
                         scope: INSTR_CONTRACT_NAME,
                         table: INSTR_TABLE_NAME,
                         limit: -1,
                     })];
-                case 1:
-                    instrumentList = _a.sent();
-                    return [4 /*yield*/, getInstrumentsByRight.bind(this)(instrumentList, rightName)];
-                case 2:
-                    instruments = _a.sent();
-                    if (!owner) return [3 /*break*/, 4];
-                    return [4 /*yield*/, getInstrumentByOwner.bind(this)(owner)];
                 case 3:
                     instruments = _a.sent();
                     _a.label = 4;
-                case 4:
+                case 4: return [4 /*yield*/, getInstrumentsByRight.bind(this)(instruments, rightName)];
+                case 5:
+                    instruments = _a.sent();
                     results = instruments.map(function (instrumentObject) { return __awaiter(_this, void 0, void 0, function () {
                         return __generator(this, function (_a) {
                             switch (_a.label) {
@@ -133,7 +131,7 @@ function getRightStats(rightName, owner) {
                         });
                     }); });
                     return [4 /*yield*/, Promise.all(results)];
-                case 5:
+                case 6:
                     value = _a.sent();
                     return [2 /*return*/, {
                             totalCpuUsage: value.reduce(function (a, b) { return a + parseFloat(b.totalCpuUsage); }, 0),
