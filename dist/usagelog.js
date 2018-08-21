@@ -146,5 +146,6 @@ function getRightStats(rightName, owner) {
 module.exports = {
     getApiCallStats: getApiCallStats,
     getRightStats: getRightStats,
+    getInstrumentsByRight: getInstrumentsByRight,
 };
 //# sourceMappingURL=usagelog.js.map
