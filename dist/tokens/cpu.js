@@ -8,24 +8,24 @@ function cpuContract(accountName) {
 }
 function issueCpu(toAccountName, cpuAmount, memo) {
     if (memo === void 0) { memo = ''; }
-    amount = this.getTokenAmount(cpuAmount, TOKEN_SYMBOL);
-    return this.issueStandardToken(toAccountName, amount, memo, ORE_CPU_ACCOUNT_NAME, CONTRACT_NAME);
+    amount = this.getAmount(cpuAmount, TOKEN_SYMBOL);
+    return this.issueToken(toAccountName, amount, memo, ORE_CPU_ACCOUNT_NAME, CONTRACT_NAME);
 }
 function approveCpu(fromAccountName, toAccountName, cpuAmount) {
-    amount = this.getTokenAmount(cpuAmount, TOKEN_SYMBOL);
-    return this.approveStandardTokenTransfer(fromAccountName, toAccountName, amount, CONTRACT_NAME);
+    amount = this.getAmount(cpuAmount, TOKEN_SYMBOL);
+    return this.approveTransfer(fromAccountName, toAccountName, amount, CONTRACT_NAME);
 }
 function getCpuBalance(oreAccountName) {
-    return this.getStandardTokenBalance(oreAccountName, TOKEN_SYMBOL, CONTRACT_NAME);
+    return this.getBalance(oreAccountName, TOKEN_SYMBOL, CONTRACT_NAME);
 }
 function transferCpu(fromAccountName, toAccountName, cpuAmount, memo) {
     if (memo === void 0) { memo = ''; }
-    amount = this.getTokenAmount(cpuAmount, TOKEN_SYMBOL);
-    return this.transferStandardToken(fromAccountName, toAccountName, amount, memo, CONTRACT_NAME);
+    amount = this.getAmount(cpuAmount, TOKEN_SYMBOL);
+    return this.transferToken(fromAccountName, toAccountName, amount, memo, CONTRACT_NAME);
 }
 function transferCpufrom(approvedAccountName, fromAccountName, toAccountName, cpuAmount) {
-    amount = this.getTokenAmount(cpuAmount, TOKEN_SYMBOL);
-    return this.transferfrom(approvedAccountName, fromAccountName, toAccountName, amount, CONTRACT_NAME);
+    amount = this.getAmount(cpuAmount, TOKEN_SYMBOL);
+    return this.transferFrom(approvedAccountName, fromAccountName, toAccountName, amount, CONTRACT_NAME);
 }
 module.exports = {
     issueCpu: issueCpu,

@@ -6,47 +6,6 @@ function tableKey(oreAccountName) {
   return new BigNumber(this.eos.format.encodeName(oreAccountName, false));
 }
 
-function filterRows(rows, filter) {
-  if (!filter) return rows;
-
-  const result = [];
-
-  function fitsFilter(filter, row) {
-    let fits = true;
-    if (typeof filter === 'function') {
-      fits = filter(row);
-    } else if (typeof filter === 'object') {
-      const filterKeys = Object.keys(filter);
-      filterKeys.forEach((key) => {
-        if (filter[key] !== row[key]) {
-          fits = false;
-        }
-      });
-    } else {
-      throw new Error('filter must be a function or an object');
-    }
-    return fits;
-  }
-
-  rows.forEach((row) => {
-    let fitFilter = true;
-
-    if (filter instanceof Array) {
-      filter.forEach((f) => {
-        if (f) {
-          fitFilter = fitFilter && fitsFilter(f, row);
-        }
-      });
-    } else {
-      fitFilter = fitsFilter(filter, row);
-    }
-    if (fitFilter) {
-      result.push(row);
-    }
-  });
-  return result;
-}
-
 function hasTransaction(block, transactionId) {
   if (block.transactions) {
     const result = block.transactions.find(transaction => transaction.trx.id === transactionId);
@@ -131,12 +90,6 @@ async function getAllTableRows(params, key_field = 'id', json = true) {
   return results.rows;
 }
 
-async function getAllTableRowsFiltered(params, filter, key_field = 'id') {
-  const result = await getAllTableRows.bind(this)(params, key_field);
-
-  return filterRows(result, filter);
-}
-
 async function getLatestBlock() {
   const info = await this.eos.getInfo({});
   const block = await this.eos.getBlock(info.last_irreversible_block_num);
@@ -148,7 +101,6 @@ module.exports = {
   contract,
   findOne,
   getAllTableRows,
-  getAllTableRowsFiltered,
   getLatestBlock,
   hasTransaction,
   tableKey,

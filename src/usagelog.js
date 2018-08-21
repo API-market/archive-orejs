@@ -11,11 +11,16 @@ async function getInstrumentsByRight(instrumentList, rightName) {
   return instruments;
 }
 
-async function getInstrumentByOwner(instrumentList, owner) {
+async function getInstrumentByOwner(owner) {
   // Get all the instruments with a particular owner
-  let instruments = [];
-  instruments = instrumentList.filter(instrument => instrument.owner === owner);
-
+  const tableKey = this.tableKey(owner);
+  const instruments = this.getInstruments({
+    code: 'instr.ore',
+    table: 'tokens',
+    lower_bound: tableKey.toString(),
+    upper_bound: tableKey.plus(1).toString(),
+    key_name: 'owner',
+  });
   return instruments;
 }
 
@@ -61,7 +66,7 @@ async function getRightStats(rightName, owner) {
   instruments = await getInstrumentsByRight.bind(this)(instrumentList, rightName);
 
   if (owner) {
-    instruments = await getInstrumentByOwner(instruments, owner);
+    instruments = await getInstrumentByOwner.bind(this)(owner);
   }
 
   // Get the total cpu calls and cpu count across all the instruments

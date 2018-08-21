@@ -5,20 +5,6 @@ const INSTR_TABLE_NAME = 'tokens';
 const ecc = require('eosjs-ecc');
 
 /* Private */
-
-async function getAllInstruments(oreAccountName, additionalFilters = []) {
-  additionalFilters.push({
-    owner: oreAccountName,
-  });
-
-  const rows = await this.getAllTableRowsFiltered({
-    code: INSTR_CONTRACT_NAME,
-    table: INSTR_TABLE_NAME,
-  }, additionalFilters);
-
-  return rows;
-}
-
 function isActive(instrument) {
   const startTime = instrument.instrument.start_time;
   const endTime = instrument.instrument.end_time;
@@ -27,6 +13,51 @@ function isActive(instrument) {
 }
 
 /* Public */
+async function getInstruments(params) {
+  // Returns instruments indexed by owner/instrumentTemplate/instrumentClass
+  // Returns all instruments by default
+  let keyType;
+  let index;
+  let results = [];
+  const lowerBound = 0;
+  const upperBound = -1;
+  const limit = -1;
+  if (params.key_name === 'owner') {
+    keyType = 'i64';
+    index = 2;
+  } else if (params.key_name === 'instrument_template') {
+    keyType = 'i64';
+    index = 3;
+  } else if (params.key_name === 'instrument_class') {
+    keyType = 'i64';
+    index = 4;
+  } else {
+    // index by instrument_id
+    keyType = 'i64';
+    index = 1;
+  }
+  const parameters = {
+    ...params,
+    json: true,
+    lower_bound: params.lower_bound || lowerBound,
+    upper_bound: params.upper_bound || upperBound,
+    scope: params.scope || params.code,
+    limit: params.limit || limit,
+    key_type: keyType || 'i64',
+    index_position: index || 1,
+  };
+  results = await this.eos.getTableRows(parameters);
+  return results.rows;
+}
+
+async function getAllInstruments() {
+  // Returns all the instruments
+  const instruments = await this.getInstruments({
+    code: 'instr.ore',
+    table: 'tokens',
+  });
+  return instruments;
+}
 
 function getRight(instrument, rightName) {
   const {
@@ -44,28 +75,27 @@ function getRight(instrument, rightName) {
   return right;
 }
 
-async function getInstruments(oreAccountName, category = undefined, filters = []) {
-  // Gets the instruments belonging to a particular category
-  if (category) {
-    filters.push(row => row.instrument.instrument_class === category);
-  }
-
-  const rows = await getAllInstruments.bind(this)(oreAccountName, filters);
-  return rows;
-}
-
 async function findInstruments(oreAccountName, activeOnly = true, category = undefined, rightName = undefined) {
   // Where args is search criteria could include (category, rights_name)
+  // It gets all the instruments owned by a user using secondary index on the owner key
   // Note: this requires an index on the rights collection (to filter right names)
-  const filters = [];
+
+  const tableKey = this.tableKey(oreAccountName);
+  let instruments = await this.getInstruments({
+    code: 'instr.ore',
+    table: 'tokens',
+    lower_bound: tableKey.toString(),
+    upper_bound: tableKey.plus(1).toString(),
+    key_name: 'owner',
+  });
   if (activeOnly) {
-    filters.push(row => isActive(row));
+    instruments = instruments.filter(element => isActive(element));
   }
   if (rightName) {
-    filters.push(row => getRight(row, rightName));
+    instruments = await this.getInstrumentsByRight.bind(this)(instruments, rightName);
   }
-  const rows = await getInstruments.bind(this)(oreAccountName, category, filters);
-  return rows;
+
+  return instruments;
 }
 
 async function createOfferInstrument(oreAccountName, offerInstrumentData, confirm = false) {
@@ -104,9 +134,10 @@ async function signVoucher(apiVoucherId) {
 }
 
 module.exports = {
-  getRight,
-  findInstruments,
   getInstruments,
+  getRight,
+  getAllInstruments,
+  findInstruments,
   createOfferInstrument,
   createVoucherInstrument,
   signVoucher,
