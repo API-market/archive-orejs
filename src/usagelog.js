@@ -86,4 +86,5 @@ async function getRightStats(rightName, owner) {
 module.exports = {
   getApiCallStats,
   getRightStats,
+  getInstrumentsByRight,
 };
