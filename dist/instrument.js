@@ -43,7 +43,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 var APIM_CONTRACT_NAME = 'manager.apim';
 var INSTR_CONTRACT_NAME = 'instr.ore';
-var INSTR_TABLE_NAME = 'tokens';
+var INSTR_TABLE_NAME = 'tokensv2';
 var ecc = require('eosjs-ecc');
 /* Private */
 function isActive(instrument) {
@@ -127,7 +127,7 @@ function findInstruments(oreAccountName, activeOnly, category, rightName) {
                     tableKey = this.tableKey(oreAccountName);
                     return [4 /*yield*/, this.getInstruments({
                             code: 'instr.ore',
-                            table: 'tokens',
+                            table: 'tokensv2',
                             lower_bound: tableKey.toString(),
                             upper_bound: tableKey.plus(1).toString(),
                             key_name: 'owner',
