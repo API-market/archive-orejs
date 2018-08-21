@@ -1,6 +1,6 @@
 const APIM_CONTRACT_NAME = 'manager.apim';
 const INSTR_CONTRACT_NAME = 'instr.ore';
-const INSTR_TABLE_NAME = 'tokens';
+const INSTR_TABLE_NAME = 'tokensv2';
 
 const ecc = require('eosjs-ecc');
 
@@ -83,7 +83,7 @@ async function findInstruments(oreAccountName, activeOnly = true, category = und
   const tableKey = this.tableKey(oreAccountName);
   let instruments = await this.getInstruments({
     code: 'instr.ore',
-    table: 'tokens',
+    table: 'tokensv2',
     lower_bound: tableKey.toString(),
     upper_bound: tableKey.plus(1).toString(),
     key_name: 'owner',
