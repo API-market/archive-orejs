@@ -88,6 +88,7 @@ async function findInstruments(oreAccountName, activeOnly = true, category = und
     upper_bound: tableKey.plus(1).toString(),
     key_name: 'owner',
   });
+
   if (activeOnly) {
     instruments = instruments.filter(element => isActive(element));
   }
