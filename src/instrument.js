@@ -54,7 +54,7 @@ async function getAllInstruments() {
   // Returns all the instruments
   const instruments = await getInstruments.bind(this)({
     code: 'instr.ore',
-    table: 'tokens',
+    table: 'tokensv2',
   });
   return instruments;
 }

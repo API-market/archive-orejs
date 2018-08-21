@@ -96,7 +96,7 @@ function getAllInstruments() {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, getInstruments.bind(this)({
                         code: 'instr.ore',
-                        table: 'tokens',
+                        table: 'tokensv2',
                     })];
                 case 1:
                     instruments = _a.sent();
