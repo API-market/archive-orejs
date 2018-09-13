@@ -13,9 +13,9 @@ function issueOre(toAccountName, oreAmount, memo = '') {
   return this.issueToken(toAccountName, amount, memo, ORE_ORE_ACCOUNT_NAME, CONTRACT_NAME);
 }
 
-function approveOre(fromAccountName, toAccountName, oreAmount) {
+async function approveOre(fromAccountName, toAccountName, oreAmount) {
   amount = this.getAmount(oreAmount, TOKEN_SYMBOL);
-  const fromAccountBalance = this.getBalance(fromAccountName, TOKEN_SYMBOL, CONTRACT_NAME);
+  const fromAccountBalance = await this.getBalance(fromAccountName, TOKEN_SYMBOL, CONTRACT_NAME);
   if (fromAccountBalance > 0) {
     return this.approveTransfer(fromAccountName, toAccountName, amount, CONTRACT_NAME);
   }

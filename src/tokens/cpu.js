@@ -13,9 +13,9 @@ function issueCpu(toAccountName, cpuAmount, memo = '') {
   return this.issueToken(toAccountName, amount, memo, ORE_CPU_ACCOUNT_NAME, CONTRACT_NAME);
 }
 
-function approveCpu(fromAccountName, toAccountName, cpuAmount) {
+async function approveCpu(fromAccountName, toAccountName, cpuAmount) {
   amount = this.getAmount(cpuAmount, TOKEN_SYMBOL);
-  const fromAccountBalance = this.getBalance(fromAccountName, TOKEN_SYMBOL, CONTRACT_NAME);
+  const fromAccountBalance = await this.getBalance(fromAccountName, TOKEN_SYMBOL, CONTRACT_NAME);
   if (fromAccountBalance > 0) {
     return this.approveTransfer(fromAccountName, toAccountName, amount, CONTRACT_NAME);
   }
