@@ -15,7 +15,7 @@ function issueCpu(toAccountName, cpuAmount, memo = '') {
 
 async function approveCpu(fromAccountName, toAccountName, cpuAmount) {
   amount = this.getAmount(cpuAmount, TOKEN_SYMBOL);
-  const fromAccountBalance = await this.getBalance(fromAccountName, TOKEN_SYMBOL, CONTRACT_NAME);
+  const fromAccountBalance = await this.getCpuBalance(fromAccountName, TOKEN_SYMBOL, CONTRACT_NAME);
   if (fromAccountBalance > 0) {
     return this.approveTransfer(fromAccountName, toAccountName, amount, CONTRACT_NAME);
   }
