@@ -49,7 +49,6 @@ describe('cpu', () => {
     describe('when authorized', () => {
       test('returns', async () => {
         const result = await orejs.approveCpu(ORE_OWNER_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, cpuBalance);
-        // expectFetch(`${ORE_NETWORK_URI}/v1/chain/get_currency_balance`);
         expect(contract.approve).toHaveBeenCalledWith(ORE_OWNER_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, `${cpuBalance}.0000 CPU`, {
           authorization: `${ORE_OWNER_ACCOUNT_NAME}@active`,
         });
