@@ -42,6 +42,8 @@ describe('ore', () => {
     beforeEach(() => {
       contract = mockContract();
       oreBalance = 10;
+      fetch.resetMocks();
+      fetch.mockResponses(mock([`${oreBalance}.0000 ORE`]));
     });
 
     describe('when authorized', () => {

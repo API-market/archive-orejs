@@ -13,9 +13,13 @@ function issueOre(toAccountName, oreAmount, memo = '') {
   return this.issueToken(toAccountName, amount, memo, ORE_ORE_ACCOUNT_NAME, CONTRACT_NAME);
 }
 
-function approveOre(fromAccountName, toAccountName, oreAmount) {
+async function approveOre(fromAccountName, toAccountName, oreAmount) {
   amount = this.getAmount(oreAmount, TOKEN_SYMBOL);
-  return this.approveTransfer(fromAccountName, toAccountName, amount, CONTRACT_NAME);
+  const fromAccountBalance = await this.getOreBalance(fromAccountName, TOKEN_SYMBOL, CONTRACT_NAME);
+  if (fromAccountBalance > 0) {
+    return this.approveTransfer(fromAccountName, toAccountName, amount, CONTRACT_NAME);
+  }
+  throw new Error('The account does not have sufficient balance');
 }
 
 function getOreBalance(oreAccountName) {
