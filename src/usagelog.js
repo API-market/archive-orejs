@@ -1,6 +1,6 @@
 const INSTR_CONTRACT_NAME = 'instr.ore';
 const INSTR_USAGE_CONTRACT_NAME = 'usagelog.ore';
-const INSTR_TABLE_NAME = 'tokens';
+const INSTR_TABLE_NAME = 'tokensv2';
 const LOG_COUNT_TABLE_NAME = 'counts';
 
 /* Private */
