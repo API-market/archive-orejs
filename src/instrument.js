@@ -6,10 +6,10 @@ const ecc = require('eosjs-ecc');
 
 /* Private */
 function isActive(instrument) {
-  const startTime = instrument.instrument.start_time;
-  const endTime = instrument.instrument.end_time;
+  const startTime = instrument.start_time;
+  const endTime = instrument.end_time;
   const currentTime = Math.floor(Date.now() / 1000);
-  return (currentTime > startTime && currentTime < endTime);
+  return (currentTime >= startTime && currentTime < endTime);
 }
 
 /* Public */
@@ -90,14 +90,18 @@ async function findInstruments(oreAccountName, activeOnly = true, category = und
   const tableKey = this.tableKey(oreAccountName);
   let instruments = await getInstruments.bind(this)({
     code: 'instr.ore',
-    table: 'tokensv2',
+    table: 'tokens',
     lower_bound: tableKey.toString(),
     upper_bound: tableKey.plus(1).toString(),
     key_name: 'owner',
   });
 
   if (activeOnly) {
-    instruments = instruments.filter(element => isActive(element));
+    instruments = instruments.filter((element) => {
+      if (isActive(element)) {
+        return element;
+      }
+    })
   }
 
   if (category) {
