@@ -40,25 +40,32 @@ function newAccountTransaction(name, ownerPublicKey, activePublicKey, options = 
   });
 }
 
-async function getNewPermissions(accountName) {
+async function getNewPermissions(accountName, permissionName) {
+  const newPerm = {};
+  const newAuth = {};
+  const keyObj = {};
+  const newKeys = [];
   const keys = await Keygen.generateMasterKeys();
   const account = await this.eos.getAccount(accountName);
   const perms = JSON.parse(JSON.stringify(account.permissions));
-  const newPerm = {};
-  const newAuth = {};
-  newPerm.perm_name = 'approveVerifier';
+
+  newPerm.perm_name = permissionName;
   newPerm.parent = 'owner';
   newAuth.threshold = 1;
-  newAuth.keys = [keys.publicKeys.active];
+  keyObj.key = keys.publicKeys.active;
+  keyObj.weight = 1;
+  newKeys.push(keyObj);
+  newAuth.keys = newKeys;
   newAuth.accounts = [];
   newAuth.waits = [];
   newPerm.required_auth = newAuth;
   perms.push(newPerm);
+
   return perms;
 }
 
-async function addCustomPermission(account) {
-  const perms = await getNewPermissions.bind(this)(account);
+async function addCustomPermission(account, permissionName) {
+  const perms = await getNewPermissions.bind(this)(account, permissionName);
   const updateAuthResult = await this.eos.transaction((tr) => {
     perms.forEach((perm) => {
       tr.updateauth({
