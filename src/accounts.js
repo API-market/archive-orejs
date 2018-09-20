@@ -40,17 +40,17 @@ function newAccountTransaction(name, ownerPublicKey, activePublicKey, options = 
   });
 }
 
-async function getNewPermissions(accountName, permissionName) {
+async function getNewPermissions(accountName, keys) {
   const newPerm = {};
   const newAuth = {};
   const keyObj = {};
   const newKeys = [];
-  const keys = await Keygen.generateMasterKeys();
   const account = await this.eos.getAccount(accountName);
   const perms = JSON.parse(JSON.stringify(account.permissions));
 
-  newPerm.perm_name = permissionName;
-  newPerm.parent = 'owner';
+  // add a new custom permission
+  newPerm.perm_name = 'authverifier';
+  newPerm.parent = 'active';
   newAuth.threshold = 1;
   keyObj.key = keys.publicKeys.active;
   keyObj.weight = 1;
@@ -59,13 +59,14 @@ async function getNewPermissions(accountName, permissionName) {
   newAuth.accounts = [];
   newAuth.waits = [];
   newPerm.required_auth = newAuth;
-  perms.push(newPerm);
 
+  perms.push(newPerm);
   return perms;
 }
 
-async function addCustomPermission(account, permissionName) {
-  const perms = await getNewPermissions.bind(this)(account, permissionName);
+async function addAuthVerifierPermission(account) {
+  const authVerifierKeys = await Keygen.generateMasterKeys();
+  const perms = await getNewPermissions.bind(this)(account, authVerifierKeys);
   const updateAuthResult = await this.eos.transaction((tr) => {
     perms.forEach((perm) => {
       tr.updateauth({
@@ -78,6 +79,7 @@ async function addCustomPermission(account, permissionName) {
       });
     });
   });
+  return authVerifierKeys;
 }
 
 function generateAccountName(encoding = {
@@ -129,8 +131,9 @@ async function createOreAccount(password, ownerPublicKey, options = {}) {
     oreAccountName,
     transaction,
   } = await createOreAccountWithKeys.bind(this)(keys.publicKeys.active, ownerPublicKey, options);
-  addCustomPermission.bind(this)(oreAccountName);
+  const authVerifierKeys = await addAuthVerifierPermission.bind(this)(oreAccountName);
   const encryptedKeys = await encryptKeys.bind(this)(keys, password);
+
   keys.masterPrivateKey = encryptKeys.masterPrivateKey;
   keys.privateKeys.owner = encryptedKeys.privateKeys.owner;
   keys.privateKeys.active = encryptedKeys.privateKeys.active;
@@ -139,6 +142,8 @@ async function createOreAccount(password, ownerPublicKey, options = {}) {
     oreAccountName,
     privateKey: keys.privateKeys.active,
     publicKey: keys.publicKeys.active,
+    authVerifierPublicKey: authVerifierKeys.publicKeys.active,
+    authVerifierPrivateKey: authVerifierKeys.privateKeys.active,
     transaction,
   };
 }
