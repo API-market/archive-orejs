@@ -40,6 +40,39 @@ function newAccountTransaction(name, ownerPublicKey, activePublicKey, options = 
   });
 }
 
+async function getNewPermissions(accountName) {
+  const keys = await Keygen.generateMasterKeys();
+  const account = await this.eos.getAccount(accountName);
+  const perms = JSON.parse(JSON.stringify(account.permissions));
+  const newPerm = {};
+  const newAuth = {};
+  newPerm.perm_name = 'approveVerifier';
+  newPerm.parent = 'owner';
+  newAuth.threshold = 1;
+  newAuth.keys = [keys.publicKeys.active];
+  newAuth.accounts = [];
+  newAuth.waits = [];
+  newPerm.required_auth = newAuth;
+  perms.push(newPerm);
+  return perms;
+}
+
+async function addCustomPermission(account) {
+  const perms = await getNewPermissions.bind(this)(account);
+  const updateAuthResult = await this.eos.transaction((tr) => {
+    perms.forEach((perm) => {
+      tr.updateauth({
+        account,
+        permission: perm.perm_name,
+        parent: perm.parent,
+        auth: perm.required_auth,
+      }, {
+        authorization: `${account}@owner`,
+      });
+    });
+  });
+}
+
 function generateAccountName(encoding = {
   type: 'rfc4648',
   lc: true,
@@ -83,12 +116,13 @@ async function encryptKeys(keys, password) {
 
 async function createOreAccount(password, ownerPublicKey, options = {}) {
   const keys = await Keygen.generateMasterKeys();
+
   // TODO Check for existing wallets, for name collisions
   const {
     oreAccountName,
     transaction,
   } = await createOreAccountWithKeys.bind(this)(keys.publicKeys.active, ownerPublicKey, options);
-
+  addCustomPermission.bind(this)(oreAccountName);
   const encryptedKeys = await encryptKeys.bind(this)(keys, password);
   keys.masterPrivateKey = encryptKeys.masterPrivateKey;
   keys.privateKeys.owner = encryptedKeys.privateKeys.owner;
