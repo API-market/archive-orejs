@@ -66,8 +66,8 @@ async function encryptKeys(keys, password) {
 }
 
 async function getAccountPermissions(oreAccountName) {
-  const account = await this.eos.getAccount(oreAccountName);
-  const permissions = JSON.parse(JSON.stringify(account.permissions));
+  const account = await this.eos.getAccount(oreAccountName)[0];
+  const { permissions } = JSON.parse(account)[0];
 
   return permissions;
 }
@@ -110,6 +110,7 @@ async function appendPermission(oreAccountName, keys, permName, parent = 'active
 
 async function addAuthVerifierPermission(oreAccountName, keys) {
   const perms = await appendPermission.bind(this)(oreAccountName, keys, 'authverifier');
+  /*
   await this.eos.transaction((tr) => {
     perms.forEach((perm) => {
       tr.updateauth({
@@ -122,11 +123,12 @@ async function addAuthVerifierPermission(oreAccountName, keys) {
       });
     });
   });
+  */
 }
 
 async function generateAuthVerifierKeys(oreAccountName) {
   const keys = await Keygen.generateMasterKeys();
-  //await addAuthVerifierPermission.bind(this)(oreAccountName, [keys.publicKeys.active]);
+  await addAuthVerifierPermission.bind(this)(oreAccountName, [keys.publicKeys.active]);
   return keys;
 }
 
