@@ -85,6 +85,141 @@ function generateAccountName(encoding) {
     var idx = encodedTimestamp.length - ACCOUNT_NAME_MAX_LENGTH;
     return encodedTimestamp.substr(idx, ACCOUNT_NAME_MAX_LENGTH);
 }
+function encryptKeys(keys, password) {
+    return __awaiter(this, void 0, void 0, function () {
+        var encryptedKeys, encryptedWalletPassword;
+        return __generator(this, function (_a) {
+            encryptedKeys = keys;
+            encryptedWalletPassword = this.encrypt(keys.masterPrivateKey, password).toString();
+            encryptedKeys.masterPrivateKey = encryptedWalletPassword;
+            encryptedKeys.privateKeys.owner = this.encrypt(keys.privateKeys.owner, password).toString();
+            encryptedKeys.privateKeys.active = this.encrypt(keys.privateKeys.active, password).toString();
+            return [2 /*return*/, encryptedKeys];
+        });
+    });
+}
+function getAccountPermissions(oreAccountName) {
+    return __awaiter(this, void 0, void 0, function () {
+        var account, permissions;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, this.eos.getAccount(oreAccountName)[0]];
+                case 1:
+                    account = _a.sent();
+                    permissions = JSON.parse(account)[0].permissions;
+                    return [2 /*return*/, permissions];
+            }
+        });
+    });
+}
+function weightedKey(key, weight) {
+    if (weight === void 0) { weight = 1; }
+    return {
+        key: key,
+        weight: weight,
+    };
+}
+function weightedKeys(keys, weight) {
+    if (weight === void 0) { weight = 1; }
+    return keys.map(function (key) { return weightedKey(key, weight); });
+}
+function newPermissionDetails(keys, threshold, weights) {
+    if (threshold === void 0) { threshold = 1; }
+    if (weights === void 0) { weights = 1; }
+    return {
+        accounts: [],
+        keys: weightedKeys.bind(this)(keys, weights),
+        threshold: threshold,
+        waits: [],
+    };
+}
+function newPermission(keys, permName, parent, threshold, weights) {
+    if (parent === void 0) { parent = 'active'; }
+    if (threshold === void 0) { threshold = 1; }
+    if (weights === void 0) { weights = 1; }
+    return {
+        parent: parent,
+        perm_name: permName,
+        required_auth: newPermissionDetails.bind(this)(keys, threshold, weights),
+    };
+}
+function appendPermission(oreAccountName, keys, permName, parent, threshold, weights) {
+    if (parent === void 0) { parent = 'active'; }
+    if (threshold === void 0) { threshold = 1; }
+    if (weights === void 0) { weights = 1; }
+    return __awaiter(this, void 0, void 0, function () {
+        var perms, newPerm;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, getAccountPermissions.bind(this)(oreAccountName)];
+                case 1:
+                    perms = _a.sent();
+                    newPerm = newPermission.bind(this)(keys, permName, parent, threshold, weights);
+                    perms.push(newPerm);
+                    return [2 /*return*/, perms];
+            }
+        });
+    });
+}
+function addAuthVerifierPermission(oreAccountName, keys) {
+    return __awaiter(this, void 0, void 0, function () {
+        var perms;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, appendPermission.bind(this)(oreAccountName, keys, 'authverifier')];
+                case 1:
+                    perms = _a.sent();
+                    return [4 /*yield*/, this.eos.transaction(function (tr) {
+                            perms.forEach(function (perm) {
+                                tr.updateauth({
+                                    oreAccountName: oreAccountName,
+                                    permission: perm.perm_name,
+                                    parent: perm.parent,
+                                    auth: perm.required_auth,
+                                }, {
+                                    authorization: oreAccountName + "@owner",
+                                });
+                            });
+                        })];
+                case 2:
+                    _a.sent();
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+function generateAuthVerifierKeys(oreAccountName) {
+    return __awaiter(this, void 0, void 0, function () {
+        var keys;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, Keygen.generateMasterKeys()];
+                case 1:
+                    keys = _a.sent();
+                    return [4 /*yield*/, addAuthVerifierPermission.bind(this)(oreAccountName, [keys.publicKeys.active])];
+                case 2:
+                    _a.sent();
+                    return [2 /*return*/, keys];
+            }
+        });
+    });
+}
+function generateAuthVerifierEncryptedKeys(password, oreAccountName) {
+    return __awaiter(this, void 0, void 0, function () {
+        var authVerifierKeys, encryptedAuthVerifierKeys;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, generateAuthVerifierKeys.bind(this)(oreAccountName)];
+                case 1:
+                    authVerifierKeys = _a.sent();
+                    return [4 /*yield*/, encryptKeys.bind(this)(authVerifierKeys, password)];
+                case 2:
+                    encryptedAuthVerifierKeys = _a.sent();
+                    return [2 /*return*/, encryptedAuthVerifierKeys];
+            }
+        });
+    });
+}
 function createOreAccountWithKeys(activePublicKey, ownerPublicKey, options, confirm) {
     if (options === void 0) { options = {}; }
     if (confirm === void 0) { confirm = false; }
@@ -111,24 +246,10 @@ function createOreAccountWithKeys(activePublicKey, ownerPublicKey, options, conf
         });
     });
 }
-function encryptKeys(keys, password) {
-    return __awaiter(this, void 0, void 0, function () {
-        var encryptedKeys;
-        return __generator(this, function (_a) {
-            encryptedKeys = keys;
-            this.encryptedWalletPassword = this.encrypt(keys.masterPrivateKey, password).toString();
-            encryptedKeys.masterPrivateKey = this.encryptedWalletPassword;
-            encryptedKeys.privateKeys.owner = this.encrypt(keys.privateKeys.owner, password).toString();
-            encryptedKeys.privateKeys.active = this.encrypt(keys.privateKeys.active, password).toString();
-            return [2 /*return*/, encryptedKeys];
-        });
-    });
-}
-/* Public */
-function createOreAccount(password, ownerPublicKey, options) {
+function generateOreAccountAndKeys(ownerPublicKey, options) {
     if (options === void 0) { options = {}; }
     return __awaiter(this, void 0, void 0, function () {
-        var keys, _a, oreAccountName, transaction, encryptedKeys;
+        var keys, _a, oreAccountName, transaction;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0: return [4 /*yield*/, Keygen.generateMasterKeys()];
@@ -137,16 +258,47 @@ function createOreAccount(password, ownerPublicKey, options) {
                     return [4 /*yield*/, createOreAccountWithKeys.bind(this)(keys.publicKeys.active, ownerPublicKey, options)];
                 case 2:
                     _a = _b.sent(), oreAccountName = _a.oreAccountName, transaction = _a.transaction;
+                    return [2 /*return*/, { keys: keys, oreAccountName: oreAccountName, transaction: transaction }];
+            }
+        });
+    });
+}
+function generateOreAccountAndEncryptedKeys(password, ownerPublicKey, options) {
+    if (options === void 0) { options = {}; }
+    return __awaiter(this, void 0, void 0, function () {
+        var _a, keys, oreAccountName, transaction, encryptedKeys;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0: return [4 /*yield*/, generateOreAccountAndKeys.bind(this)(ownerPublicKey, options)];
+                case 1:
+                    _a = _b.sent(), keys = _a.keys, oreAccountName = _a.oreAccountName, transaction = _a.transaction;
                     return [4 /*yield*/, encryptKeys.bind(this)(keys, password)];
-                case 3:
+                case 2:
                     encryptedKeys = _b.sent();
-                    keys.masterPrivateKey = encryptKeys.masterPrivateKey;
-                    keys.privateKeys.owner = encryptedKeys.privateKeys.owner;
-                    keys.privateKeys.active = encryptedKeys.privateKeys.active;
+                    return [2 /*return*/, { encryptedKeys: encryptedKeys, oreAccountName: oreAccountName, transaction: transaction }];
+            }
+        });
+    });
+}
+/* Public */
+function createOreAccount(password, ownerPublicKey, options) {
+    if (options === void 0) { options = {}; }
+    return __awaiter(this, void 0, void 0, function () {
+        var _a, encryptedKeys, oreAccountName, transaction, authVerifierEncryptedKeys;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0: return [4 /*yield*/, generateOreAccountAndEncryptedKeys.bind(this)(password, ownerPublicKey, options)];
+                case 1:
+                    _a = _b.sent(), encryptedKeys = _a.encryptedKeys, oreAccountName = _a.oreAccountName, transaction = _a.transaction;
+                    return [4 /*yield*/, generateAuthVerifierEncryptedKeys.bind(this)(password, oreAccountName)];
+                case 2:
+                    authVerifierEncryptedKeys = _b.sent();
                     return [2 /*return*/, {
+                            authVerifierPublicKey: authVerifierEncryptedKeys.publicKeys.active,
+                            authVerifierPrivateKey: authVerifierEncryptedKeys.privateKeys.active,
                             oreAccountName: oreAccountName,
-                            privateKey: keys.privateKeys.active,
-                            publicKey: keys.publicKeys.active,
+                            privateKey: encryptedKeys.privateKeys.active,
+                            publicKey: encryptedKeys.publicKeys.active,
                             transaction: transaction,
                         }];
             }
