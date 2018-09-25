@@ -28,14 +28,17 @@ describe('account', () => {
 
     test('returns a new account', async () => {
       const account = await orejs.createOreAccount(WALLET_PASSWORD, ORE_OWNER_ACCOUNT_KEY);
-      expect(spy).toHaveBeenCalledWith(expect.any(Function));
+      //expect(spy).toHaveBeenNthCalledWith(2, expect.any(Function));
       expect(account).toEqual({
+        authVerifierPublicKey: expect.any(String),
+        authVerifierPrivateKey: expect.any(String),
         oreAccountName: expect.stringMatching(/[a-z1-6]{12}/),
         privateKey: expect.any(String),
         publicKey: expect.any(String),
         transaction: expect.any(Function),
       });
       expect(ecc.privateToPublic(orejs.decrypt(account.privateKey, WALLET_PASSWORD))).toEqual(account.publicKey);
+      expect(ecc.privateToPublic(orejs.decrypt(account.authVerifierPrivateKey, WALLET_PASSWORD))).toEqual(account.authVerifierPublicKey);
     });
   });
 });
