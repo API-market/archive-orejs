@@ -27,7 +27,7 @@ describe('account', () => {
 
     test('returns a new account', async () => {
       const account = await orejs.createOreAccount(WALLET_PASSWORD, ORE_OWNER_ACCOUNT_KEY);
-      expect(spyTransaction).toHaveBeenCalledWith(expect.any(Function));
+      expect(spyTransaction).toHaveBeenNthCalledWith(2, expect.any(Function));
       expect(spyAccount).toHaveBeenCalledWith(expect.any(String));
       expect(account).toEqual({
         authVerifierPublicKey: expect.any(String),

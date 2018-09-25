@@ -110,7 +110,6 @@ async function appendPermission(oreAccountName, keys, permName, parent = 'active
 
 async function addAuthVerifierPermission(oreAccountName, keys) {
   const perms = await appendPermission.bind(this)(oreAccountName, keys, 'authverifier');
-  /*
   await this.eos.transaction((tr) => {
     perms.forEach((perm) => {
       tr.updateauth({
@@ -123,7 +122,6 @@ async function addAuthVerifierPermission(oreAccountName, keys) {
       });
     });
   });
-  */
 }
 
 async function generateAuthVerifierKeys(oreAccountName) {
