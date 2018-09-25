@@ -29,13 +29,13 @@ async function issueToken(toAccountName, tokenAmount, memo = '', ownerAccountNam
 }
 
 // cleos push action cpu.ore approve '[""]
-async function approveTransfer(fromAccountName, toAccountName, tokenAmount, contractName) {
+async function approveTransfer(fromAccountName, toAccountName, tokenAmount, memo = '', contractName) {
   // Appprove some account to spend on behalf of approving account
   const {
     contract,
     options,
   } = await this.contract(contractName, fromAccountName);
-  await contract.approve(fromAccountName, toAccountName, tokenAmount.toString(), options);
+  await contract.approve(fromAccountName, toAccountName, tokenAmount.toString(), memo, options);
 }
 
 // cleos get currency balance cpu.ore test1.apim CPU
@@ -58,13 +58,13 @@ async function transferToken(fromAccountName, toAccountName, tokenAmount, memo =
 }
 
 // cleos push action cpu.ore transferFrom '["app.apim", "test1.apim", "test2.apim", "10.0000 CPU"]' -p app.apim
-async function transferFrom(approvedAccountName, fromAccountName, toAccountName, tokenAmount, contractName) {
+async function transferFrom(approvedAccountName, fromAccountName, toAccountName, tokenAmount, memo = '', contractName) {
   // Standard token transfer
   const {
     contract,
     options,
   } = await this.contract(contractName, approvedAccountName);
-  await contract.transferFrom(approvedAccountName, fromAccountName, toAccountName, tokenAmount.toString(), options);
+  await contract.transferFrom(approvedAccountName, fromAccountName, toAccountName, tokenAmount.toString(), memo, options);
 }
 
 module.exports = {
