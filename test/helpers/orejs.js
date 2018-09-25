@@ -42,7 +42,7 @@ function mockContract() {
 function mockGetAccount(_orejs = undefined, _account = undefined) {
   const mockupAccount = jest.fn();
 
-  const getAccount = _account || mockAccount();
+  const getAccount = _account || JSON.parse(mockAccount()[0])[0];
 
   mockupAccount.mockReturnValue(getAccount);
   const orejs = _orejs || constructOrejs();

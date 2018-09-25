@@ -66,8 +66,8 @@ async function encryptKeys(keys, password) {
 }
 
 async function getAccountPermissions(oreAccountName) {
-  const account = await this.eos.getAccount(oreAccountName)[0];
-  const { permissions } = JSON.parse(account)[0];
+  const account = await this.eos.getAccount(oreAccountName);
+  const { permissions } = account;
 
   return permissions;
 }
@@ -113,7 +113,7 @@ async function addAuthVerifierPermission(oreAccountName, keys) {
   await this.eos.transaction((tr) => {
     perms.forEach((perm) => {
       tr.updateauth({
-        oreAccountName,
+        account: oreAccountName,
         permission: perm.perm_name,
         parent: perm.parent,
         auth: perm.required_auth,
