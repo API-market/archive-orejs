@@ -1,6 +1,8 @@
 /* global ORE_NETWORK_URI:true */
 /* global ORE_OWNER_ACCOUNT_NAME:true */
 /* global ORE_TESTA_ACCOUNT_NAME:true */
+/* global ORE_TESTB_ACCOUNT_NAME:true */
+
 const {
   expectFetch,
   mock,
@@ -32,6 +34,52 @@ describe('cpu', () => {
       cpuBalance = await orejs.getCpuBalance(ORE_TESTA_ACCOUNT_NAME);
       expectFetch(`${ORE_NETWORK_URI}/v1/chain/get_currency_balance`);
       expect(cpuBalance).toEqual(cpuBalance);
+    });
+  });
+
+  describe('getApprovedCpuBalance', () => {
+    let contract;
+    let cpuBalance;
+    let memo;
+
+    beforeEach(() => {
+      contract = mockContract();
+      cpuBalance = 10;
+      memo = 'approve CPU transfer';
+      fetch.resetMocks();
+    });
+
+    describe('when approved', () => {
+      beforeEach(() => {
+        fetch.mockResponses(mock([`${cpuBalance}.0000 CPU`]), mock({
+          rows: [{
+            to: ORE_TESTA_ACCOUNT_NAME,
+            quantity: '10.0000 CPU',
+          }],
+        }));
+      });
+
+      test('returns', async () => {
+        await orejs.approveCpu(ORE_OWNER_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, cpuBalance, memo);
+        const approveAmount = await orejs.getApprovedCpuBalance(ORE_OWNER_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME);
+        expect(approveAmount).toEqual(`${cpuBalance}.0000 CPU`);
+      });
+    });
+
+    describe('when not approved', () => {
+      beforeEach(() => {
+        fetch.mockResponses(mock({
+          rows: [{
+            to: ORE_TESTB_ACCOUNT_NAME,
+            quantity: '0.0000 CPU',
+          }],
+        }));
+      });
+
+      test('returns', async () => {
+        const approveAmount = await orejs.getApprovedCpuBalance(ORE_OWNER_ACCOUNT_NAME, ORE_TESTB_ACCOUNT_NAME);
+        expect(approveAmount).toEqual('0.0000 CPU');
+      });
     });
   });
 

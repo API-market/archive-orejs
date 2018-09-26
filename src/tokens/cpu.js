@@ -1,6 +1,7 @@
 const CONTRACT_NAME = 'token.ore';
 const ORE_CPU_ACCOUNT_NAME = 'cpu.ore';
 const TOKEN_SYMBOL = 'CPU';
+
 let amount;
 /* Public */
 
@@ -22,6 +23,11 @@ async function approveCpu(fromAccountName, toAccountName, cpuAmount, memo) {
   throw new Error('The account does not have sufficient balance');
 }
 
+async function getApprovedCpuBalance(fromAccountName, toAccountName) {
+  const approvedBalance = await this.getApprovedAmount.bind(this)(fromAccountName, toAccountName, TOKEN_SYMBOL, CONTRACT_NAME);
+  return approvedBalance;
+}
+
 function getCpuBalance(oreAccountName) {
   return this.getBalance(oreAccountName, TOKEN_SYMBOL, CONTRACT_NAME);
 }
@@ -41,6 +47,7 @@ module.exports = {
   approveCpu,
   cpuContract,
   getCpuBalance,
+  getApprovedCpuBalance,
   transferCpu,
   transferCpufrom,
 };

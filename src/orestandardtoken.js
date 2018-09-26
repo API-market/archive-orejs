@@ -1,4 +1,5 @@
 const TABLE_NAME = 'accounts';
+const ALLOWANCE_TABLE = 'allowances';
 
 /* Public */
 function getAmount(tokenAmount, tokenSymbol) {
@@ -38,6 +39,32 @@ async function approveTransfer(fromAccountName, toAccountName, tokenAmount, memo
   await contract.approve(fromAccountName, toAccountName, tokenAmount.toString(), memo, options);
 }
 
+// cleos get table token.ore test1.apim allowances
+async function getApprovedAccount(accountName, contractName) {
+  // Returns all the accounts approved by the approving account
+  const approvedAccounts = await this.eos.getTableRows({
+    code: contractName,
+    json: true,
+    scope: accountName,
+    table: ALLOWANCE_TABLE,
+    limit: -1,
+  });
+  return approvedAccounts.rows;
+}
+
+async function getApprovedAmount(fromAccount, toAccount, tokenSymbol, contractName) {
+  // Returns the amount approved by the fromAccount for toAccount
+  let approvedAmount = 0;
+  const approvedAccounts = await this.getApprovedAccount.bind(this)(fromAccount, contractName);
+  approvedAccounts.filter((obj) => {
+    if (obj.to === toAccount) {
+      approvedAmount = obj.quantity;
+    }
+    return approvedAmount;
+  });
+  return this.getAmount(approvedAmount, tokenSymbol);
+}
+
 // cleos get currency balance cpu.ore test1.apim CPU
 async function getBalance(accountName, tokenSymbol, contractName) {
   const balance = await this.eos.getCurrencyBalance(contractName, accountName, tokenSymbol);
@@ -70,6 +97,8 @@ async function transferFrom(approvedAccountName, fromAccountName, toAccountName,
 module.exports = {
   approveTransfer,
   getAmount,
+  getApprovedAccount,
+  getApprovedAmount,
   getBalance,
   issueToken,
   transferToken,

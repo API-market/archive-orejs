@@ -34,6 +34,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 var TABLE_NAME = 'accounts';
+var ALLOWANCE_TABLE = 'allowances';
 /* Public */
 function getAmount(tokenAmount, tokenSymbol) {
     try {
@@ -84,6 +85,47 @@ function approveTransfer(fromAccountName, toAccountName, tokenAmount, memo, cont
                 case 2:
                     _b.sent();
                     return [2 /*return*/];
+            }
+        });
+    });
+}
+// cleos get table token.ore test1.apim allowances
+function getApprovedAccount(accountName, contractName) {
+    return __awaiter(this, void 0, void 0, function () {
+        var approvedAccounts;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, this.eos.getTableRows({
+                        code: contractName,
+                        json: true,
+                        scope: accountName,
+                        table: ALLOWANCE_TABLE,
+                        limit: -1,
+                    })];
+                case 1:
+                    approvedAccounts = _a.sent();
+                    return [2 /*return*/, approvedAccounts.rows];
+            }
+        });
+    });
+}
+function getApprovedAmount(fromAccount, toAccount, tokenSymbol, contractName) {
+    return __awaiter(this, void 0, void 0, function () {
+        var approvedAmount, approvedAccounts;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    approvedAmount = 0;
+                    return [4 /*yield*/, this.getApprovedAccount.bind(this)(fromAccount, contractName)];
+                case 1:
+                    approvedAccounts = _a.sent();
+                    approvedAccounts.filter(function (obj) {
+                        if (obj.to === toAccount) {
+                            approvedAmount = obj.quantity;
+                        }
+                        return approvedAmount;
+                    });
+                    return [2 /*return*/, this.getAmount(approvedAmount, tokenSymbol)];
             }
         });
     });
@@ -144,6 +186,8 @@ function transferFrom(approvedAccountName, fromAccountName, toAccountName, token
 module.exports = {
     approveTransfer: approveTransfer,
     getAmount: getAmount,
+    getApprovedAccount: getApprovedAccount,
+    getApprovedAmount: getApprovedAmount,
     getBalance: getBalance,
     issueToken: issueToken,
     transferToken: transferToken,
