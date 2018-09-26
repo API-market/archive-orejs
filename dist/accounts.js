@@ -103,10 +103,10 @@ function getAccountPermissions(oreAccountName) {
         var account, permissions;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, this.eos.getAccount(oreAccountName)[0]];
+                case 0: return [4 /*yield*/, this.eos.getAccount(oreAccountName)];
                 case 1:
                     account = _a.sent();
-                    permissions = JSON.parse(account)[0].permissions;
+                    permissions = account.permissions;
                     return [2 /*return*/, permissions];
             }
         });
@@ -163,22 +163,32 @@ function appendPermission(oreAccountName, keys, permName, parent, threshold, wei
 }
 function addAuthVerifierPermission(oreAccountName, keys) {
     return __awaiter(this, void 0, void 0, function () {
-        var perms;
+        var permName, perms;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, appendPermission.bind(this)(oreAccountName, keys, 'authverifier')];
+                case 0:
+                    permName = 'authverifier';
+                    return [4 /*yield*/, appendPermission.bind(this)(oreAccountName, keys, permName)];
                 case 1:
                     perms = _a.sent();
                     return [4 /*yield*/, this.eos.transaction(function (tr) {
                             perms.forEach(function (perm) {
                                 tr.updateauth({
-                                    oreAccountName: oreAccountName,
+                                    account: oreAccountName,
                                     permission: perm.perm_name,
                                     parent: perm.parent,
                                     auth: perm.required_auth,
                                 }, {
                                     authorization: oreAccountName + "@owner",
                                 });
+                            });
+                            tr.linkauth({
+                                account: oreAccountName,
+                                code: 'token.ore',
+                                type: 'approve',
+                                requirement: permName,
+                            }, {
+                                authorization: oreAccountName + "@owner",
                             });
                         })];
                 case 2:

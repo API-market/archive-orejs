@@ -46,7 +46,8 @@ function issueCpu(toAccountName, cpuAmount, memo) {
     amount = this.getAmount(cpuAmount, TOKEN_SYMBOL);
     return this.issueToken(toAccountName, amount, memo, ORE_CPU_ACCOUNT_NAME, CONTRACT_NAME);
 }
-function approveCpu(fromAccountName, toAccountName, cpuAmount) {
+function approveCpu(fromAccountName, toAccountName, cpuAmount, permission) {
+    if (permission === void 0) { permission = 'active'; }
     return __awaiter(this, void 0, void 0, function () {
         var fromAccountBalance;
         return __generator(this, function (_a) {
@@ -57,7 +58,7 @@ function approveCpu(fromAccountName, toAccountName, cpuAmount) {
                 case 1:
                     fromAccountBalance = _a.sent();
                     if (fromAccountBalance > 0) {
-                        return [2 /*return*/, this.approveTransfer(fromAccountName, toAccountName, amount, CONTRACT_NAME)];
+                        return [2 /*return*/, this.approveTransfer(fromAccountName, toAccountName, amount, CONTRACT_NAME, permission)];
                     }
                     throw new Error('The account does not have sufficient balance');
             }

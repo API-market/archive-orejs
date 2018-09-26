@@ -71,12 +71,13 @@ function issueToken(toAccountName, tokenAmount, memo, ownerAccountName, contract
     });
 }
 // cleos push action cpu.ore approve '[""]
-function approveTransfer(fromAccountName, toAccountName, tokenAmount, contractName) {
+function approveTransfer(fromAccountName, toAccountName, tokenAmount, contractName, permission) {
+    if (permission === void 0) { permission = 'active'; }
     return __awaiter(this, void 0, void 0, function () {
         var _a, contract, options;
         return __generator(this, function (_b) {
             switch (_b.label) {
-                case 0: return [4 /*yield*/, this.contract(contractName, fromAccountName)];
+                case 0: return [4 /*yield*/, this.contract(contractName, fromAccountName, permission)];
                 case 1:
                     _a = _b.sent(), contract = _a.contract, options = _a.options;
                     return [4 /*yield*/, contract.approve(fromAccountName, toAccountName, tokenAmount.toString(), options)];
