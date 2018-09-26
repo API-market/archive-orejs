@@ -54,7 +54,7 @@ function getAmount(tokenAmount, tokenSymbol) {
         return e;
     }
 }
-function issueToken(toAccountName, tokenAmount, memo, ownerAccountName, contractName) {
+function issueToken(toAccountName, tokenAmount, ownerAccountName, contractName, memo) {
     if (memo === void 0) { memo = ''; }
     return __awaiter(this, void 0, void 0, function () {
         var _a, contract, options;
@@ -72,7 +72,7 @@ function issueToken(toAccountName, tokenAmount, memo, ownerAccountName, contract
     });
 }
 // cleos push action cpu.ore approve '[""]
-function approveTransfer(fromAccountName, toAccountName, tokenAmount, memo, contractName) {
+function approveTransfer(fromAccountName, toAccountName, tokenAmount, contractName, memo) {
     if (memo === void 0) { memo = ''; }
     return __awaiter(this, void 0, void 0, function () {
         var _a, contract, options;
@@ -148,7 +148,7 @@ function getBalance(accountName, tokenSymbol, contractName) {
     });
 }
 // cleos push action cpu.ore transfer '["test1.apim", "test2.apim", "10.0000 CPU", "memo"]' -p test1.apim
-function transferToken(fromAccountName, toAccountName, tokenAmount, memo, contractName) {
+function transferToken(fromAccountName, toAccountName, tokenAmount, contractName, memo) {
     if (memo === void 0) { memo = ''; }
     return __awaiter(this, void 0, void 0, function () {
         var _a, contract, options;
@@ -166,7 +166,7 @@ function transferToken(fromAccountName, toAccountName, tokenAmount, memo, contra
     });
 }
 // cleos push action cpu.ore transferFrom '["app.apim", "test1.apim", "test2.apim", "10.0000 CPU"]' -p app.apim
-function transferFrom(approvedAccountName, fromAccountName, toAccountName, tokenAmount, memo, contractName) {
+function transferFrom(approvedAccountName, fromAccountName, toAccountName, tokenAmount, contractName, memo) {
     if (memo === void 0) { memo = ''; }
     return __awaiter(this, void 0, void 0, function () {
         var _a, contract, options;

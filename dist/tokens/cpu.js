@@ -44,7 +44,7 @@ function cpuContract(accountName) {
 function issueCpu(toAccountName, cpuAmount, memo) {
     if (memo === void 0) { memo = ''; }
     amount = this.getAmount(cpuAmount, TOKEN_SYMBOL);
-    return this.issueToken(toAccountName, amount, memo, ORE_CPU_ACCOUNT_NAME, CONTRACT_NAME);
+    return this.issueToken(toAccountName, amount, ORE_CPU_ACCOUNT_NAME, CONTRACT_NAME, memo);
 }
 function approveCpu(fromAccountName, toAccountName, cpuAmount, memo) {
     return __awaiter(this, void 0, void 0, function () {
@@ -57,7 +57,7 @@ function approveCpu(fromAccountName, toAccountName, cpuAmount, memo) {
                 case 1:
                     fromAccountBalance = _a.sent();
                     if (fromAccountBalance > 0) {
-                        return [2 /*return*/, this.approveTransfer(fromAccountName, toAccountName, amount, memo, CONTRACT_NAME)];
+                        return [2 /*return*/, this.approveTransfer(fromAccountName, toAccountName, amount, CONTRACT_NAME, memo)];
                     }
                     throw new Error('The account does not have sufficient balance');
             }
@@ -83,11 +83,11 @@ function getCpuBalance(oreAccountName) {
 function transferCpu(fromAccountName, toAccountName, cpuAmount, memo) {
     if (memo === void 0) { memo = ''; }
     amount = this.getAmount(cpuAmount, TOKEN_SYMBOL);
-    return this.transferToken(fromAccountName, toAccountName, amount, memo, CONTRACT_NAME);
+    return this.transferToken(fromAccountName, toAccountName, amount, CONTRACT_NAME, memo);
 }
 function transferCpufrom(approvedAccountName, fromAccountName, toAccountName, cpuAmount, memo) {
     amount = this.getAmount(cpuAmount, TOKEN_SYMBOL);
-    return this.transferFrom(approvedAccountName, fromAccountName, toAccountName, amount, memo, CONTRACT_NAME);
+    return this.transferFrom(approvedAccountName, fromAccountName, toAccountName, amount, CONTRACT_NAME, memo);
 }
 module.exports = {
     issueCpu: issueCpu,

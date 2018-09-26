@@ -21,7 +21,7 @@ function getAmount(tokenAmount, tokenSymbol) {
   }
 }
 
-async function issueToken(toAccountName, tokenAmount, memo = '', ownerAccountName, contractName) {
+async function issueToken(toAccountName, tokenAmount, ownerAccountName, contractName, memo = '') {
   const {
     contract,
     options,
@@ -30,7 +30,7 @@ async function issueToken(toAccountName, tokenAmount, memo = '', ownerAccountNam
 }
 
 // cleos push action cpu.ore approve '[""]
-async function approveTransfer(fromAccountName, toAccountName, tokenAmount, memo = '', contractName) {
+async function approveTransfer(fromAccountName, toAccountName, tokenAmount, contractName, memo = '') {
   // Appprove some account to spend on behalf of approving account
   const {
     contract,
@@ -75,7 +75,7 @@ async function getBalance(accountName, tokenSymbol, contractName) {
 }
 
 // cleos push action cpu.ore transfer '["test1.apim", "test2.apim", "10.0000 CPU", "memo"]' -p test1.apim
-async function transferToken(fromAccountName, toAccountName, tokenAmount, memo = '', contractName) {
+async function transferToken(fromAccountName, toAccountName, tokenAmount, contractName, memo = '') {
   // Standard token transfer
   const {
     contract,
@@ -85,7 +85,7 @@ async function transferToken(fromAccountName, toAccountName, tokenAmount, memo =
 }
 
 // cleos push action cpu.ore transferFrom '["app.apim", "test1.apim", "test2.apim", "10.0000 CPU"]' -p app.apim
-async function transferFrom(approvedAccountName, fromAccountName, toAccountName, tokenAmount, memo = '', contractName) {
+async function transferFrom(approvedAccountName, fromAccountName, toAccountName, tokenAmount, contractName, memo = '') {
   // Standard token transfer
   const {
     contract,
