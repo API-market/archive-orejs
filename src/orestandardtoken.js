@@ -29,12 +29,12 @@ async function issueToken(toAccountName, tokenAmount, memo = '', ownerAccountNam
 }
 
 // cleos push action cpu.ore approve '[""]
-async function approveTransfer(fromAccountName, toAccountName, tokenAmount, contractName) {
+async function approveTransfer(fromAccountName, toAccountName, tokenAmount, contractName, permission = 'active') {
   // Appprove some account to spend on behalf of approving account
   const {
     contract,
     options,
-  } = await this.contract(contractName, fromAccountName);
+  } = await this.contract(contractName, fromAccountName, permission);
   await contract.approve(fromAccountName, toAccountName, tokenAmount.toString(), options);
 }
 

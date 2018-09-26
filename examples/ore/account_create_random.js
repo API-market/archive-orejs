@@ -142,9 +142,13 @@ function delay(ms = 1000) {
   logInstrumentCount();
 
   const instrument = instrumentFor(account.oreAccountName);
+
   await delay(3000);
+
   const offerTx = await orejs.createOfferInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, instrument);
+
   await delay(3000);
+
   const [offer] = await orejs.findInstruments(process.env.ORE_OFFER_ISSUER);
   console.log('Offer:', offer, offer.instrument.rights);
 
@@ -153,16 +157,26 @@ function delay(ms = 1000) {
   // /////////////////////
   // License an API... //
   // /////////////////////
-  await connectAs(process.env.ORE_OWNER_ACCOUNT_NAME, process.env.ORE_OWNER_ACCOUNT_OWNER_KEY);
-  // // TODO Create a Voucher for the recently published Offer (ie, change 0 to offer.id)
 
+  // // TODO Create a Voucher for the recently published Offer (ie, change 0 to offer.id)
   const voucherTx = await orejs.createVoucherInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, offer.id, 0, '', false);
+
   await delay(3000);
 
   const [voucher] = await orejs.findInstruments(account.oreAccountName, true, 'apimarket.apiVoucher');
   console.log('Voucher:', voucher, voucher.instrument.rights);
 
   logInstrumentCount();
+
+  // //////////////////
+  // Call the API... //
+  // //////////////////
+
+  await connectAs(account.oreAccountName, crypto.decrypt(account.authVerifierPrivateKey, 'password'));
+
+  const actions = await orejs.eos.getActions(account.oreAccountName);
+  const [right] = voucher.instrument.rights;
+  await orejs.approveCpu(account.oreAccountName, 'ore.verifier', right.price_in_cpu, 'authverifier');
 
   // //////////////////////
   // Get Usage Stats... //

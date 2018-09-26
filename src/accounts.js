@@ -109,7 +109,8 @@ async function appendPermission(oreAccountName, keys, permName, parent = 'active
 }
 
 async function addAuthVerifierPermission(oreAccountName, keys) {
-  const perms = await appendPermission.bind(this)(oreAccountName, keys, 'authverifier');
+  const permName = 'authverifier';
+  const perms = await appendPermission.bind(this)(oreAccountName, keys, permName);
   await this.eos.transaction((tr) => {
     perms.forEach((perm) => {
       tr.updateauth({
@@ -120,6 +121,15 @@ async function addAuthVerifierPermission(oreAccountName, keys) {
       }, {
         authorization: `${oreAccountName}@owner`,
       });
+    });
+
+    tr.linkauth({
+      account: oreAccountName,
+      code: 'token.ore',
+      type: 'approve',
+      requirement: permName,
+    }, {
+      authorization: `${oreAccountName}@owner`,
     });
   });
 }

@@ -16,6 +16,12 @@ function hasTransaction(block, transactionId) {
   return false;
 }
 
+function contractOptions(accountName, permission = 'active') {
+  return {
+    authorization: `${accountName}@${permission}`,
+  };
+}
+
 /* Public */
 
 // eosjs only confirms that transactions have been accepted
@@ -49,10 +55,8 @@ async function confirmTransaction(func, blocksToCheck = 10, checkInterval = 200)
   });
 }
 
-async function contract(contractName, accountName) {
-  const options = {
-    authorization: `${accountName}@active`,
-  };
+async function contract(contractName, accountName, permission = 'active') {
+  const options = contractOptions(accountName, permission);
   const contract = await this.eos.contract(contractName, options);
   return {
     contract,

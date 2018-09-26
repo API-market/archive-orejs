@@ -13,11 +13,11 @@ function issueCpu(toAccountName, cpuAmount, memo = '') {
   return this.issueToken(toAccountName, amount, memo, ORE_CPU_ACCOUNT_NAME, CONTRACT_NAME);
 }
 
-async function approveCpu(fromAccountName, toAccountName, cpuAmount) {
+async function approveCpu(fromAccountName, toAccountName, cpuAmount, permission = 'active') {
   amount = this.getAmount(cpuAmount, TOKEN_SYMBOL);
   const fromAccountBalance = await this.getCpuBalance(fromAccountName, TOKEN_SYMBOL, CONTRACT_NAME);
   if (fromAccountBalance > 0) {
-    return this.approveTransfer(fromAccountName, toAccountName, amount, CONTRACT_NAME);
+    return this.approveTransfer(fromAccountName, toAccountName, amount, CONTRACT_NAME, permission);
   }
   throw new Error('The account does not have sufficient balance');
 }
