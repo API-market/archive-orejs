@@ -7,7 +7,7 @@ var crypto = require('./modules/crypto');
 var ore = require('./tokens/ore');
 var oreStandardToken = require('./orestandardtoken');
 var rightsRegistry = require('./rightsregistry');
-var token = require('./token');
+var usageLog = require('./usagelog');
 var Orejs = /** @class */ (function () {
     function Orejs(config) {
         if (config === void 0) { config = {}; }
@@ -21,7 +21,7 @@ var Orejs = /** @class */ (function () {
         Object.assign(this, ore);
         Object.assign(this, oreStandardToken);
         Object.assign(this, rightsRegistry);
-        Object.assign(this, token);
+        Object.assign(this, usageLog);
     }
     Orejs.prototype.constructEos = function (config) {
         this.config = config;

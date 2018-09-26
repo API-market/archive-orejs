@@ -3,9 +3,15 @@
 /* global ORE_NETWORK_URI:true */
 
 const {
-  expectFetch, mock, mockInstrument, mockInstruments,
+  expectFetch,
+  mock,
+  mockInstrument,
+  mockInstruments,
 } = require('./helpers/fetch');
-const { constructOrejs, mockContract } = require('./helpers/orejs');
+const {
+  constructOrejs,
+  mockContract
+} = require('./helpers/orejs');
 
 describe('instrument', () => {
   let orejs;
@@ -25,7 +31,9 @@ describe('instrument', () => {
       offerId = 1;
       offerTemplate = '';
       overrideVoucherId = 0;
-      options = { authorization: `${ORE_OWNER_ACCOUNT_NAME}@owner` };
+      options = {
+        authorization: `${ORE_OWNER_ACCOUNT_NAME}@owner`
+      };
       contract = mockContract();
     });
 
@@ -41,21 +49,38 @@ describe('instrument', () => {
     let additionalRighted;
     let expired;
     let uncategorized;
-    let unowned;
 
     beforeEach(() => {
-      active = { owner: ORE_TESTA_ACCOUNT_NAME };
-      expired = { owner: ORE_TESTA_ACCOUNT_NAME, instrument: { end_time: Math.floor(Date.now() / 1000) - 1 } };
-      uncategorized = { owner: ORE_TESTA_ACCOUNT_NAME, instrument: { instrument_class: 'apimarket.uncategorized' } };
-      additionalRighted = { owner: ORE_TESTA_ACCOUNT_NAME, instrument: { instrument_class: 'apimarket.uncategorized', rights: [{ right_name: 'apimarket.nobody.licenseApi' }] } };
-      unowned = { owner: ORE_OWNER_ACCOUNT_NAME };
+      active = {
+        owner: ORE_TESTA_ACCOUNT_NAME,
+      };
+      expired = {
+        owner: ORE_TESTA_ACCOUNT_NAME,
+        instrument: {
+          end_time: Math.floor(Date.now() / 1000) - 1
+        }
+      };
+      uncategorized = {
+        owner: ORE_TESTA_ACCOUNT_NAME,
+        instrument: {
+          instrument_class: 'apimarket.uncategorized'
+        }
+      };
+      additionalRighted = {
+        owner: ORE_TESTA_ACCOUNT_NAME,
+        instrument: {
+          instrument_class: 'apimarket.uncategorized',
+          rights: [{
+            right_name: 'apimarket.nobody.licenseApi'
+          }]
+        }
+      };
 
       instrumentMocks = mockInstruments([
         active,
         additionalRighted,
         expired,
         uncategorized,
-        unowned,
       ]);
 
       fetch.resetMocks();
@@ -87,52 +112,6 @@ describe('instrument', () => {
     });
   });
 
-  describe('getInstruments', () => {
-    let instrumentMocks;
-    let active;
-    let additionalRighted;
-    let expired;
-    let uncategorized;
-    let unowned;
-
-    beforeEach(() => {
-      active = { owner: ORE_TESTA_ACCOUNT_NAME };
-      expired = { owner: ORE_TESTA_ACCOUNT_NAME, instrument: { end_time: Math.floor(Date.now() / 1000) - 1 } };
-      uncategorized = { owner: ORE_TESTA_ACCOUNT_NAME, minted_by: ORE_TESTA_ACCOUNT_NAME, instrument: { instrument_class: 'apimarket.uncategorized' } };
-      additionalRighted = { owner: ORE_TESTA_ACCOUNT_NAME, instrument: { instrument_class: 'apimarket.uncategorized', rights: [{ right_name: 'apimarket.nobody.licenseApi' }] } };
-      unowned = { owner: ORE_OWNER_ACCOUNT_NAME };
-
-      instrumentMocks = mockInstruments([
-        active,
-        additionalRighted,
-        expired,
-        uncategorized,
-        unowned,
-      ]);
-
-      fetch.resetMocks();
-      fetch.mockResponses(instrumentMocks);
-    });
-
-    test('returns all instruments', async () => {
-      const instruments = await orejs.getInstruments(ORE_TESTA_ACCOUNT_NAME, false);
-      expectFetch(`${ORE_NETWORK_URI}/v1/chain/get_table_rows`);
-      expect(instruments).toEqual([JSON.parse(instrumentMocks[0]).rows[0], JSON.parse(instrumentMocks[0]).rows[1], JSON.parse(instrumentMocks[0]).rows[2], JSON.parse(instrumentMocks[0]).rows[3]]);
-    });
-
-    test('filters by category', async () => {
-      const instruments = await orejs.getInstruments(ORE_TESTA_ACCOUNT_NAME, 'apimarket.uncategorized');
-      expectFetch(`${ORE_NETWORK_URI}/v1/chain/get_table_rows`);
-      expect(instruments).toEqual([JSON.parse(instrumentMocks[0]).rows[1], JSON.parse(instrumentMocks[0]).rows[3]]);
-    });
-
-    test('filters by filters', async () => {
-      const instruments = await orejs.getInstruments(ORE_TESTA_ACCOUNT_NAME, 'apimarket.uncategorized', [{ minted_by: ORE_TESTA_ACCOUNT_NAME }]);
-      expectFetch(`${ORE_NETWORK_URI}/v1/chain/get_table_rows`);
-      expect(instruments).toEqual([JSON.parse(instrumentMocks[0]).rows[3]]);
-    });
-  });
-
   describe('getRight', () => {
     let instrument;
     let rightName;
@@ -144,8 +123,20 @@ describe('instrument', () => {
 
     describe('when multiple rights exist', async () => {
       beforeEach(() => {
-        rights = [{ right_name: 'apimarket.left.licenseApi' }, { right_name: rightName }, { right_name: 'apimarket.right.licenseApi' }];
-        instrument = mockInstrument({ owner: ORE_TESTA_ACCOUNT_NAME, instrument: { instrument_class: 'apimarket.uncategorized', rights } });
+        rights = [{
+          right_name: 'apimarket.left.licenseApi'
+        }, {
+          right_name: rightName,
+        }, {
+          right_name: 'apimarket.right.licenseApi'
+        }];
+        instrument = mockInstrument({
+          owner: ORE_TESTA_ACCOUNT_NAME,
+          instrument: {
+            instrument_class: 'apimarket.uncategorized',
+            rights,
+          }
+        });
       });
 
       test('returns the correct right', async () => {
@@ -156,8 +147,18 @@ describe('instrument', () => {
 
     describe('when the right does not exist', async () => {
       beforeEach(() => {
-        rights = [{ right_name: 'apimarket.left.licenseApi' }, { right_name: 'apimarket.right.licenseApi' }];
-        instrument = mockInstrument({ owner: ORE_TESTA_ACCOUNT_NAME, instrument: { instrument_class: 'apimarket.uncategorized', rights } });
+        rights = [{
+          right_name: 'apimarket.left.licenseApi'
+        }, {
+          right_name: 'apimarket.right.licenseApi'
+        }];
+        instrument = mockInstrument({
+          owner: ORE_TESTA_ACCOUNT_NAME,
+          instrument: {
+            instrument_class: 'apimarket.uncategorized',
+            rights
+          }
+        });
       });
 
       test('returns nothing', async () => {

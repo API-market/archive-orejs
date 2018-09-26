@@ -1,6 +1,6 @@
 const INSTR_CONTRACT_NAME = 'instr.ore';
 const INSTR_USAGE_CONTRACT_NAME = 'usagelog.ore';
-const INSTR_TABLE_NAME = 'tokens';
+const INSTR_TABLE_NAME = 'tokensv2';
 const LOG_COUNT_TABLE_NAME = 'counts';
 
 /* Private */
@@ -11,11 +11,8 @@ async function getInstrumentsByRight(instrumentList, rightName) {
   return instruments;
 }
 
-async function getInstrumentByOwner(instrumentList, owner) {
-  // Get all the instruments with a particular owner
-  let instruments = [];
-  instruments = instrumentList.filter(instrument => instrument.owner === owner);
-
+async function getInstrumentByOwner(owner) {
+  const instruments = await this.findInstruments(owner);
   return instruments;
 }
 
@@ -51,18 +48,18 @@ async function getRightStats(rightName, owner) {
   let instruments;
   let rightProperties;
 
-  const instrumentList = await this.getAllTableRows({
-    code: INSTR_CONTRACT_NAME,
-    scope: INSTR_CONTRACT_NAME,
-    table: INSTR_TABLE_NAME,
-    limit: -1,
-  });
-
-  instruments = await getInstrumentsByRight.bind(this)(instrumentList, rightName);
-
   if (owner) {
-    instruments = await getInstrumentByOwner(instruments, owner);
+    instruments = await getInstrumentByOwner.bind(this)(owner);
+  } else {
+    instruments = await this.getAllTableRows({
+      code: INSTR_CONTRACT_NAME,
+      scope: INSTR_CONTRACT_NAME,
+      table: INSTR_TABLE_NAME,
+      limit: -1,
+    });
   }
+
+  instruments = await getInstrumentsByRight.bind(this)(instruments, rightName);
 
   // Get the total cpu calls and cpu count across all the instruments
   const results = instruments.map(async (instrumentObject) => {
@@ -81,4 +78,5 @@ async function getRightStats(rightName, owner) {
 module.exports = {
   getApiCallStats,
   getRightStats,
+  getInstrumentsByRight,
 };

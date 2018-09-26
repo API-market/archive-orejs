@@ -3,7 +3,7 @@
 // Check the resource usage of the account
 
 // Usage: $ node ore/account_create_random
-
+const BigNumber = require('bignumber.js');
 const ecc = require('eosjs-ecc');
 const {
   crypto,
@@ -72,11 +72,8 @@ function instrumentFor(accountName, version = Math.random().toString()) {
   };
 }
 
-async function logInstrumentCount() {
-  const instruments = await orejs.getAllTableRows({
-    code: 'instr.ore',
-    table: 'tokens',
-  });
+async function logInstrumentCount(tableKey) {
+  const instruments = await orejs.getAllInstruments();
 
   console.log('Instruments Count:', instruments.length);
 }

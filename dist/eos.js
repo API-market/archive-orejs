@@ -42,51 +42,10 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 var BigNumber = require('bignumber.js');
-var ecc = require('eosjs-ecc');
 /* Private */
 // Transform account names from base32 to their numeric representations
 function tableKey(oreAccountName) {
     return new BigNumber(this.eos.format.encodeName(oreAccountName, false));
-}
-function filterRows(rows, filter) {
-    if (!filter)
-        return rows;
-    var result = [];
-    function fitsFilter(filter, row) {
-        var fits = true;
-        if (typeof filter === 'function') {
-            fits = filter(row);
-        }
-        else if (typeof filter === 'object') {
-            var filterKeys = Object.keys(filter);
-            filterKeys.forEach(function (key) {
-                if (filter[key] !== row[key]) {
-                    fits = false;
-                }
-            });
-        }
-        else {
-            throw new Error('filter must be a function or an object');
-        }
-        return fits;
-    }
-    rows.forEach(function (row) {
-        var fitFilter = true;
-        if (filter instanceof Array) {
-            filter.forEach(function (f) {
-                if (f) {
-                    fitFilter = fitFilter && fitsFilter(f, row);
-                }
-            });
-        }
-        else {
-            fitFilter = fitsFilter(filter, row);
-        }
-        if (fitFilter) {
-            result.push(row);
-        }
-    });
-    return result;
 }
 function hasTransaction(block, transactionId) {
     if (block.transactions) {
@@ -210,20 +169,6 @@ function getAllTableRows(params, key_field, json) {
         });
     });
 }
-function getAllTableRowsFiltered(params, filter, key_field) {
-    if (key_field === void 0) { key_field = 'id'; }
-    return __awaiter(this, void 0, void 0, function () {
-        var result;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, getAllTableRows.bind(this)(params, key_field)];
-                case 1:
-                    result = _a.sent();
-                    return [2 /*return*/, filterRows(result, filter)];
-            }
-        });
-    });
-}
 function getLatestBlock() {
     return __awaiter(this, void 0, void 0, function () {
         var info, block;
@@ -240,22 +185,13 @@ function getLatestBlock() {
         });
     });
 }
-function signVoucher(apiVoucherId) {
-    return __awaiter(this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            return [2 /*return*/, ecc.sign(apiVoucherId.toString(), this.config.keyProvider[0])];
-        });
-    });
-}
 module.exports = {
     confirmTransaction: confirmTransaction,
     contract: contract,
     findOne: findOne,
     getAllTableRows: getAllTableRows,
-    getAllTableRowsFiltered: getAllTableRowsFiltered,
     getLatestBlock: getLatestBlock,
     hasTransaction: hasTransaction,
-    signVoucher: signVoucher,
     tableKey: tableKey,
 };
 //# sourceMappingURL=eos.js.map

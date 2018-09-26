@@ -35,7 +35,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 var TABLE_NAME = 'accounts';
 /* Public */
-function getTokenAmount(tokenAmount, tokenSymbol) {
+function getAmount(tokenAmount, tokenSymbol) {
     try {
         if (typeof tokenAmount === 'number') {
             var amount = parseFloat(tokenAmount).toFixed(4);
@@ -53,7 +53,7 @@ function getTokenAmount(tokenAmount, tokenSymbol) {
         return e;
     }
 }
-function issueStandardToken(toAccountName, tokenAmount, memo, ownerAccountName, contractName) {
+function issueToken(toAccountName, tokenAmount, memo, ownerAccountName, contractName) {
     if (memo === void 0) { memo = ''; }
     return __awaiter(this, void 0, void 0, function () {
         var _a, contract, options;
@@ -71,7 +71,7 @@ function issueStandardToken(toAccountName, tokenAmount, memo, ownerAccountName, 
     });
 }
 // cleos push action cpu.ore approve '[""]
-function approveStandardTokenTransfer(fromAccountName, toAccountName, tokenAmount, contractName) {
+function approveTransfer(fromAccountName, toAccountName, tokenAmount, contractName) {
     return __awaiter(this, void 0, void 0, function () {
         var _a, contract, options;
         return __generator(this, function (_b) {
@@ -88,7 +88,7 @@ function approveStandardTokenTransfer(fromAccountName, toAccountName, tokenAmoun
     });
 }
 // cleos get currency balance cpu.ore test1.apim CPU
-function getStandardTokenBalance(accountName, tokenSymbol, contractName) {
+function getBalance(accountName, tokenSymbol, contractName) {
     return __awaiter(this, void 0, void 0, function () {
         var balance;
         return __generator(this, function (_a) {
@@ -105,7 +105,7 @@ function getStandardTokenBalance(accountName, tokenSymbol, contractName) {
     });
 }
 // cleos push action cpu.ore transfer '["test1.apim", "test2.apim", "10.0000 CPU", "memo"]' -p test1.apim
-function transferStandardToken(fromAccountName, toAccountName, tokenAmount, memo, contractName) {
+function transferToken(fromAccountName, toAccountName, tokenAmount, memo, contractName) {
     if (memo === void 0) { memo = ''; }
     return __awaiter(this, void 0, void 0, function () {
         var _a, contract, options;
@@ -122,8 +122,8 @@ function transferStandardToken(fromAccountName, toAccountName, tokenAmount, memo
         });
     });
 }
-// cleos push action cpu.ore transferfrom '["app.apim", "test1.apim", "test2.apim", "10.0000 CPU"]' -p app.apim
-function transferfrom(approvedAccountName, fromAccountName, toAccountName, tokenAmount, contractName) {
+// cleos push action cpu.ore transferFrom '["app.apim", "test1.apim", "test2.apim", "10.0000 CPU"]' -p app.apim
+function transferFrom(approvedAccountName, fromAccountName, toAccountName, tokenAmount, contractName) {
     return __awaiter(this, void 0, void 0, function () {
         var _a, contract, options;
         return __generator(this, function (_b) {
@@ -131,7 +131,7 @@ function transferfrom(approvedAccountName, fromAccountName, toAccountName, token
                 case 0: return [4 /*yield*/, this.contract(contractName, approvedAccountName)];
                 case 1:
                     _a = _b.sent(), contract = _a.contract, options = _a.options;
-                    return [4 /*yield*/, contract.transferfrom(approvedAccountName, fromAccountName, toAccountName, tokenAmount.toString(), options)];
+                    return [4 /*yield*/, contract.transferFrom(approvedAccountName, fromAccountName, toAccountName, tokenAmount.toString(), options)];
                 case 2:
                     _b.sent();
                     return [2 /*return*/];
@@ -140,11 +140,11 @@ function transferfrom(approvedAccountName, fromAccountName, toAccountName, token
     });
 }
 module.exports = {
-    approveStandardTokenTransfer: approveStandardTokenTransfer,
-    getTokenAmount: getTokenAmount,
-    getStandardTokenBalance: getStandardTokenBalance,
-    issueStandardToken: issueStandardToken,
-    transferStandardToken: transferStandardToken,
-    transferfrom: transferfrom,
+    approveTransfer: approveTransfer,
+    getAmount: getAmount,
+    getBalance: getBalance,
+    issueToken: issueToken,
+    transferToken: transferToken,
+    transferFrom: transferFrom,
 };
 //# sourceMappingURL=orestandardtoken.js.map

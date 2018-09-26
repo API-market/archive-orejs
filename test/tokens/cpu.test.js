@@ -42,6 +42,8 @@ describe('cpu', () => {
     beforeEach(() => {
       contract = mockContract();
       cpuBalance = 10;
+      fetch.resetMocks();
+      fetch.mockResponses(mock([`${cpuBalance}.0000 CPU`]));
     });
 
     describe('when authorized', () => {
