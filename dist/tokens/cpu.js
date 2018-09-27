@@ -44,9 +44,10 @@ function cpuContract(accountName) {
 function issueCpu(toAccountName, cpuAmount, memo) {
     if (memo === void 0) { memo = ''; }
     amount = this.getAmount(cpuAmount, TOKEN_SYMBOL);
-    return this.issueToken(toAccountName, amount, ORE_CPU_ACCOUNT_NAME, CONTRACT_NAME, memo);
+    return this.issueToken(toAccountName, amount, memo, ORE_CPU_ACCOUNT_NAME, CONTRACT_NAME);
 }
-function approveCpu(fromAccountName, toAccountName, cpuAmount, memo) {
+function approveCpu(fromAccountName, toAccountName, cpuAmount, permission) {
+    if (permission === void 0) { permission = 'active'; }
     return __awaiter(this, void 0, void 0, function () {
         var fromAccountBalance;
         return __generator(this, function (_a) {
@@ -57,22 +58,9 @@ function approveCpu(fromAccountName, toAccountName, cpuAmount, memo) {
                 case 1:
                     fromAccountBalance = _a.sent();
                     if (fromAccountBalance > 0) {
-                        return [2 /*return*/, this.approveTransfer(fromAccountName, toAccountName, amount, CONTRACT_NAME, memo)];
+                        return [2 /*return*/, this.approveTransfer(fromAccountName, toAccountName, amount, CONTRACT_NAME, permission)];
                     }
                     throw new Error('The account does not have sufficient balance');
-            }
-        });
-    });
-}
-function getApprovedCpuBalance(fromAccountName, toAccountName) {
-    return __awaiter(this, void 0, void 0, function () {
-        var approvedBalance;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, this.getApprovedAmount.bind(this)(fromAccountName, toAccountName, TOKEN_SYMBOL, CONTRACT_NAME)];
-                case 1:
-                    approvedBalance = _a.sent();
-                    return [2 /*return*/, approvedBalance];
             }
         });
     });
@@ -83,18 +71,17 @@ function getCpuBalance(oreAccountName) {
 function transferCpu(fromAccountName, toAccountName, cpuAmount, memo) {
     if (memo === void 0) { memo = ''; }
     amount = this.getAmount(cpuAmount, TOKEN_SYMBOL);
-    return this.transferToken(fromAccountName, toAccountName, amount, CONTRACT_NAME, memo);
+    return this.transferToken(fromAccountName, toAccountName, amount, memo, CONTRACT_NAME);
 }
-function transferCpufrom(approvedAccountName, fromAccountName, toAccountName, cpuAmount, memo) {
+function transferCpufrom(approvedAccountName, fromAccountName, toAccountName, cpuAmount) {
     amount = this.getAmount(cpuAmount, TOKEN_SYMBOL);
-    return this.transferFrom(approvedAccountName, fromAccountName, toAccountName, amount, CONTRACT_NAME, memo);
+    return this.transferFrom(approvedAccountName, fromAccountName, toAccountName, amount, CONTRACT_NAME);
 }
 module.exports = {
     issueCpu: issueCpu,
     approveCpu: approveCpu,
     cpuContract: cpuContract,
     getCpuBalance: getCpuBalance,
-    getApprovedCpuBalance: getApprovedCpuBalance,
     transferCpu: transferCpu,
     transferCpufrom: transferCpufrom,
 };

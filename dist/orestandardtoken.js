@@ -34,7 +34,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 var TABLE_NAME = 'accounts';
-var ALLOWANCE_TABLE = 'allowances';
 /* Public */
 function getAmount(tokenAmount, tokenSymbol) {
     try {
@@ -54,7 +53,7 @@ function getAmount(tokenAmount, tokenSymbol) {
         return e;
     }
 }
-function issueToken(toAccountName, tokenAmount, ownerAccountName, contractName, memo) {
+function issueToken(toAccountName, tokenAmount, memo, ownerAccountName, contractName) {
     if (memo === void 0) { memo = ''; }
     return __awaiter(this, void 0, void 0, function () {
         var _a, contract, options;
@@ -72,60 +71,19 @@ function issueToken(toAccountName, tokenAmount, ownerAccountName, contractName, 
     });
 }
 // cleos push action cpu.ore approve '[""]
-function approveTransfer(fromAccountName, toAccountName, tokenAmount, contractName, memo) {
-    if (memo === void 0) { memo = ''; }
+function approveTransfer(fromAccountName, toAccountName, tokenAmount, contractName, permission) {
+    if (permission === void 0) { permission = 'active'; }
     return __awaiter(this, void 0, void 0, function () {
         var _a, contract, options;
         return __generator(this, function (_b) {
             switch (_b.label) {
-                case 0: return [4 /*yield*/, this.contract(contractName, fromAccountName)];
+                case 0: return [4 /*yield*/, this.contract(contractName, fromAccountName, permission)];
                 case 1:
                     _a = _b.sent(), contract = _a.contract, options = _a.options;
-                    return [4 /*yield*/, contract.approve(fromAccountName, toAccountName, tokenAmount.toString(), memo, options)];
+                    return [4 /*yield*/, contract.approve(fromAccountName, toAccountName, tokenAmount.toString(), options)];
                 case 2:
                     _b.sent();
                     return [2 /*return*/];
-            }
-        });
-    });
-}
-// cleos get table token.ore test1.apim allowances
-function getApprovedAccount(accountName, contractName) {
-    return __awaiter(this, void 0, void 0, function () {
-        var approvedAccounts;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, this.eos.getTableRows({
-                        code: contractName,
-                        json: true,
-                        scope: accountName,
-                        table: ALLOWANCE_TABLE,
-                        limit: -1,
-                    })];
-                case 1:
-                    approvedAccounts = _a.sent();
-                    return [2 /*return*/, approvedAccounts.rows];
-            }
-        });
-    });
-}
-function getApprovedAmount(fromAccount, toAccount, tokenSymbol, contractName) {
-    return __awaiter(this, void 0, void 0, function () {
-        var approvedAmount, approvedAccounts;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    approvedAmount = 0;
-                    return [4 /*yield*/, this.getApprovedAccount.bind(this)(fromAccount, contractName)];
-                case 1:
-                    approvedAccounts = _a.sent();
-                    approvedAccounts.filter(function (obj) {
-                        if (obj.to === toAccount) {
-                            approvedAmount = obj.quantity;
-                        }
-                        return approvedAmount;
-                    });
-                    return [2 /*return*/, this.getAmount(approvedAmount, tokenSymbol)];
             }
         });
     });
@@ -148,7 +106,7 @@ function getBalance(accountName, tokenSymbol, contractName) {
     });
 }
 // cleos push action cpu.ore transfer '["test1.apim", "test2.apim", "10.0000 CPU", "memo"]' -p test1.apim
-function transferToken(fromAccountName, toAccountName, tokenAmount, contractName, memo) {
+function transferToken(fromAccountName, toAccountName, tokenAmount, memo, contractName) {
     if (memo === void 0) { memo = ''; }
     return __awaiter(this, void 0, void 0, function () {
         var _a, contract, options;
@@ -166,8 +124,7 @@ function transferToken(fromAccountName, toAccountName, tokenAmount, contractName
     });
 }
 // cleos push action cpu.ore transferFrom '["app.apim", "test1.apim", "test2.apim", "10.0000 CPU"]' -p app.apim
-function transferFrom(approvedAccountName, fromAccountName, toAccountName, tokenAmount, contractName, memo) {
-    if (memo === void 0) { memo = ''; }
+function transferFrom(approvedAccountName, fromAccountName, toAccountName, tokenAmount, contractName) {
     return __awaiter(this, void 0, void 0, function () {
         var _a, contract, options;
         return __generator(this, function (_b) {
@@ -175,7 +132,7 @@ function transferFrom(approvedAccountName, fromAccountName, toAccountName, token
                 case 0: return [4 /*yield*/, this.contract(contractName, approvedAccountName)];
                 case 1:
                     _a = _b.sent(), contract = _a.contract, options = _a.options;
-                    return [4 /*yield*/, contract.transferFrom(approvedAccountName, fromAccountName, toAccountName, tokenAmount.toString(), memo, options)];
+                    return [4 /*yield*/, contract.transferFrom(approvedAccountName, fromAccountName, toAccountName, tokenAmount.toString(), options)];
                 case 2:
                     _b.sent();
                     return [2 /*return*/];
@@ -186,8 +143,6 @@ function transferFrom(approvedAccountName, fromAccountName, toAccountName, token
 module.exports = {
     approveTransfer: approveTransfer,
     getAmount: getAmount,
-    getApprovedAccount: getApprovedAccount,
-    getApprovedAmount: getApprovedAmount,
     getBalance: getBalance,
     issueToken: issueToken,
     transferToken: transferToken,

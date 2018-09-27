@@ -56,6 +56,12 @@ function hasTransaction(block, transactionId) {
     }
     return false;
 }
+function contractOptions(accountName, permission) {
+    if (permission === void 0) { permission = 'active'; }
+    return {
+        authorization: accountName + "@" + permission,
+    };
+}
 /* Public */
 // eosjs only confirms that transactions have been accepted
 // this confirms that the transaction has been written to the chain
@@ -107,15 +113,14 @@ function confirmTransaction(func, blocksToCheck, checkInterval) {
         });
     });
 }
-function contract(contractName, accountName) {
+function contract(contractName, accountName, permission) {
+    if (permission === void 0) { permission = 'active'; }
     return __awaiter(this, void 0, void 0, function () {
         var options, contract;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    options = {
-                        authorization: accountName + "@active",
-                    };
+                    options = contractOptions(accountName, permission);
                     return [4 /*yield*/, this.eos.contract(contractName, options)];
                 case 1:
                     contract = _a.sent();

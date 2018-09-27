@@ -56,6 +56,96 @@ function generateAccountName(encoding = {
   return encodedTimestamp.substr(idx, ACCOUNT_NAME_MAX_LENGTH);
 }
 
+async function encryptKeys(keys, password) {
+  const encryptedKeys = keys;
+  const encryptedWalletPassword = this.encrypt(keys.masterPrivateKey, password).toString();
+  encryptedKeys.masterPrivateKey = encryptedWalletPassword;
+  encryptedKeys.privateKeys.owner = this.encrypt(keys.privateKeys.owner, password).toString();
+  encryptedKeys.privateKeys.active = this.encrypt(keys.privateKeys.active, password).toString();
+  return encryptedKeys;
+}
+
+async function getAccountPermissions(oreAccountName) {
+  const account = await this.eos.getAccount(oreAccountName);
+  const { permissions } = account;
+
+  return permissions;
+}
+
+function weightedKey(key, weight = 1) {
+  return {
+    key,
+    weight,
+  };
+}
+
+function weightedKeys(keys, weight = 1) {
+  return keys.map(key => weightedKey(key, weight));
+}
+
+function newPermissionDetails(keys, threshold = 1, weights = 1) {
+  return {
+    accounts: [],
+    keys: weightedKeys.bind(this)(keys, weights),
+    threshold,
+    waits: [],
+  };
+}
+
+function newPermission(keys, permName, parent = 'active', threshold = 1, weights = 1) {
+  return {
+    parent,
+    perm_name: permName,
+    required_auth: newPermissionDetails.bind(this)(keys, threshold, weights),
+  };
+}
+
+async function appendPermission(oreAccountName, keys, permName, parent = 'active', threshold = 1, weights = 1) {
+  const perms = await getAccountPermissions.bind(this)(oreAccountName);
+  const newPerm = newPermission.bind(this)(keys, permName, parent, threshold, weights);
+
+  perms.push(newPerm);
+  return perms;
+}
+
+async function addAuthVerifierPermission(oreAccountName, keys) {
+  const permName = 'authverifier';
+  const perms = await appendPermission.bind(this)(oreAccountName, keys, permName);
+  await this.eos.transaction((tr) => {
+    perms.forEach((perm) => {
+      tr.updateauth({
+        account: oreAccountName,
+        permission: perm.perm_name,
+        parent: perm.parent,
+        auth: perm.required_auth,
+      }, {
+        authorization: `${oreAccountName}@owner`,
+      });
+    });
+
+    tr.linkauth({
+      account: oreAccountName,
+      code: 'token.ore',
+      type: 'approve',
+      requirement: permName,
+    }, {
+      authorization: `${oreAccountName}@owner`,
+    });
+  });
+}
+
+async function generateAuthVerifierKeys(oreAccountName) {
+  const keys = await Keygen.generateMasterKeys();
+  await addAuthVerifierPermission.bind(this)(oreAccountName, [keys.publicKeys.active]);
+  return keys;
+}
+
+async function generateAuthVerifierEncryptedKeys(password, oreAccountName) {
+  const authVerifierKeys = await generateAuthVerifierKeys.bind(this)(oreAccountName);
+  const encryptedAuthVerifierKeys = await encryptKeys.bind(this)(authVerifierKeys, password);
+  return encryptedAuthVerifierKeys;
+}
+
 async function createOreAccountWithKeys(activePublicKey, ownerPublicKey, options = {}, confirm = false) {
   const oreAccountName = options.oreAccountName || generateAccountName();
   let transaction;
@@ -70,34 +160,45 @@ async function createOreAccountWithKeys(activePublicKey, ownerPublicKey, options
   };
 }
 
-async function encryptKeys(keys, password) {
-  const encryptedKeys = keys;
-  this.encryptedWalletPassword = this.encrypt(keys.masterPrivateKey, password).toString();
-  encryptedKeys.masterPrivateKey = this.encryptedWalletPassword;
-  encryptedKeys.privateKeys.owner = this.encrypt(keys.privateKeys.owner, password).toString();
-  encryptedKeys.privateKeys.active = this.encrypt(keys.privateKeys.active, password).toString();
-  return encryptedKeys;
-}
-
-/* Public */
-
-async function createOreAccount(password, ownerPublicKey, options = {}) {
+async function generateOreAccountAndKeys(ownerPublicKey, options = {}) {
   const keys = await Keygen.generateMasterKeys();
+
   // TODO Check for existing wallets, for name collisions
   const {
     oreAccountName,
     transaction,
   } = await createOreAccountWithKeys.bind(this)(keys.publicKeys.active, ownerPublicKey, options);
 
+  return { keys, oreAccountName, transaction };
+}
+
+async function generateOreAccountAndEncryptedKeys(password, ownerPublicKey, options = {}) {
+  const {
+    keys,
+    oreAccountName,
+    transaction,
+  } = await generateOreAccountAndKeys.bind(this)(ownerPublicKey, options);
+
   const encryptedKeys = await encryptKeys.bind(this)(keys, password);
-  keys.masterPrivateKey = encryptKeys.masterPrivateKey;
-  keys.privateKeys.owner = encryptedKeys.privateKeys.owner;
-  keys.privateKeys.active = encryptedKeys.privateKeys.active;
+  return { encryptedKeys, oreAccountName, transaction };
+}
+
+/* Public */
+
+async function createOreAccount(password, ownerPublicKey, options = {}) {
+  const {
+    encryptedKeys,
+    oreAccountName,
+    transaction,
+  } = await generateOreAccountAndEncryptedKeys.bind(this)(password, ownerPublicKey, options);
+  const authVerifierEncryptedKeys = await generateAuthVerifierEncryptedKeys.bind(this)(password, oreAccountName);
 
   return {
+    authVerifierPublicKey: authVerifierEncryptedKeys.publicKeys.active,
+    authVerifierPrivateKey: authVerifierEncryptedKeys.privateKeys.active,
     oreAccountName,
-    privateKey: keys.privateKeys.active,
-    publicKey: keys.publicKeys.active,
+    privateKey: encryptedKeys.privateKeys.active,
+    publicKey: encryptedKeys.publicKeys.active,
     transaction,
   };
 }

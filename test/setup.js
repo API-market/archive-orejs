@@ -9,6 +9,4 @@ global.ORE_PAYER_ACCOUNT_NAME = 'eosio';
 global.ORE_PAYER_ACCOUNT_KEY = '5JuNRZsMRAscwKS6uoJpjsC91CS7rUcBLus44UEcDDfNc9coihU';
 global.ORE_TESTA_ACCOUNT_NAME = 'test1.apim';
 global.ORE_TESTA_ACCOUNT_KEY = '5JGmAdJM6eC9RGhivma1Egxn4j4VYvaJTZVyoxsjo8hdXu3Nbxe';
-global.ORE_TESTB_ACCOUNT_NAME = 'test2.apim';
-global.ORE_TESTB_ACCOUNT_KEY = '5Jzb7m5JyFZyY3trarekasXqyRKEcSoEixQ5MaiE6LBoPzJyC1f';
 global.WALLET_PASSWORD = 'password';
