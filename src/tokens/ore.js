@@ -10,14 +10,14 @@ function oreContract(accountName) {
 
 function issueOre(toAccountName, oreAmount, memo = '') {
   amount = this.getAmount(oreAmount, TOKEN_SYMBOL);
-  return this.issueToken(toAccountName, amount, ORE_ORE_ACCOUNT_NAME, CONTRACT_NAME, memo);
+  return this.issueToken(toAccountName, amount, memo, ORE_ORE_ACCOUNT_NAME, CONTRACT_NAME);
 }
 
-async function approveOre(fromAccountName, toAccountName, oreAmount, memo) {
+async function approveOre(fromAccountName, toAccountName, oreAmount) {
   amount = this.getAmount(oreAmount, TOKEN_SYMBOL);
   const fromAccountBalance = await this.getOreBalance(fromAccountName, TOKEN_SYMBOL, CONTRACT_NAME);
   if (fromAccountBalance > 0) {
-    return this.approveTransfer(fromAccountName, toAccountName, amount, CONTRACT_NAME, memo);
+    return this.approveTransfer(fromAccountName, toAccountName, amount, CONTRACT_NAME);
   }
   throw new Error('The account does not have sufficient balance');
 }
@@ -28,12 +28,12 @@ function getOreBalance(oreAccountName) {
 
 function transferOre(fromAccountName, toAccountName, oreAmount, memo = '') {
   amount = this.getAmount(oreAmount, TOKEN_SYMBOL);
-  return this.transferToken(fromAccountName, toAccountName, amount, CONTRACT_NAME, memo);
+  return this.transferToken(fromAccountName, toAccountName, amount, memo, CONTRACT_NAME);
 }
 
-function transferOrefrom(approvedAccountName, fromAccountName, toAccountName, oreAmount, memo) {
+function transferOrefrom(approvedAccountName, fromAccountName, toAccountName, oreAmount) {
   amount = this.getAmount(oreAmount, TOKEN_SYMBOL);
-  return this.transferFrom(approvedAccountName, fromAccountName, toAccountName, amount, CONTRACT_NAME, memo);
+  return this.transferFrom(approvedAccountName, fromAccountName, toAccountName, amount, CONTRACT_NAME);
 }
 
 module.exports = {

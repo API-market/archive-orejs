@@ -9,10 +9,10 @@ const {
   crypto,
 } = require('../index');
 
-let options,
-  balance,
-  contents,
-  orejs;
+let options;
+let balance;
+let contents;
+let orejs;
 
 async function connectAs(accountName, accountKey) {
   // Reinitialize the orejs library, with permissions for the current account...
@@ -39,8 +39,8 @@ async function logBalances(account = undefined) {
 function instrumentFor(accountName, version = Math.random().toString()) {
   return {
     creator: process.env.ORE_OWNER_ACCOUNT_NAME,
-    issuer: accountName,
-    api_name: `${accountName}_${version}`,
+    issuer: process.env.ORE_OFFER_ISSUER,
+    api_name: 'cloud.hadron.contest-2018-07-v1',
     additional_api_params: [{
       name: 'sla',
       value: 'high-availability',
@@ -65,7 +65,7 @@ function instrumentFor(accountName, version = Math.random().toString()) {
         'app.apim',
       ],
     },
-    instrument_template: 'cloud.hadron.contest-2018-07-v1',
+    instrument_template: `cloud.hadron.contest-2018-07- ${Math.floor(Date.now() / 1000)}`,
     start_time: 0,
     end_time: 0,
     override_offer_id: 0,
@@ -107,7 +107,7 @@ function delay(ms = 1000) {
   // Give the new account some tokens... //
   // ///////////////////////////////////////
 
-  await connectAs(process.env.ORE_CPU_ACCOUNT_NAME, process.env.ORE_CPU_ACCOUNT_KEY);
+  await connectAs(process.env.ORE_OWNER_ACCOUNT, process.env.ORE_OWNER_ACCOUNT_ACTIVE_KEY);
 
   await logBalances();
 
@@ -115,12 +115,9 @@ function delay(ms = 1000) {
   const issueMemo = 'issue';
   const transferMemo = 'transfer';
 
-  // console.log("Issuing", amount, "CPU to", process.env.ORE_OWNER_ACCOUNT_NAME)
-  // await orejs.issueCpu(process.env.ORE_OWNER_ACCOUNT_NAME, amount, issueMemo,options)
-
   await logBalances();
 
-  await connectAs(process.env.ORE_OWNER_ACCOUNT_NAME, process.env.ORE_OWNER_ACCOUNT_KEY);
+  await connectAs(process.env.ORE_OWNER_ACCOUNT_NAME, process.env.ORE_OWNER_ACCOUNT_ACTIVE_KEY);
   console.log('Transfering', amount, 'CPU from', process.env.ORE_OWNER_ACCOUNT_NAME, 'to', account.oreAccountName);
   await orejs.transferCpu(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, amount);
 
@@ -128,13 +125,14 @@ function delay(ms = 1000) {
 
   // await connectAs(process.env.ORE_ORE_ACCOUNT_NAME, process.env.ORE_ORE_ACCOUNT_KEY)
 
-  const debug = await orejs.findInstruments('y4dgmryg44tk');
+  const debug = await orejs.findInstruments(account.oreAccountName);
   console.log('DEBUG:', debug);
 
-  console.log('transfer', amount, 'ORE to', account.oreAccountName);
+  // console.log('transfer', amount, 'ORE to', account.oreAccountName);
   await orejs.transferOre(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, amount);
   await orejs.approveCpu(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, amount);
   await logBalances(account.oreAccountName);
+
   // ///////////////////////
   // // Publish an API... //
   // ///////////////////////
@@ -144,9 +142,14 @@ function delay(ms = 1000) {
   logInstrumentCount();
 
   const instrument = instrumentFor(account.oreAccountName);
+
+  await delay(3000);
+
   const offerTx = await orejs.createOfferInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, instrument);
-  await delay();
-  const [offer] = await orejs.findInstruments(account.oreAccountName);
+
+  await delay(3000);
+
+  const [offer] = await orejs.findInstruments(process.env.ORE_OFFER_ISSUER);
   console.log('Offer:', offer, offer.instrument.rights);
 
   logInstrumentCount();
@@ -154,9 +157,9 @@ function delay(ms = 1000) {
   // /////////////////////
   // License an API... //
   // /////////////////////
-  await connectAs(process.env.ORE_OWNER_ACCOUNT_NAME, process.env.ORE_OWNER_ACCOUNT_OWNER_KEY);
+
   // // TODO Create a Voucher for the recently published Offer (ie, change 0 to offer.id)
-  const voucherTx = await orejs.createVoucherInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, 0, 0, 'cloud.hadron.contest-2018-07-v1', false);
+  const voucherTx = await orejs.createVoucherInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, offer.id, 0, '', false);
 
   await delay(3000);
 
@@ -164,6 +167,16 @@ function delay(ms = 1000) {
   console.log('Voucher:', voucher, voucher.instrument.rights);
 
   logInstrumentCount();
+
+  // //////////////////
+  // Call the API... //
+  // //////////////////
+
+  await connectAs(account.oreAccountName, crypto.decrypt(account.authVerifierPrivateKey, 'password'));
+
+  const actions = await orejs.eos.getActions(account.oreAccountName);
+  const [right] = voucher.instrument.rights;
+  await orejs.approveCpu(account.oreAccountName, 'ore.verifier', right.price_in_cpu, 'authverifier');
 
   // //////////////////////
   // Get Usage Stats... //

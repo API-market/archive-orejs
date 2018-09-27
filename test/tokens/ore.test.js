@@ -38,20 +38,18 @@ describe('ore', () => {
   describe('approveOre', () => {
     let contract;
     let oreBalance;
-    let memo;
 
     beforeEach(() => {
       contract = mockContract();
       oreBalance = 10;
-      memo = 'approve ORE transfer';
       fetch.resetMocks();
       fetch.mockResponses(mock([`${oreBalance}.0000 ORE`]));
     });
 
     describe('when authorized', () => {
       test('returns', async () => {
-        const result = await orejs.approveOre(ORE_OWNER_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, oreBalance, memo);
-        expect(contract.approve).toHaveBeenCalledWith(ORE_OWNER_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, `${oreBalance}.0000 ORE`, memo, {
+        const result = await orejs.approveOre(ORE_OWNER_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, oreBalance);
+        expect(contract.approve).toHaveBeenCalledWith(ORE_OWNER_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, `${oreBalance}.0000 ORE`, {
           authorization: `${ORE_OWNER_ACCOUNT_NAME}@active`,
         });
       });
@@ -61,7 +59,7 @@ describe('ore', () => {
       test('throws', () => {
         contract.approve.mockImplementationOnce(() => Promise.reject(new Error('unauthorized')));
 
-        const result = orejs.approveOre(ORE_TESTA_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, oreBalance, memo);
+        const result = orejs.approveOre(ORE_TESTA_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, oreBalance);
         expect(result).rejects.toThrow(/unauthorized/);
       });
     });
