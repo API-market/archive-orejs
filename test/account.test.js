@@ -30,15 +30,15 @@ describe('account', () => {
       expect(spyTransaction).toHaveBeenNthCalledWith(2, expect.any(Function));
       expect(spyAccount).toHaveBeenCalledWith(expect.any(String));
       expect(account).toEqual({
-        authVerifierPublicKey: expect.any(String),
-        authVerifierPrivateKey: expect.any(String),
+        verifierAuthKey: expect.any(String),
+        verifierAuthPublicKey: expect.any(String),
         oreAccountName: expect.stringMatching(/[a-z1-6]{12}/),
         privateKey: expect.any(String),
         publicKey: expect.any(String),
         transaction: expect.any(Function),
       });
       expect(ecc.privateToPublic(orejs.decrypt(account.privateKey, WALLET_PASSWORD))).toEqual(account.publicKey);
-      expect(ecc.privateToPublic(orejs.decrypt(account.authVerifierPrivateKey, WALLET_PASSWORD))).toEqual(account.authVerifierPublicKey);
+      expect(ecc.privateToPublic(account.verifierAuthKey)).toEqual(account.verifierAuthPublicKey);
     });
   });
 });

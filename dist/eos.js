@@ -42,6 +42,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 var BigNumber = require('bignumber.js');
+var ecc = require('eosjs-ecc');
 /* Private */
 // Transform account names from base32 to their numeric representations
 function tableKey(oreAccountName) {
@@ -190,6 +191,26 @@ function getLatestBlock() {
         });
     });
 }
+// check if the publickey belongs to the account provided
+function checkPubKeytoAccount(account, publicKey) {
+    return __awaiter(this, void 0, void 0, function () {
+        var keyaccounts, accounts;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, this.eos.getKeyAccounts(publicKey)];
+                case 1:
+                    keyaccounts = _a.sent();
+                    return [4 /*yield*/, keyaccounts.account_names];
+                case 2:
+                    accounts = _a.sent();
+                    if (accounts.includes(account)) {
+                        return [2 /*return*/, true];
+                    }
+                    return [2 /*return*/, false];
+            }
+        });
+    });
+}
 module.exports = {
     confirmTransaction: confirmTransaction,
     contract: contract,
@@ -198,5 +219,6 @@ module.exports = {
     getLatestBlock: getLatestBlock,
     hasTransaction: hasTransaction,
     tableKey: tableKey,
+    checkPubKeytoAccount: checkPubKeytoAccount,
 };
 //# sourceMappingURL=eos.js.map

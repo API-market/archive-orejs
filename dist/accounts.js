@@ -198,34 +198,18 @@ function addAuthVerifierPermission(oreAccountName, keys) {
         });
     });
 }
-function generateAuthVerifierKeys(oreAccountName) {
+function generateVerifierAuthKeys(oreAccountName) {
     return __awaiter(this, void 0, void 0, function () {
-        var keys;
+        var verifierAuthKeys;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, Keygen.generateMasterKeys()];
                 case 1:
-                    keys = _a.sent();
-                    return [4 /*yield*/, addAuthVerifierPermission.bind(this)(oreAccountName, [keys.publicKeys.active])];
+                    verifierAuthKeys = _a.sent();
+                    return [4 /*yield*/, addAuthVerifierPermission.bind(this)(oreAccountName, [verifierAuthKeys.publicKeys.active])];
                 case 2:
                     _a.sent();
-                    return [2 /*return*/, keys];
-            }
-        });
-    });
-}
-function generateAuthVerifierEncryptedKeys(password, oreAccountName) {
-    return __awaiter(this, void 0, void 0, function () {
-        var authVerifierKeys, encryptedAuthVerifierKeys;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, generateAuthVerifierKeys.bind(this)(oreAccountName)];
-                case 1:
-                    authVerifierKeys = _a.sent();
-                    return [4 /*yield*/, encryptKeys.bind(this)(authVerifierKeys, password)];
-                case 2:
-                    encryptedAuthVerifierKeys = _a.sent();
-                    return [2 /*return*/, encryptedAuthVerifierKeys];
+                    return [2 /*return*/, verifierAuthKeys];
             }
         });
     });
@@ -268,7 +252,11 @@ function generateOreAccountAndKeys(ownerPublicKey, options) {
                     return [4 /*yield*/, createOreAccountWithKeys.bind(this)(keys.publicKeys.active, ownerPublicKey, options)];
                 case 2:
                     _a = _b.sent(), oreAccountName = _a.oreAccountName, transaction = _a.transaction;
-                    return [2 /*return*/, { keys: keys, oreAccountName: oreAccountName, transaction: transaction }];
+                    return [2 /*return*/, {
+                            keys: keys,
+                            oreAccountName: oreAccountName,
+                            transaction: transaction,
+                        }];
             }
         });
     });
@@ -285,7 +273,11 @@ function generateOreAccountAndEncryptedKeys(password, ownerPublicKey, options) {
                     return [4 /*yield*/, encryptKeys.bind(this)(keys, password)];
                 case 2:
                     encryptedKeys = _b.sent();
-                    return [2 /*return*/, { encryptedKeys: encryptedKeys, oreAccountName: oreAccountName, transaction: transaction }];
+                    return [2 /*return*/, {
+                            encryptedKeys: encryptedKeys,
+                            oreAccountName: oreAccountName,
+                            transaction: transaction,
+                        }];
             }
         });
     });
@@ -294,18 +286,18 @@ function generateOreAccountAndEncryptedKeys(password, ownerPublicKey, options) {
 function createOreAccount(password, ownerPublicKey, options) {
     if (options === void 0) { options = {}; }
     return __awaiter(this, void 0, void 0, function () {
-        var _a, encryptedKeys, oreAccountName, transaction, authVerifierEncryptedKeys;
+        var _a, encryptedKeys, oreAccountName, transaction, verifierAuthKeys;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0: return [4 /*yield*/, generateOreAccountAndEncryptedKeys.bind(this)(password, ownerPublicKey, options)];
                 case 1:
                     _a = _b.sent(), encryptedKeys = _a.encryptedKeys, oreAccountName = _a.oreAccountName, transaction = _a.transaction;
-                    return [4 /*yield*/, generateAuthVerifierEncryptedKeys.bind(this)(password, oreAccountName)];
+                    return [4 /*yield*/, generateVerifierAuthKeys.bind(this)(oreAccountName)];
                 case 2:
-                    authVerifierEncryptedKeys = _b.sent();
+                    verifierAuthKeys = _b.sent();
                     return [2 /*return*/, {
-                            authVerifierPublicKey: authVerifierEncryptedKeys.publicKeys.active,
-                            authVerifierPrivateKey: authVerifierEncryptedKeys.privateKeys.active,
+                            verifierAuthKey: verifierAuthKeys.privateKeys.active,
+                            verifierAuthPublicKey: verifierAuthKeys.publicKeys.active,
                             oreAccountName: oreAccountName,
                             privateKey: encryptedKeys.privateKeys.active,
                             publicKey: encryptedKeys.publicKeys.active,

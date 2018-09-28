@@ -67,7 +67,9 @@ async function encryptKeys(keys, password) {
 
 async function getAccountPermissions(oreAccountName) {
   const account = await this.eos.getAccount(oreAccountName);
-  const { permissions } = account;
+  const {
+    permissions,
+  } = account;
 
   return permissions;
 }
@@ -134,16 +136,10 @@ async function addAuthVerifierPermission(oreAccountName, keys) {
   });
 }
 
-async function generateAuthVerifierKeys(oreAccountName) {
-  const keys = await Keygen.generateMasterKeys();
-  await addAuthVerifierPermission.bind(this)(oreAccountName, [keys.publicKeys.active]);
-  return keys;
-}
-
-async function generateAuthVerifierEncryptedKeys(password, oreAccountName) {
-  const authVerifierKeys = await generateAuthVerifierKeys.bind(this)(oreAccountName);
-  const encryptedAuthVerifierKeys = await encryptKeys.bind(this)(authVerifierKeys, password);
-  return encryptedAuthVerifierKeys;
+async function generateVerifierAuthKeys(oreAccountName) {
+  const verifierAuthKeys = await Keygen.generateMasterKeys();
+  await addAuthVerifierPermission.bind(this)(oreAccountName, [verifierAuthKeys.publicKeys.active]);
+  return verifierAuthKeys;
 }
 
 async function createOreAccountWithKeys(activePublicKey, ownerPublicKey, options = {}, confirm = false) {
@@ -169,7 +165,11 @@ async function generateOreAccountAndKeys(ownerPublicKey, options = {}) {
     transaction,
   } = await createOreAccountWithKeys.bind(this)(keys.publicKeys.active, ownerPublicKey, options);
 
-  return { keys, oreAccountName, transaction };
+  return {
+    keys,
+    oreAccountName,
+    transaction,
+  };
 }
 
 async function generateOreAccountAndEncryptedKeys(password, ownerPublicKey, options = {}) {
@@ -180,7 +180,11 @@ async function generateOreAccountAndEncryptedKeys(password, ownerPublicKey, opti
   } = await generateOreAccountAndKeys.bind(this)(ownerPublicKey, options);
 
   const encryptedKeys = await encryptKeys.bind(this)(keys, password);
-  return { encryptedKeys, oreAccountName, transaction };
+  return {
+    encryptedKeys,
+    oreAccountName,
+    transaction,
+  };
 }
 
 /* Public */
@@ -191,11 +195,11 @@ async function createOreAccount(password, ownerPublicKey, options = {}) {
     oreAccountName,
     transaction,
   } = await generateOreAccountAndEncryptedKeys.bind(this)(password, ownerPublicKey, options);
-  const authVerifierEncryptedKeys = await generateAuthVerifierEncryptedKeys.bind(this)(password, oreAccountName);
+  const verifierAuthKeys = await generateVerifierAuthKeys.bind(this)(oreAccountName);
 
   return {
-    authVerifierPublicKey: authVerifierEncryptedKeys.publicKeys.active,
-    authVerifierPrivateKey: authVerifierEncryptedKeys.privateKeys.active,
+    verifierAuthKey: verifierAuthKeys.privateKeys.active,
+    verifierAuthPublicKey: verifierAuthKeys.publicKeys.active,
     oreAccountName,
     privateKey: encryptedKeys.privateKeys.active,
     publicKey: encryptedKeys.publicKeys.active,
