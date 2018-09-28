@@ -1,4 +1,5 @@
 const BigNumber = require('bignumber.js');
+const ecc = require('eosjs-ecc');
 /* Private */
 
 // Transform account names from base32 to their numeric representations
@@ -14,6 +15,12 @@ function hasTransaction(block, transactionId) {
     }
   }
   return false;
+}
+
+function contractOptions(accountName, permission = 'active') {
+  return {
+    authorization: `${accountName}@${permission}`,
+  };
 }
 
 /* Public */
@@ -49,10 +56,8 @@ async function confirmTransaction(func, blocksToCheck = 10, checkInterval = 200)
   });
 }
 
-async function contract(contractName, accountName) {
-  const options = {
-    authorization: `${accountName}@active`,
-  };
+async function contract(contractName, accountName, permission = 'active') {
+  const options = contractOptions(accountName, permission);
   const contract = await this.eos.contract(contractName, options);
   return {
     contract,
@@ -96,6 +101,17 @@ async function getLatestBlock() {
   return block;
 }
 
+// check if the publickey belongs to the account provided
+async function checkPubKeytoAccount(account, publicKey) {
+  const keyaccounts = await this.eos.getKeyAccounts(publicKey);
+  const accounts = await keyaccounts.account_names;
+
+  if (accounts.includes(account)) {
+    return true;
+  }
+  return false;
+}
+
 module.exports = {
   confirmTransaction,
   contract,
@@ -104,4 +120,5 @@ module.exports = {
   getLatestBlock,
   hasTransaction,
   tableKey,
+  checkPubKeytoAccount,
 };
