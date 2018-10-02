@@ -43,12 +43,12 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 var APIM_CONTRACT_NAME = 'manager.apim';
 var INSTR_CONTRACT_NAME = 'instr.ore';
-var INSTR_TABLE_NAME = 'tokensv2';
+var INSTR_TABLE_NAME = 'tokens';
 var ecc = require('eosjs-ecc');
 /* Private */
 function isActive(instrument) {
-    var startTime = instrument.instrument.start_time;
-    var endTime = instrument.instrument.end_time;
+    var startTime = instrument.start_time;
+    var endTime = instrument.end_time;
     var currentTime = Math.floor(Date.now() / 1000);
     return (currentTime > startTime && currentTime < endTime);
 }
@@ -96,7 +96,7 @@ function getAllInstruments() {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, getInstruments.bind(this)({
                         code: 'instr.ore',
-                        table: 'tokensv2',
+                        table: 'tokens',
                     })];
                 case 1:
                     instruments = _a.sent();
@@ -133,7 +133,7 @@ function findInstruments(oreAccountName, activeOnly, category, rightName) {
                     tableKey = this.tableKey(oreAccountName);
                     return [4 /*yield*/, getInstruments.bind(this)({
                             code: 'instr.ore',
-                            table: 'tokensv2',
+                            table: 'tokens',
                             lower_bound: tableKey.toString(),
                             upper_bound: tableKey.plus(1).toString(),
                             key_name: 'owner',

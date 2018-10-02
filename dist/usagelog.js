@@ -35,7 +35,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 var INSTR_CONTRACT_NAME = 'instr.ore';
 var INSTR_USAGE_CONTRACT_NAME = 'usagelog.ore';
-var INSTR_TABLE_NAME = 'tokensv2';
+var INSTR_TABLE_NAME = 'tokens';
 var LOG_COUNT_TABLE_NAME = 'counts';
 /* Private */
 function getInstrumentsByRight(instrumentList, rightName) {
