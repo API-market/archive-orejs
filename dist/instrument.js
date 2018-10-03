@@ -156,7 +156,9 @@ function findInstruments(oreAccountName, activeOnly, category, rightName) {
         });
     });
 }
-function createOfferInstrument(oreAccountName, offerInstrumentData, confirm) {
+// (account_name creator, account_name issuer, string security_type, uint64_t mutability, vector<ore_types::api_params> api_params, vector<ore_types::url_params> additional_url_params, vector<ore_types::param_type> parameter_rules, string instrument_template,
+//   uint64_t start_time = 0, uint64_t end_time = 0, uint64_t override_offer_id = 0);
+function createOfferInstrument(oreAccountName, offerData, confirm) {
     if (confirm === void 0) { confirm = false; }
     return __awaiter(this, void 0, void 0, function () {
         var options, contract;
@@ -170,9 +172,9 @@ function createOfferInstrument(oreAccountName, offerInstrumentData, confirm) {
                 case 1:
                     contract = _a.sent();
                     if (confirm) {
-                        return [2 /*return*/, this.confirmTransaction(function () { return contract.publishapi(oreAccountName, offerInstrumentData.issuer, offerInstrumentData.api_name, offerInstrumentData.additional_api_params, offerInstrumentData.api_payment_model, offerInstrumentData.api_price_in_cpu, offerInstrumentData.license_price_in_cpu, offerInstrumentData.api_description, offerInstrumentData.right_registry, offerInstrumentData.instrument_template, offerInstrumentData.start_time, offerInstrumentData.end_time, offerInstrumentData.override_offer_id, options); })];
+                        return [2 /*return*/, this.confirmTransaction(function () { return contract.publishapi(oreAccountName, offerData.issuer, offerData.security_type, offerData.mutability, offerData.api_params, offerData.additional_url_params, offerData.parameter_rules, offerData.instrument_template, offerData.start_time, offerData.end_time, offerData.override_offer_id, options); })];
                     }
-                    contract.publishapi(oreAccountName, offerInstrumentData.issuer, offerInstrumentData.api_name, offerInstrumentData.additional_api_params, offerInstrumentData.api_payment_model, offerInstrumentData.api_price_in_cpu, offerInstrumentData.license_price_in_cpu, offerInstrumentData.api_description, offerInstrumentData.right_registry, offerInstrumentData.instrument_template, offerInstrumentData.start_time, offerInstrumentData.end_time, offerInstrumentData.override_offer_id, options);
+                    contract.publishapi(oreAccountName, offerData.issuer, offerData.security_type, offerData.mutability, offerData.api_params, offerData.additional_url_params, offerData.parameter_rules, offerData.instrument_template, offerData.start_time, offerData.end_time, offerData.override_offer_id, options);
                     return [2 /*return*/, this];
             }
         });
