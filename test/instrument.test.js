@@ -56,9 +56,7 @@ describe('instrument', () => {
       };
       expired = {
         owner: ORE_TESTA_ACCOUNT_NAME,
-        instrument: {
-          end_time: Math.floor(Date.now() / 1000) - 1
-        }
+        end_time: Math.floor(Date.now() / 1000) - 10,
       };
       uncategorized = {
         owner: ORE_TESTA_ACCOUNT_NAME,

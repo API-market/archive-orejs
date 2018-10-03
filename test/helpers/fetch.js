@@ -8,34 +8,55 @@ function expectFetch(...urls) {
 function mock(body, status = 200) {
   return [
     JSON.stringify(body),
-    { status },
+    {
+      status
+    },
   ];
 }
 
 function mockAccount() {
   return mock([{
     account_name: 'y4dcmrzgiyte',
-    cpu_limit: { available: 12342451, max: 12342451, used: 0 },
+    cpu_limit: {
+      available: 12342451,
+      max: 12342451,
+      used: 0
+    },
     cpu_weight: 10000,
     created: '2018-07-27T05:08:50.500',
     head_block_num: 925723,
     head_block_time: '2018-08-01T12:42:12.000',
     last_code_update: '1970-01-01T00:00:00.000',
-    net_limit: { available: 64709992, max: 64709992, used: 0 },
+    net_limit: {
+      available: 64709992,
+      max: 64709992,
+      used: 0
+    },
     net_weight: 10000,
-    permissions: [
-      {
+    permissions: [{
         parent: 'owner',
         perm_name: 'active',
         required_auth: {
-          accounts: [], keys: [{ key: 'EOS5QygD8vsKRXuVR8JMgLPjWwqzUyVGAJyvYaK7ffU4oPDmgwgqX', weight: 1 }], threshold: 1, waits: [],
+          accounts: [],
+          keys: [{
+            key: 'EOS5QygD8vsKRXuVR8JMgLPjWwqzUyVGAJyvYaK7ffU4oPDmgwgqX',
+            weight: 1
+          }],
+          threshold: 1,
+          waits: [],
         },
       },
       {
         parent: '',
         perm_name: 'owner',
         required_auth: {
-          accounts: [], keys: [{ key: 'EOS7xvHh4RwHJhMYXQE8r3d6AkVpxYUQEiopQi5jM1q1JYRyJZZzX', weight: 1 }], threshold: 1, waits: [],
+          accounts: [],
+          keys: [{
+            key: 'EOS7xvHh4RwHJhMYXQE8r3d6AkVpxYUQEiopQi5jM1q1JYRyJZZzX',
+            weight: 1
+          }],
+          threshold: 1,
+          waits: [],
         },
       },
     ],
@@ -45,7 +66,10 @@ function mockAccount() {
     refund_request: null,
     self_delegated_bandwidth: null,
     total_resources: {
-      cpu_weight: '1.0000 SYS', net_weight: '1.0000 SYS', owner: 'y4dcmrzgiyte', ram_bytes: 8150,
+      cpu_weight: '1.0000 SYS',
+      net_weight: '1.0000 SYS',
+      owner: 'y4dcmrzgiyte',
+      ram_bytes: 8150,
     },
     voter_info: null,
   }]);
@@ -103,8 +127,7 @@ function mockInstrument(instrument = {}) {
     }],
     parent_instrument_id: 1,
     data: [],
-    start_time: Math.floor(Date.now() / 1000) - 1,
-    end_time: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30, // Expires in 30 days
+    mutability: 1,
     ...instrument.instrument,
   };
 
@@ -113,6 +136,9 @@ function mockInstrument(instrument = {}) {
     owner: 'app.apim',
     minted_by: 'app.apim',
     minted_at: Math.floor(Date.now() / 1000),
+    revoked: 0,
+    start_time: Math.floor(Date.now() / 1000) - 1,
+    end_time: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30, // Expires in 30 days
     ...instrument,
     instrument: innerInstrument,
   };
@@ -122,7 +148,10 @@ function mockInstruments(instruments = [{}]) {
   let idx = 1;
   return mock({
     rows: instruments.map((instrument) => {
-      const instr = mockInstrument({ id: idx, ...instrument });
+      const instr = mockInstrument({
+        id: idx,
+        ...instrument,
+      });
       idx += 1;
       return instr;
     }),
