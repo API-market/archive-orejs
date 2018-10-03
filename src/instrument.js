@@ -111,16 +111,22 @@ async function findInstruments(oreAccountName, activeOnly = true, category = und
   return instruments;
 }
 
-async function createOfferInstrument(oreAccountName, offerInstrumentData, confirm = false) {
+async function createOfferInstrument(oreAccountName, offerData, confirm = false) {
   // Create an offer
   const options = {
     authorization: `${oreAccountName}@owner`,
   };
   const contract = await this.eos.contract(APIM_CONTRACT_NAME, options);
   if (confirm) {
-    return this.confirmTransaction(() => contract.publishapi(oreAccountName, offerInstrumentData.issuer, offerInstrumentData.api_name, offerInstrumentData.additional_api_params, offerInstrumentData.api_payment_model, offerInstrumentData.api_price_in_cpu, offerInstrumentData.license_price_in_cpu, offerInstrumentData.api_description, offerInstrumentData.right_registry, offerInstrumentData.instrument_template, offerInstrumentData.start_time, offerInstrumentData.end_time, offerInstrumentData.override_offer_id, options));
+    return this.confirmTransaction(() => contract.publishapi(oreAccountName, offerData.issuer, offerData.security_type,
+      offerData.mutability, offerData.api_params, offerData.additional_url_params,
+      offerData.parameter_rules, offerData.instrument_template, offerData.start_time,
+      offerData.end_time, offerData.override_offer_id, options));
   }
-  contract.publishapi(oreAccountName, offerInstrumentData.issuer, offerInstrumentData.api_name, offerInstrumentData.additional_api_params, offerInstrumentData.api_payment_model, offerInstrumentData.api_price_in_cpu, offerInstrumentData.license_price_in_cpu, offerInstrumentData.api_description, offerInstrumentData.right_registry, offerInstrumentData.instrument_template, offerInstrumentData.start_time, offerInstrumentData.end_time, offerInstrumentData.override_offer_id, options);
+  contract.publishapi(oreAccountName, offerData.issuer, offerData.security_type,
+    offerData.mutability, offerData.api_params, offerData.additional_url_params,
+    offerData.parameter_rules, offerData.instrument_template, offerData.start_time,
+    offerData.end_time, offerData.override_offer_id, options);
   return this;
 }
 

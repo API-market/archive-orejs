@@ -40,31 +40,28 @@ function instrumentFor(accountName, version = Math.random().toString()) {
   return {
     creator: process.env.ORE_OWNER_ACCOUNT_NAME,
     issuer: process.env.ORE_OFFER_ISSUER,
-    api_name: 'cloud.hadron.contest-2018-07-v1',
-    additional_api_params: [{
-      name: 'sla',
-      value: 'high-availability',
-    }],
-    api_payment_model: 'paypercall',
-    api_price_in_cpu: 1,
-    license_price_in_cpu: 0,
-    api_description: 'returns an image feature vector for input image',
-    right_registry: {
+    security_type: 'pass',
+    mutability: 1,
+    api_params: [{
       right_name: 'apimarket.manager.licenseApi',
-      urls: [{
-        url: 'ore://manager.apim/action/licenseapi',
-        method: 'post',
-        matches_params: [{
-          name: 'sla',
-          value: 'default',
-        }],
-        token_life_span: 100,
-        is_default: 1,
+      api_name: 'cloud.hadron.imageRecognize',
+      api_description: 'image recognition',
+      api_price_in_cpu: '1.0000 CPU',
+    }],
+    additional_url_params: [],
+    parameter_rules: [{
+      type: 'default',
+      values: [{
+        name: 'api_security_type',
+        value: 'permit',
+      }, {
+        name: 'api_payment_model',
+        value: 'pay per call',
+      }, {
+        name: 'license_price_in_cpu',
+        value: '0.0000 CPU',
       }],
-      whitelist: [
-        'app.apim',
-      ],
-    },
+    }],
     instrument_template: `cloud.hadron.contest-2018-07- ${Math.floor(Date.now() / 1000)}`,
     start_time: 0,
     end_time: 0,
@@ -130,7 +127,9 @@ function delay(ms = 1000) {
 
   // console.log('transfer', amount, 'ORE to', account.oreAccountName);
   await orejs.transferOre(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, amount);
-  await orejs.approveCpu(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, amount);
+
+  // works only against local chain for now. New contract structure with "memo" not on staging yet
+  await orejs.approveCpu(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, amount, 'approve transfer');
   await logBalances(account.oreAccountName);
 
   // ///////////////////////
@@ -158,12 +157,11 @@ function delay(ms = 1000) {
   // License an API... //
   // /////////////////////
 
-  // // TODO Create a Voucher for the recently published Offer (ie, change 0 to offer.id)
   const voucherTx = await orejs.createVoucherInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, offer.id, 0, '', false);
 
   await delay(3000);
 
-  const [voucher] = await orejs.findInstruments(account.oreAccountName, true, 'apimarket.apiVoucher');
+  const [voucher] = await orejs.findInstruments('test1.apim', true);
   console.log('Voucher:', voucher, voucher.instrument.rights);
 
   logInstrumentCount();
@@ -176,7 +174,8 @@ function delay(ms = 1000) {
 
   const actions = await orejs.eos.getActions(account.oreAccountName);
   const [right] = voucher.instrument.rights;
-  await orejs.approveCpu(account.oreAccountName, 'ore.verifier', right.price_in_cpu, 'authverifier');
+  // works only against local chain for now. New contract structure with "memo" not on staging yet
+  await orejs.approveCpu(account.oreAccountName, 'ore.verifier', right.price_in_cpu, 'approve verifier', 'authverifier');
 
   // //////////////////////
   // Get Usage Stats... //
