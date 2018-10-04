@@ -6,7 +6,8 @@
     ],
     "outDir": "dist",
     "sourceMap": true,
-    "target": "es5"
+    "target": "es5",
+    "types":[]
   },
   "include": [
     "./src/**/*"

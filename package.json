@@ -1,11 +1,12 @@
 {
-  "name": "orejs",
-  "version": "0.0.0",
-  "description": "orejs is helper library (written in Javascript) to provide simple high-level access to the ore-protocol. Orejs uses eosJS as a wrapper to the EOS blockchain",
+  "name": "@open-rights-exchange/orejs",
+  "version": "1.1.0",
+  "description": "Orejs is helper library (written in Javascript) to provide simple high-level access to the ore-protocol. Orejs uses eosJS as a wrapper to the EOS blockchain",
   "main": "./dist/index.js",
   "scripts": {
-    "lint": "./node_modules/.bin/eslint test/** src/** --fix",
     "build": "tsc --project ./tsconfig.json --pretty",
+    "lint": "./node_modules/.bin/eslint test/** src/** --fix",
+    "prepublish": "npm run build",
     "test": "jest --runInBand --coverage --detectOpenHandles"
   },
   "repository": {
