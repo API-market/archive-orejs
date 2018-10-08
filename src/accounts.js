@@ -1,7 +1,6 @@
 const {
   Keygen,
 } = require('eosjs-keygen');
-const base32 = require('base32.js');
 
 const ACCOUNT_NAME_MAX_LENGTH = 12;
 
@@ -40,20 +39,18 @@ function newAccountTransaction(name, ownerPublicKey, activePublicKey, options = 
   });
 }
 
-function generateAccountName(encoding = {
-  type: 'rfc4648',
-  lc: true,
-}) {
-  // account names are generated based on the current unix timestamp
-  // account names MUST be base32 encoded, and be < 13 characters, in compliance with the EOS standard
-  // encoded timestamps are trimmed from the left, to retain enough randomness for multiple per second
-  const encoder = new base32.Encoder(encoding);
-  const timestamp = Date.now().toString();
-  const buffer = Buffer.from(timestamp);
-  const encodedTimestamp = encoder.write(buffer).finalize();
-  const idx = encodedTimestamp.length - ACCOUNT_NAME_MAX_LENGTH;
-
-  return encodedTimestamp.substr(idx, ACCOUNT_NAME_MAX_LENGTH);
+function generateAccountName() {
+  // NOTE: account names MUST be base32 encoded, and be < 13 characters, in compliance with the EOS standard
+  // NOTE: account names can also contain only the following characters: a-z, 1-5, & '.' In regex: [a-z1-5\.]{1,12}
+  // NOTE: account names are generated based on the current unix timestamp
+  const timestamp32 = Date.now().toString(32);
+  const timestampEos32 = timestamp32
+    .replace(0, '.')
+    .replace(6, 'w')
+    .replace(7, 'x')
+    .replace(8, 'y')
+    .replace(9, 'z');
+  return timestampEos32;
 }
 
 async function encryptKeys(keys, password) {

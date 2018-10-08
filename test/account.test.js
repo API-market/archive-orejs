@@ -32,7 +32,7 @@ describe('account', () => {
       expect(account).toEqual({
         verifierAuthKey: expect.any(String),
         verifierAuthPublicKey: expect.any(String),
-        oreAccountName: expect.stringMatching(/[a-z1-6]{12}/),
+        oreAccountName: expect.stringMatching(/[a-z1-5\.]{8,12}/),
         privateKey: expect.any(String),
         publicKey: expect.any(String),
         transaction: expect.any(Function),
