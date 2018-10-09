@@ -43,9 +43,6 @@ describe('account', () => {
   });
 
   describe('eosBase32', () => {
-    beforeEach(() => {
-    });
-
     test('encodes correctly', async () => {
       const accountName = await orejs.eosBase32('abcde.067899');
       expect(accountName).toEqual('abcde..wxyzz');
