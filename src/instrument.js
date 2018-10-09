@@ -114,7 +114,7 @@ async function findInstruments(oreAccountName, activeOnly = true, category = und
 async function createOfferInstrument(oreAccountName, offerData, confirm = false) {
   // Create an offer
   const options = {
-    authorization: `${oreAccountName}@owner`,
+    authorization: `${oreAccountName}@active`,
   };
   const contract = await this.eos.contract(APIM_CONTRACT_NAME, options);
   if (confirm) {
@@ -138,7 +138,7 @@ async function createVoucherInstrument(creator, buyer, offerId, overrideVoucherI
     throw new Error('Either pass in a valid offer id or a valid offer template');
   }
   const options = {
-    authorization: `${creator}@owner`,
+    authorization: `${creator}@active`,
   };
   const contract = await this.eos.contract(APIM_CONTRACT_NAME, options);
   if (confirm) {

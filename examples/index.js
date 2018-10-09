@@ -14,6 +14,7 @@ function orejs(accountName, ...accountKeys) {
     keyProvider: accountKeys,
     orePayerAccountName: process.env.ORE_PAYER_ACCOUNT_NAME,
     sign: true,
+    chainId: process.env.ORE_NETWORK_CHAIN_ID,
   });
 }
 
