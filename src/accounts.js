@@ -40,24 +40,30 @@ function newAccountTransaction(name, ownerPublicKey, activePublicKey, options = 
 }
 
 function eosBase32(base32String) {
+  // NOTE: Returns valid EOS base32, which is different than the standard JS base32 implementation
   return base32String
-    .replace(0, '.')
-    .replace(6, 'w')
-    .replace(7, 'x')
-    .replace(8, 'y')
-    .replace(9, 'z');
+    .replace(/0/g, '.')
+    .replace(/6/g, 'w')
+    .replace(/7/g, 'x')
+    .replace(/8/g, 'y')
+    .replace(/9/g, 'z');
 }
 
 function timestampEosBase32() {
+  // NOTE: Returns a UNIX timestamp, that is EOS base32 encoded
   return eosBase32(Date.now().toString(32));
+}
+
+function randomEosBase32() {
+  // NOTE: Returns a random string, that is EOS base32 encoded
+  return eosBase32(Math.random().toString(32).substr(2));
 }
 
 function generateAccountName() {
   // NOTE: account names MUST be base32 encoded, and be 12 characters, in compliance with the EOS standard
   // NOTE: account names can also contain only the following characters: a-z, 1-5, & '.' In regex: [a-z1-5\.]{12}
-  // NOTE: account names are generated based on the current unix timestamp
-  const randomEosBase32 = eosBase32((Math.random() * 10000000).toString(32));
-  return (timestampEosBase32() + randomEosBase32).substr(0, 12);
+  // NOTE: account names are generated based on the current unix timestamp + some randomness, and cut to be 12 chars
+  return (timestampEosBase32() + randomEosBase32()).substr(0, 12);
 }
 
 async function encryptKeys(keys, password) {
@@ -213,4 +219,5 @@ async function createOreAccount(password, ownerPublicKey, options = {}) {
 
 module.exports = {
   createOreAccount,
+  eosBase32,
 };
