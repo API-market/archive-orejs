@@ -41,4 +41,11 @@ describe('account', () => {
       expect(ecc.privateToPublic(account.verifierAuthKey)).toEqual(account.verifierAuthPublicKey);
     });
   });
+
+  describe('eosBase32', () => {
+    test('encodes correctly', async () => {
+      const accountName = await orejs.eosBase32('abcde.067899');
+      expect(accountName).toEqual('abcde..wxyzz');
+    });
+  });
 });
