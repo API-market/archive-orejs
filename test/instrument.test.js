@@ -32,7 +32,7 @@ describe('instrument', () => {
       offerTemplate = '';
       overrideVoucherId = 0;
       options = {
-        authorization: `${ORE_OWNER_ACCOUNT_NAME}@owner`
+        authorization: `${ORE_OWNER_ACCOUNT_NAME}@active`,
       };
       contract = mockContract();
     });

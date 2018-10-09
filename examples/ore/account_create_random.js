@@ -16,7 +16,7 @@ let orejs;
 
 async function connectAs(accountName, accountKey) {
   // Reinitialize the orejs library, with permissions for the current account...
-  orejs = require('../index').orejs(accountName, accountKey, process.env.ORE_OWNER_ACCOUNT_OWNER_KEY);
+  orejs = require('../index').orejs(accountName, accountKey);
   console.log('Private Key:', accountKey);
   console.log('Public Key:', ecc.privateToPublic(accountKey));
   options = {
@@ -92,8 +92,8 @@ function delay(ms = 1000) {
   // /////////////////////////
 
   const ownerPublicKey = ecc.privateToPublic(process.env.ORE_OWNER_ACCOUNT_KEY);
-
-  const account = await orejs.createOreAccount(process.env.WALLET_PASSWORD, ownerPublicKey);
+  const activePublicKey = ecc.privateToPublic(process.env.ORE_OWNER_ACCOUNT_ACTIVE_KEY);
+  const account = await orejs.createOreAccount(process.env.WALLET_PASSWORD, activePublicKey);
   console.log('Account Created:', account);
 
   // // Get the newly created EOS account...
@@ -161,7 +161,7 @@ function delay(ms = 1000) {
 
   await delay(3000);
 
-  const [voucher] = await orejs.findInstruments('test1.apim', true);
+  const [voucher] = await orejs.findInstruments(account.oreAccountName, true);
   console.log('Voucher:', voucher, voucher.instrument.rights);
 
   logInstrumentCount();
@@ -177,9 +177,9 @@ function delay(ms = 1000) {
   // works only against local chain for now. New contract structure with "memo" not on staging yet
   await orejs.approveCpu(account.oreAccountName, 'ore.verifier', right.price_in_cpu, 'approve verifier', 'authverifier');
 
-  // //////////////////////
-  // Get Usage Stats... //
-  // //////////////////////
+  // // //////////////////////
+  // // Get Usage Stats... //
+  // // //////////////////////
 
   const rightName = voucher.instrument.rights[0].right_name;
   const instrumentStats = await orejs.getApiCallStats(voucher.id, rightName);
