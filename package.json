@@ -11,14 +11,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/api.market/orejs.git"
+    "url": "git+https://github.com/api-market/orejs.git"
   },
   "author": "Aikon",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/api.market/orejs/issues"
+    "url": "https://github.com/api-market/orejs/issues"
   },
-  "homepage": "https://github.com/api.market/orejs#readme",
+  "homepage": "https://github.com/api-market/orejs#readme",
   "devDependencies": {
     "eslint": "^4.19.1",
     "eslint-config-airbnb": "^17.0.0",
