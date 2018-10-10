@@ -28,23 +28,19 @@ function contractOptions(accountName, permission = 'active') {
 // eosjs only confirms that transactions have been accepted
 // this confirms that the transaction has been written to the chain
 // by checking block produced immediately after the transaction
-async function confirmTransaction(func, blocksToCheck = 10, checkInterval = 200) {
-  // before making the transaction, check the current block id...
-  let latestBlock = await this.getLatestBlock();
-  const initialBlockId = latestBlock.block_num;
+async function confirmTransaction(func, blocksToCheck = 10, checkInterval = 500) {
   // make the transaction...
   const transaction = await func();
-  // check blocks for the transaction id...
+  // check the head block...
+  let latestBlock = await this.getLatestBlock();
+  const initialBlockId = latestBlock.block_num;
+  if (hasTransaction(latestBlock, transaction.transaction_id)) {
+    return transaction;
+  }
+  // check following blocks for the transaction id...
   return new Promise((resolve, reject) => {
-    let currentBlockId = initialBlockId + 1;
     const intConfirm = setInterval(async () => {
       latestBlock = await this.getLatestBlock();
-      if (currentBlockId <= latestBlock.block_num) {
-        if (currentBlockId !== latestBlock.block_num) {
-          latestBlock = this.eos.getBlock(currentBlockId);
-        }
-        currentBlockId += 1;
-      }
       if (hasTransaction(latestBlock, transaction.transaction_id)) {
         clearInterval(intConfirm);
         resolve(transaction);
