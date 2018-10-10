@@ -157,9 +157,10 @@ async function createOreAccountWithKeys(activePublicKey, ownerPublicKey, options
   let transaction;
   if (confirm) {
     transaction = await this.confirmTransaction(() => newAccountTransaction.bind(this)(oreAccountName, ownerPublicKey, activePublicKey, options));
+  } else {
+    transaction = await newAccountTransaction.bind(this)(oreAccountName, ownerPublicKey, activePublicKey, options);
   }
-
-  transaction = await newAccountTransaction.bind(this)(oreAccountName, ownerPublicKey, activePublicKey, options);
+  
   return {
     oreAccountName,
     transaction,
