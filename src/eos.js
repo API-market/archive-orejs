@@ -97,7 +97,7 @@ async function getAllTableRows(params, key_field = 'id', json = true) {
 
 async function getLatestBlock() {
   const info = await this.eos.getInfo({});
-  const block = await this.eos.getBlock(info.last_irreversible_block_num);
+  const block = await this.eos.getBlock(info.head_block_num);
   return block;
 }
 

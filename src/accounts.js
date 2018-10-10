@@ -173,7 +173,7 @@ async function generateOreAccountAndKeys(ownerPublicKey, options = {}) {
   const {
     oreAccountName,
     transaction,
-  } = await createOreAccountWithKeys.bind(this)(keys.publicKeys.active, ownerPublicKey, options);
+  } = await createOreAccountWithKeys.bind(this)(keys.publicKeys.active, ownerPublicKey, options, true);
 
   return {
     keys,
