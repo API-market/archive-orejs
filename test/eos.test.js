@@ -73,7 +73,7 @@ describe('token', () => {
           await setTimeout(() => true, 10);
           return transaction;
         }, 2, 10);
-        expect(result).rejects.toThrow(/unauthorized/);
+        expect(result).rejects.toThrow();
       });
     });
   });

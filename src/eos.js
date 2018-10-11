@@ -47,7 +47,7 @@ async function awaitTransaction(func, blocksToCheck = 10, checkInterval = 200) {
         resolve(transaction);
       } else if (latestBlock.block_num >= initialBlockNum + blocksToCheck) {
         clearInterval(intConfirm);
-        reject(new Error(`Transaction Confirmation Timeout @ Block Num: ~${initialBlockNum}`));
+        reject(new Error(`Await Transaction Timeout: Waited for ${blocksToCheck} blocks (${blocksToCheck / 2} seconds) starting with block num: ${initialBlockNum}. This does not mean the transaction failed just that the transaction wasn't found in a block before timeout`));
       }
     }, checkInterval);
   });
