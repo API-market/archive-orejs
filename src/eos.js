@@ -25,14 +25,15 @@ function contractOptions(accountName, permission = 'active') {
 
 /* Public */
 
-// eosjs only confirms that transactions have been accepted
-// this confirms that the transaction has been written to the chain
-// by checking block produced immediately after the transaction
-async function confirmTransaction(func, blocksToCheck = 10, checkInterval = 500) {
+// NOTE: Use this to await for transactions to be added to a block
+// Useful, when committing sequential transactions with inter-dependencies
+// NOTE: This does NOT confirm that the transaction is irreversible, aka finalized
+// NOTE: Time between blocks isn't always 500ms, so keep the checkInterval lower than 500ms
+async function awaitTransaction(func, blocksToCheck = 10, checkInterval = 200) {
   // make the transaction...
   const transaction = await func();
   // check the head block...
-  let latestBlock = await this.getLatestBlock();
+  let latestBlock = await this.getHeadBlock();
   const initialBlockId = latestBlock.block_num;
   if (hasTransaction(latestBlock, transaction.transaction_id)) {
     return transaction;
@@ -40,7 +41,7 @@ async function confirmTransaction(func, blocksToCheck = 10, checkInterval = 500)
   // check following blocks for the transaction id...
   return new Promise((resolve, reject) => {
     const intConfirm = setInterval(async () => {
-      latestBlock = await this.getLatestBlock();
+      latestBlock = await this.getHeadBlock();
       if (hasTransaction(latestBlock, transaction.transaction_id)) {
         clearInterval(intConfirm);
         resolve(transaction);
@@ -91,7 +92,7 @@ async function getAllTableRows(params, key_field = 'id', json = true) {
   return results.rows;
 }
 
-async function getLatestBlock() {
+async function getHeadBlock() {
   const info = await this.eos.getInfo({});
   const block = await this.eos.getBlock(info.head_block_num);
   return block;
@@ -109,11 +110,11 @@ async function checkPubKeytoAccount(account, publicKey) {
 }
 
 module.exports = {
-  confirmTransaction,
+  awaitTransaction,
   contract,
   findOne,
   getAllTableRows,
-  getLatestBlock,
+  getHeadBlock,
   hasTransaction,
   tableKey,
   checkPubKeytoAccount,

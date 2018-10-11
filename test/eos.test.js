@@ -16,7 +16,7 @@ describe('token', () => {
     orejs = constructOrejs();
   });
 
-  describe('getLatestBlock', () => {
+  describe('getHeadBlock', () => {
     let block;
 
     beforeEach(() => {
@@ -27,7 +27,7 @@ describe('token', () => {
     });
 
     test('returns the latest block', async () => {
-      const blockNum = await orejs.getLatestBlock();
+      const blockNum = await orejs.getHeadBlock();
       expectFetch(`${ORE_NETWORK_URI}/v1/chain/get_info`, `${ORE_NETWORK_URI}/v1/chain/get_block`);
       expect(JSON.stringify(blockNum)).toEqual(block[0]);
     });
