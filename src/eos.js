@@ -34,7 +34,7 @@ async function awaitTransaction(func, blocksToCheck = 10, checkInterval = 200) {
   const transaction = await func();
   // check the head block...
   let latestBlock = await this.getHeadBlock();
-  const initialBlockId = latestBlock.block_num;
+  const initialBlockNum = latestBlock.block_num;
   if (hasTransaction(latestBlock, transaction.transaction_id)) {
     return transaction;
   }
@@ -45,9 +45,9 @@ async function awaitTransaction(func, blocksToCheck = 10, checkInterval = 200) {
       if (hasTransaction(latestBlock, transaction.transaction_id)) {
         clearInterval(intConfirm);
         resolve(transaction);
-      } else if (latestBlock.block_num >= initialBlockId + blocksToCheck) {
+      } else if (latestBlock.block_num >= initialBlockNum + blocksToCheck) {
         clearInterval(intConfirm);
-        reject(new Error('Transaction Confirmation Timeout'));
+        reject(new Error(`Transaction Confirmation Timeout @ Block Num: ~${initialBlockNum}`));
       }
     }, checkInterval);
   });
