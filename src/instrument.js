@@ -118,7 +118,7 @@ async function createOfferInstrument(oreAccountName, offerData, confirm = false)
   };
   const contract = await this.eos.contract(APIM_CONTRACT_NAME, options);
   if (confirm) {
-    return this.confirmTransaction(() => contract.publishapi(oreAccountName, offerData.issuer, offerData.security_type,
+    return this.awaitTransaction(() => contract.publishapi(oreAccountName, offerData.issuer, offerData.security_type,
       offerData.mutability, offerData.api_params, offerData.additional_url_params,
       offerData.parameter_rules, offerData.instrument_template, offerData.start_time,
       offerData.end_time, offerData.override_offer_id, options));
@@ -142,7 +142,7 @@ async function createVoucherInstrument(creator, buyer, offerId, overrideVoucherI
   };
   const contract = await this.eos.contract(APIM_CONTRACT_NAME, options);
   if (confirm) {
-    return this.confirmTransaction(() => contract.licenseapi(creator, buyer, offerId, offerTemplate, overrideVoucherId, options));
+    return this.awaitTransaction(() => contract.licenseapi(creator, buyer, offerId, offerTemplate, overrideVoucherId, options));
   }
   contract.licenseapi(creator, buyer, offerId, offerTemplate, overrideVoucherId, options);
   return this;

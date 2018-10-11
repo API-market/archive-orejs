@@ -25,32 +25,29 @@ function contractOptions(accountName, permission = 'active') {
 
 /* Public */
 
-// eosjs only confirms that transactions have been accepted
-// this confirms that the transaction has been written to the chain
-// by checking block produced immediately after the transaction
-async function confirmTransaction(func, blocksToCheck = 10, checkInterval = 200) {
-  // before making the transaction, check the current block id...
-  let latestBlock = await this.getLatestBlock();
-  const initialBlockId = latestBlock.block_num;
+// NOTE: Use this to await for transactions to be added to a block
+// Useful, when committing sequential transactions with inter-dependencies
+// NOTE: This does NOT confirm that the transaction is irreversible, aka finalized
+// NOTE: Time between blocks isn't always 500ms, so keep the checkInterval lower than 500ms
+async function awaitTransaction(func, blocksToCheck = 10, checkInterval = 200) {
   // make the transaction...
   const transaction = await func();
-  // check blocks for the transaction id...
+  // check the head block...
+  let latestBlock = await this.getHeadBlock();
+  const initialBlockNum = latestBlock.block_num;
+  if (hasTransaction(latestBlock, transaction.transaction_id)) {
+    return transaction;
+  }
+  // check following blocks for the transaction id...
   return new Promise((resolve, reject) => {
-    let currentBlockId = initialBlockId + 1;
     const intConfirm = setInterval(async () => {
-      latestBlock = await this.getLatestBlock();
-      if (currentBlockId <= latestBlock.block_num) {
-        if (currentBlockId !== latestBlock.block_num) {
-          latestBlock = this.eos.getBlock(currentBlockId);
-        }
-        currentBlockId += 1;
-      }
+      latestBlock = await this.getHeadBlock();
       if (hasTransaction(latestBlock, transaction.transaction_id)) {
         clearInterval(intConfirm);
         resolve(transaction);
-      } else if (latestBlock.block_num >= initialBlockId + blocksToCheck) {
+      } else if (latestBlock.block_num >= initialBlockNum + blocksToCheck) {
         clearInterval(intConfirm);
-        reject(new Error('Transaction Confirmation Timeout'));
+        reject(new Error(`Await Transaction Timeout: Waited for ${blocksToCheck} blocks (${blocksToCheck / 2} seconds) starting with block num: ${initialBlockNum}. This does not mean the transaction failed just that the transaction wasn't found in a block before timeout`));
       }
     }, checkInterval);
   });
@@ -95,9 +92,9 @@ async function getAllTableRows(params, key_field = 'id', json = true) {
   return results.rows;
 }
 
-async function getLatestBlock() {
+async function getHeadBlock() {
   const info = await this.eos.getInfo({});
-  const block = await this.eos.getBlock(info.last_irreversible_block_num);
+  const block = await this.eos.getBlock(info.head_block_num);
   return block;
 }
 
@@ -113,11 +110,11 @@ async function checkPubKeytoAccount(account, publicKey) {
 }
 
 module.exports = {
-  confirmTransaction,
+  awaitTransaction,
   contract,
   findOne,
   getAllTableRows,
-  getLatestBlock,
+  getHeadBlock,
   hasTransaction,
   tableKey,
   checkPubKeytoAccount,

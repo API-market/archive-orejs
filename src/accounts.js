@@ -156,10 +156,10 @@ async function createOreAccountWithKeys(activePublicKey, ownerPublicKey, options
   const oreAccountName = options.oreAccountName || generateAccountName();
   let transaction;
   if (confirm) {
-    transaction = await this.confirmTransaction(() => newAccountTransaction.bind(this)(oreAccountName, ownerPublicKey, activePublicKey, options));
+    transaction = await this.awaitTransaction(() => newAccountTransaction.bind(this)(oreAccountName, ownerPublicKey, activePublicKey, options));
+  } else {
+    transaction = await newAccountTransaction.bind(this)(oreAccountName, ownerPublicKey, activePublicKey, options);
   }
-
-  transaction = await newAccountTransaction.bind(this)(oreAccountName, ownerPublicKey, activePublicKey, options);
   return {
     oreAccountName,
     transaction,
@@ -173,7 +173,7 @@ async function generateOreAccountAndKeys(ownerPublicKey, options = {}) {
   const {
     oreAccountName,
     transaction,
-  } = await createOreAccountWithKeys.bind(this)(keys.publicKeys.active, ownerPublicKey, options);
+  } = await createOreAccountWithKeys.bind(this)(keys.publicKeys.active, ownerPublicKey, options, true);
 
   return {
     keys,

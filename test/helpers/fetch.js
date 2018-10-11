@@ -14,7 +14,7 @@ function mock(body, status = 200) {
   ];
 }
 
-function mockAccount() {
+function mockAccount(account = {}) {
   return mock([{
     account_name: 'y4dcmrzgiyte',
     cpu_limit: {
@@ -72,10 +72,11 @@ function mockAccount() {
       ram_bytes: 8150,
     },
     voter_info: null,
+    ...account,
   }]);
 }
 
-function mockBlock() {
+function mockBlock(block = {}) {
   return mock([{
     timestamp: '2018-07-30T14:24:24.000',
     producer: 'eosio',
@@ -92,10 +93,11 @@ function mockBlock() {
     id: '00090a0384aa271b99b94d25a3d069c4387625e972d05c21ffa17180d1f09ec2',
     block_num: 592387,
     ref_block_prefix: 625850777,
+    ...block,
   }]);
 }
 
-function mockInfo() {
+function mockInfo(info = {}) {
   return mock([{
     server_version: '75635168',
     chain_id: 'cf057bbfb72640471fd910bcb67639c22df9f92470936cddc1ade0e2f2e7dc4f',
@@ -109,6 +111,7 @@ function mockInfo() {
     virtual_block_net_limit: 1048576000,
     block_cpu_limit: 199900,
     block_net_limit: 1048576,
+    ...info,
   }]);
 }
 
@@ -158,6 +161,13 @@ function mockInstruments(instruments = [{}]) {
   });
 }
 
+function mockTransaction(transaction = {}) {
+  return {
+    transaction_id: '0',
+    ...transaction,
+  };
+}
+
 module.exports = {
   expectFetch,
   mock,
@@ -166,4 +176,5 @@ module.exports = {
   mockInfo,
   mockInstrument,
   mockInstruments,
+  mockTransaction,
 };
