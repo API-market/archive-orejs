@@ -2,6 +2,14 @@ const BigNumber = require('bignumber.js');
 const ecc = require('eosjs-ecc');
 /* Private */
 
+function contractOptions(accountName, permission = 'active') {
+  return {
+    authorization: `${accountName}@${permission}`,
+  };
+}
+
+/* Public */
+
 // Transform account names from base32 to their numeric representations
 function tableKey(oreAccountName) {
   return new BigNumber(this.eos.format.encodeName(oreAccountName, false));
@@ -17,37 +25,31 @@ function hasTransaction(block, transactionId) {
   return false;
 }
 
-function contractOptions(accountName, permission = 'active') {
-  return {
-    authorization: `${accountName}@${permission}`,
-  };
-}
-
-/* Public */
-
 // NOTE: Use this to await for transactions to be added to a block
 // Useful, when committing sequential transactions with inter-dependencies
 // NOTE: This does NOT confirm that the transaction is irreversible, aka finalized
-// NOTE: Time between blocks isn't always 500ms, so keep the checkInterval lower than 500ms
-async function awaitTransaction(func, blocksToCheck = 10, checkInterval = 200) {
-  // make the transaction...
-  const transaction = await func();
-  // check the head block...
-  let latestBlock = await this.getHeadBlock();
-  const initialBlockNum = latestBlock.block_num;
-  if (hasTransaction(latestBlock, transaction.transaction_id)) {
-    return transaction;
-  }
-  // check following blocks for the transaction id...
-  return new Promise((resolve, reject) => {
+function awaitTransaction(func, blocksToCheck = 10, checkInterval = 400) {
+  return new Promise(async (resolve, reject) => {
+    // check the current head block num...
+    const preCommitInfo = await this.eos.getInfo({});
+    const preCommitHeadBlockNum = preCommitInfo.head_block_num;
+    // make the transaction...
+    const transaction = await func();
+    // keep checking for the transaction in future blocks...
+    let blockNumToCheck = preCommitHeadBlockNum + 1;
+    let blockToCheck;
     const intConfirm = setInterval(async () => {
-      latestBlock = await this.getHeadBlock();
-      if (hasTransaction(latestBlock, transaction.transaction_id)) {
+      blockToCheck = await this.eos.getBlock(blockNumToCheck);
+      if (blockToCheck) {
+        if (hasTransaction(blockToCheck, transaction.transaction_id)) {
+          clearInterval(intConfirm);
+          resolve(transaction);
+        }
+        blockNumToCheck += 1;
+      }
+      if (blockNumToCheck > preCommitHeadBlockNum + blocksToCheck) {
         clearInterval(intConfirm);
-        resolve(transaction);
-      } else if (latestBlock.block_num >= initialBlockNum + blocksToCheck) {
-        clearInterval(intConfirm);
-        reject(new Error(`Await Transaction Timeout: Waited for ${blocksToCheck} blocks (${blocksToCheck / 2} seconds) starting with block num: ${initialBlockNum}. This does not mean the transaction failed just that the transaction wasn't found in a block before timeout`));
+        reject(new Error(`Await Transaction Timeout: Waited for ${blocksToCheck} blocks ~(${blocksToCheck / 2} seconds) starting with block num: ${preCommitHeadBlockNum}. This does not mean the transaction failed just that the transaction wasn't found in a block before timeout`));
       }
     }, checkInterval);
   });
@@ -92,12 +94,6 @@ async function getAllTableRows(params, key_field = 'id', json = true) {
   return results.rows;
 }
 
-async function getHeadBlock() {
-  const info = await this.eos.getInfo({});
-  const block = await this.eos.getBlock(info.head_block_num);
-  return block;
-}
-
 // check if the publickey belongs to the account provided
 async function checkPubKeytoAccount(account, publicKey) {
   const keyaccounts = await this.eos.getKeyAccounts(publicKey);
@@ -114,7 +110,6 @@ module.exports = {
   contract,
   findOne,
   getAllTableRows,
-  getHeadBlock,
   hasTransaction,
   tableKey,
   checkPubKeytoAccount,
