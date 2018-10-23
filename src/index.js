@@ -9,7 +9,7 @@ const ore = require('./tokens/ore');
 const oreStandardToken = require('./orestandardtoken');
 const rightsRegistry = require('./rightsregistry');
 const voucher = require('./apimarket/voucher');
-const usageLog = require('./apimarket/usagelog');
+const usageLog = require('./usagelog');
 
 class Orejs {
   constructor(config = {}) {
