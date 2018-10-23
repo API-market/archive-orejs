@@ -1,5 +1,5 @@
 const fs = require('fs');
-const { crypto, walletPassword } = require('../index');
+const { crypto, walletPassword } = require('./index');
 
 const USER = 'test2.apim';
 (async function () {
