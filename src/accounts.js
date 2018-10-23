@@ -120,8 +120,7 @@ async function appendPermission(oreAccountName, keys, permName, parent = 'active
   return perms;
 }
 
-async function addAuthVerifierPermission(oreAccountName, keys) {
-  const permName = 'authverifier';
+async function addAuthPermission(oreAccountName, keys, permName, code, type) {
   const perms = await appendPermission.bind(this)(oreAccountName, keys, permName);
   await this.eos.transaction((tr) => {
     perms.forEach((perm) => {
@@ -137,8 +136,8 @@ async function addAuthVerifierPermission(oreAccountName, keys) {
 
     tr.linkauth({
       account: oreAccountName,
-      code: 'token.ore',
-      type: 'approve',
+      code,
+      type, // action
       requirement: permName,
     }, {
       authorization: `${oreAccountName}@owner`,
@@ -146,10 +145,10 @@ async function addAuthVerifierPermission(oreAccountName, keys) {
   });
 }
 
-async function generateVerifierAuthKeys(oreAccountName) {
-  const verifierAuthKeys = await Keygen.generateMasterKeys();
-  await addAuthVerifierPermission.bind(this)(oreAccountName, [verifierAuthKeys.publicKeys.active]);
-  return verifierAuthKeys;
+async function generateAuthKeys(oreAccountName, permName, code, action) {
+  const authKeys = await Keygen.generateMasterKeys();
+  await addAuthPermission.bind(this)(oreAccountName, [authKeys.publicKeys.active], permName, code, action);
+  return authKeys;
 }
 
 async function createOreAccountWithKeys(activePublicKey, ownerPublicKey, options = {}, confirm = false) {
@@ -205,7 +204,7 @@ async function createOreAccount(password, ownerPublicKey, options = {}) {
     oreAccountName,
     transaction,
   } = await generateOreAccountAndEncryptedKeys.bind(this)(password, ownerPublicKey, options);
-  const verifierAuthKeys = await generateVerifierAuthKeys.bind(this)(oreAccountName);
+  const verifierAuthKeys = await generateAuthKeys.bind(this)(oreAccountName, 'authverifier', 'token.ore', 'approve');
 
   return {
     verifierAuthKey: verifierAuthKeys.privateKeys.active,
