@@ -1,6 +1,6 @@
 const {
   constructOrejs,
-  mockContract
+  mockContract,
 } = require('../helpers/orejs');
 
 describe('instrument', () => {

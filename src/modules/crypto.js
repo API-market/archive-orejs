@@ -6,7 +6,7 @@ function decrypt(encrypted, key) {
     const encryptedData = JSON.stringify(Object.assign(JSON.parse(encrypted), { mode: 'gcm' }));
     return sjcl.decrypt(key, encryptedData);
   } catch (err) {
-    console.error('Decryption Error:', err);
+    // console.error('Decryption Error:', err);
     return '';
   }
 }

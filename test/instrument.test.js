@@ -37,17 +37,17 @@ describe('instrument', () => {
       uncategorized = {
         owner: ORE_TESTA_ACCOUNT_NAME,
         instrument: {
-          instrument_class: 'apimarket.uncategorized'
-        }
+          instrument_class: 'apimarket.uncategorized',
+        },
       };
       additionalRighted = {
         owner: ORE_TESTA_ACCOUNT_NAME,
         instrument: {
           instrument_class: 'apimarket.uncategorized',
           rights: [{
-            right_name: 'apimarket.nobody.licenseApi'
-          }]
-        }
+            right_name: 'apimarket.nobody.licenseApi',
+          }],
+        },
       };
 
       instrumentMocks = mockInstruments([
@@ -98,18 +98,18 @@ describe('instrument', () => {
     describe('when multiple rights exist', async () => {
       beforeEach(() => {
         rights = [{
-          right_name: 'apimarket.left.licenseApi'
+          right_name: 'apimarket.left.licenseApi',
         }, {
           right_name: rightName,
         }, {
-          right_name: 'apimarket.right.licenseApi'
+          right_name: 'apimarket.right.licenseApi',
         }];
         instrument = mockInstrument({
           owner: ORE_TESTA_ACCOUNT_NAME,
           instrument: {
             instrument_class: 'apimarket.uncategorized',
             rights,
-          }
+          },
         });
       });
 
@@ -122,16 +122,16 @@ describe('instrument', () => {
     describe('when the right does not exist', async () => {
       beforeEach(() => {
         rights = [{
-          right_name: 'apimarket.left.licenseApi'
+          right_name: 'apimarket.left.licenseApi',
         }, {
-          right_name: 'apimarket.right.licenseApi'
+          right_name: 'apimarket.right.licenseApi',
         }];
         instrument = mockInstrument({
           owner: ORE_TESTA_ACCOUNT_NAME,
           instrument: {
             instrument_class: 'apimarket.uncategorized',
-            rights
-          }
+            rights,
+          },
         });
       });
 
