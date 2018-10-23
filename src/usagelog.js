@@ -5,12 +5,6 @@ const LOG_COUNT_TABLE_NAME = 'counts';
 
 /* Private */
 
-async function getInstrumentsByRight(instrumentList, rightName) {
-  // Gets all the instruments with a particular right
-  const instruments = await instrumentList.filter(instrument => this.getRight(instrument, rightName) !== undefined);
-  return instruments;
-}
-
 async function getInstrumentByOwner(owner) {
   const instruments = await this.findInstruments(owner);
   return instruments;
@@ -18,7 +12,13 @@ async function getInstrumentByOwner(owner) {
 
 /* Public */
 
-async function getApiCallStats(instrumentId, rightName) {
+async function getInstrumentsByRight(instrumentList, rightName) {
+  // Gets all the instruments with a particular right
+  const instruments = await instrumentList.filter(instrument => this.getRight(instrument, rightName) !== undefined);
+  return instruments;
+}
+
+async function getCallStats(instrumentId, rightName) {
   // calls the usagelog contract to get the total number of calls against a particular right
   const result = await this.eos.getTableRows({
     code: INSTR_USAGE_CONTRACT_NAME,
@@ -29,14 +29,14 @@ async function getApiCallStats(instrumentId, rightName) {
   });
 
   const rightProperties = {
-    totalApiCalls: 0,
+    totalCalls: 0,
     totalCpuUsage: 0,
   };
 
   const rightObject = await result.rows.find(right => right.right_name === rightName);
 
   if (rightObject !== undefined) {
-    rightProperties.totalApiCalls = rightObject.total_count;
+    rightProperties.totalCalls = rightObject.total_count;
     rightProperties.totalCpuUsage = rightObject.total_cpu;
   }
 
@@ -44,7 +44,7 @@ async function getApiCallStats(instrumentId, rightName) {
 }
 
 async function getRightStats(rightName, owner) {
-  // Returns the total cpu and api calls against a particular right across all the vouchers. If owner specified, then returns the toatal api calls and cpu usage for the owner.
+  // Returns the total cpu and calls against a particular right across all the vouchers. If owner specified, then returns the total calls and cpu usage for the owner.
   let instruments;
   let rightProperties;
 
@@ -63,7 +63,7 @@ async function getRightStats(rightName, owner) {
 
   // Get the total cpu calls and cpu count across all the instruments
   const results = instruments.map(async (instrumentObject) => {
-    rightProperties = await getApiCallStats.bind(this)(instrumentObject.id, rightName);
+    rightProperties = await getCallStats.bind(this)(instrumentObject.id, rightName);
     return rightProperties;
   });
 
@@ -71,12 +71,12 @@ async function getRightStats(rightName, owner) {
 
   return {
     totalCpuUsage: value.reduce((a, b) => a + parseFloat(b.totalCpuUsage), 0),
-    totalApiCalls: value.reduce((a, b) => a + parseFloat(b.totalApiCalls), 0),
+    totalCalls: value.reduce((a, b) => a + parseFloat(b.totalCalls), 0),
   };
 }
 
 module.exports = {
-  getApiCallStats,
+  getCallStats,
   getRightStats,
   getInstrumentsByRight,
 };
