@@ -21,5 +21,6 @@ function orejs(accountName, ...accountKeys) {
 module.exports = {
   orejs,
   crypto,
+  salt: process.env.SALT,
   walletPassword: process.env.WALLET_PASSWORD,
 };

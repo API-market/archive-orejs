@@ -1,3 +1,4 @@
+/* global SALT:true */
 /* global WALLET_PASSWORD:true */
 /* global ORE_OWNER_ACCOUNT_KEY:true */
 /* global ORE_NETWORK_URI:true */
@@ -37,7 +38,7 @@ describe('account', () => {
     });
 
     test('returns a new account', async () => {
-      const account = await orejs.createOreAccount(WALLET_PASSWORD, ORE_OWNER_ACCOUNT_KEY);
+      const account = await orejs.createOreAccount(WALLET_PASSWORD, SALT, ORE_OWNER_ACCOUNT_KEY);
       expect(spyTransaction).toHaveBeenNthCalledWith(2, expect.any(Function));
       expect(spyAccount).toHaveBeenCalledWith(expect.any(String));
       expect(spyInfo).toHaveBeenCalledWith({});
@@ -50,7 +51,7 @@ describe('account', () => {
         publicKey: expect.any(String),
         transaction,
       });
-      expect(ecc.privateToPublic(orejs.decrypt(account.privateKey, WALLET_PASSWORD))).toEqual(account.publicKey);
+      expect(ecc.privateToPublic(orejs.decrypt(account.privateKey, WALLET_PASSWORD, SALT))).toEqual(account.publicKey);
       expect(ecc.privateToPublic(account.verifierAuthKey)).toEqual(account.verifierAuthPublicKey);
     });
   });
