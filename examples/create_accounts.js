@@ -5,7 +5,7 @@
 
 const fs = require('fs');
 const { Keystore, Keygen } = require('eosjs-keygen');
-let orejs = require('../index').orejs();
+let orejs = require('./index').orejs();
 
 const contractDir = process.env.TOKEN_CONTRACT_DIR;
 
@@ -46,7 +46,7 @@ const ACCOUNTS = {
   process.env.CHAIN_ID = info.chain_id;
 
   // Reinitialize the orejs library, with the appropriate chain id...
-  orejs = require('../index').orejs();
+  orejs = require('./index').orejs();
 
   let importKeysCommands = '';
   let deployContractsCommands = '';

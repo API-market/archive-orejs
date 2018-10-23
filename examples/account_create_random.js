@@ -7,7 +7,7 @@ const BigNumber = require('bignumber.js');
 const ecc = require('eosjs-ecc');
 const {
   crypto,
-} = require('../index');
+} = require('./index');
 
 let options;
 let balance;
