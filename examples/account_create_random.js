@@ -45,7 +45,7 @@ function instrumentFor(accountName, version = Math.random().toString()) {
     api_voucher_start_date: 0,
     api_voucher_end_date: 0,
     api_voucher_valid_forever: 1,
-    api_voucher_mutability: 0,
+    api_voucher_mutability: 1,
     api_voucher_security_type: 'permit',
     right_params: [{
       right_name: 'apimarket.manager.licenseApi',
