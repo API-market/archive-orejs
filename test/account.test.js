@@ -45,7 +45,7 @@ describe('account', () => {
       expect(account).toEqual({
         verifierAuthKey: expect.any(String),
         verifierAuthPublicKey: expect.any(String),
-        oreAccountName: expect.stringMatching(/[a-z1-5\.]{12}/),
+        oreAccountName: expect.stringMatching(/[a-z1-5]{12}/),
         privateKey: expect.any(String),
         publicKey: expect.any(String),
         transaction,
@@ -58,7 +58,7 @@ describe('account', () => {
   describe('eosBase32', () => {
     test('encodes correctly', async () => {
       const accountName = await orejs.eosBase32('abcde.067899');
-      expect(accountName).toEqual('abcde..wxyzz');
+      expect(accountName).toEqual('abcde.vwxyzz');
     });
   });
 });
