@@ -91,7 +91,7 @@ function delay(ms = 1000) {
 
   const ownerPublicKey = ecc.privateToPublic(process.env.ORE_OWNER_ACCOUNT_KEY);
   const activePublicKey = ecc.privateToPublic(process.env.ORE_OWNER_ACCOUNT_ACTIVE_KEY);
-  const account = await orejs.createOreAccount(process.env.WALLET_PASSWORD, activePublicKey);
+  const account = await orejs.createOreAccount(process.env.WALLET_PASSWORD, process.env.USER_ACCOUNT_ENCRYPTION_SALT, activePublicKey);
   console.log('Account Created:', account);
 
   // // Get the newly created EOS account...
@@ -134,7 +134,7 @@ function delay(ms = 1000) {
   // Publish an API...  //
   ///////////////////////
 
-  await connectAs(account.oreAccountName, crypto.decrypt(account.privateKey, 'password'));
+  await connectAs(account.oreAccountName, crypto.decrypt(account.privateKey, process.env.WALLET_PASSWORD, process.env.USER_ACCOUNT_ENCRYPTION_SALT));
 
   logInstrumentCount();
 
@@ -168,7 +168,7 @@ function delay(ms = 1000) {
   // Call the API... //
   ///////////////////
 
-  await connectAs(account.oreAccountName, crypto.decrypt(account.authVerifierPrivateKey, 'password'));
+  await connectAs(account.oreAccountName, crypto.decrypt(account.authVerifierPrivateKey, process.env.WALLET_PASSWORD, process.env.USER_ACCOUNT_ENCRYPTION_SALT));
 
   const actions = await orejs.eos.getActions(account.oreAccountName);
   const [right] = voucher.instrument.rights;

@@ -67,12 +67,12 @@ function generateAccountName() {
   return (timestampEosBase32() + randomEosBase32()).substr(0, 12);
 }
 
-async function encryptKeys(keys, password) {
+async function encryptKeys(keys, password, salt) {
   const encryptedKeys = keys;
-  const encryptedWalletPassword = this.encrypt(keys.masterPrivateKey, password).toString();
+  const encryptedWalletPassword = this.encrypt(keys.masterPrivateKey, password, salt).toString();
   encryptedKeys.masterPrivateKey = encryptedWalletPassword;
-  encryptedKeys.privateKeys.owner = this.encrypt(keys.privateKeys.owner, password).toString();
-  encryptedKeys.privateKeys.active = this.encrypt(keys.privateKeys.active, password).toString();
+  encryptedKeys.privateKeys.owner = this.encrypt(keys.privateKeys.owner, password, salt).toString();
+  encryptedKeys.privateKeys.active = this.encrypt(keys.privateKeys.active, password, salt).toString();
   return encryptedKeys;
 }
 
@@ -182,14 +182,14 @@ async function generateOreAccountAndKeys(ownerPublicKey, options = {}) {
   };
 }
 
-async function generateOreAccountAndEncryptedKeys(password, ownerPublicKey, options = {}) {
+async function generateOreAccountAndEncryptedKeys(password, salt, ownerPublicKey, options = {}) {
   const {
     keys,
     oreAccountName,
     transaction,
   } = await generateOreAccountAndKeys.bind(this)(ownerPublicKey, options);
 
-  const encryptedKeys = await encryptKeys.bind(this)(keys, password);
+  const encryptedKeys = await encryptKeys.bind(this)(keys, password, salt);
   return {
     encryptedKeys,
     oreAccountName,
@@ -199,12 +199,12 @@ async function generateOreAccountAndEncryptedKeys(password, ownerPublicKey, opti
 
 /* Public */
 
-async function createOreAccount(password, ownerPublicKey, options = {}) {
+async function createOreAccount(password, salt, ownerPublicKey, options = {}) {
   const {
     encryptedKeys,
     oreAccountName,
     transaction,
-  } = await generateOreAccountAndEncryptedKeys.bind(this)(password, ownerPublicKey, options);
+  } = await generateOreAccountAndEncryptedKeys.bind(this)(password, salt, ownerPublicKey, options);
   const verifierAuthKeys = await generateAuthKeys.bind(this)(oreAccountName, 'authverifier', 'token.ore', 'approve');
 
   return {
