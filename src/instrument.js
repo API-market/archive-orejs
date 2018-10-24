@@ -2,11 +2,12 @@ const INSTR_CONTRACT_NAME = 'instr.ore';
 const INSTR_TABLE_NAME = 'tokens';
 
 /* Private */
+// NOTE: if the endTime is 0, the instrument is valid forever
 function isActive(instrument) {
   const startTime = instrument.start_time;
   const endTime = instrument.end_time;
   const currentTime = Math.floor(Date.now() / 1000);
-  return (currentTime > startTime && currentTime < endTime);
+  return (currentTime > startTime && (currentTime < endTime || endTime == 0));
 }
 
 function hasCategory(instrument, category) {
