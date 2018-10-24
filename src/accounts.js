@@ -3,6 +3,7 @@ const {
 } = require('eosjs-keygen');
 
 const ACCOUNT_NAME_MAX_LENGTH = 12;
+const BASE = 31; // Base 31 allows us to leave out '.', as it's used for account scope
 
 /* Private */
 
@@ -42,7 +43,7 @@ function newAccountTransaction(name, ownerPublicKey, activePublicKey, options = 
 function eosBase32(base32String) {
   // NOTE: Returns valid EOS base32, which is different than the standard JS base32 implementation
   return base32String
-    .replace(/0/g, '.')
+    .replace(/0/g, 'v')
     .replace(/6/g, 'w')
     .replace(/7/g, 'x')
     .replace(/8/g, 'y')
@@ -51,12 +52,12 @@ function eosBase32(base32String) {
 
 function timestampEosBase32() {
   // NOTE: Returns a UNIX timestamp, that is EOS base32 encoded
-  return eosBase32(Date.now().toString(32));
+  return eosBase32(Date.now().toString(BASE));
 }
 
 function randomEosBase32() {
   // NOTE: Returns a random string, that is EOS base32 encoded
-  return eosBase32(Math.random().toString(32).substr(2));
+  return eosBase32(Math.random().toString(BASE).substr(2));
 }
 
 function generateAccountName() {
