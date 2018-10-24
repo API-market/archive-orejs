@@ -1,6 +1,6 @@
 /* global ORE_TESTA_ACCOUNT_KEY:true */
 /* global WALLET_PASSWORD:true */
-/* global SALT:true */
+/* global USER_ACCOUNT_ENCRYPTION_SALT:true */
 
 const {
   crypto,
@@ -14,7 +14,7 @@ describe('encryption/decryption of private keys with wallet passwords', () => {
 
   beforeAll(() => {
     privateKey = ORE_TESTA_ACCOUNT_KEY;
-    salt = SALT;
+    salt = USER_ACCOUNT_ENCRYPTION_SALT;
     walletPassword = WALLET_PASSWORD;
     encrypted = crypto.encrypt(privateKey, walletPassword, salt);
   });
