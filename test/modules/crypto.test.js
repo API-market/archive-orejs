@@ -19,10 +19,24 @@ describe('encryption/decryption of private keys with wallet passwords', () => {
     encrypted = crypto.encrypt(privateKey, walletPassword, salt);
   });
 
-  describe('deriveKey', function() {
+  describe('deriveKey', () => {
     test('returns a deterministic salt', () => {
       expect(crypto.deriveKey(walletPassword, salt)).toEqual(crypto.deriveKey(walletPassword, salt));
       expect(crypto.deriveKey(walletPassword, salt)).not.toEqual(crypto.deriveKey(walletPassword, ''));
+    });
+  });
+
+  describe('decryptWithKey', () => {
+    test('returns the original private key', () => {
+      const key = crypto.deriveKey(walletPassword, salt);
+      const decrypted = crypto.decryptWithKey(encrypted, key);
+      expect(decrypted.toString()).toMatch(privateKey);
+    });
+
+    test('does not return privateKey with a bad key', () => {
+      const key = 'badkey';
+      const decrypted = crypto.decryptWithKey(encrypted, key);
+      expect(decrypted.toString()).not.toMatch(privateKey);
     });
   });
 

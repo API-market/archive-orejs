@@ -1,5 +1,15 @@
 const sjcl = require('sjcl');
 
+// PRIVATE
+
+// Encrypts the EOS private key with the derived key
+function encryptWithKey(unencrypted, key) {
+  const encrypted = JSON.parse(sjcl.encrypt(key, unencrypted, { mode: 'gcm' }));
+  return JSON.stringify(encrypted);
+}
+
+// PUBLIC
+
 // Derive the key used for encryption/decryption
 function deriveKey(password, salt) {
   // NOTE Passing in at least an empty string for the salt, will prevent cached keys, which can lead to false positives in the test suite
@@ -7,27 +17,30 @@ function deriveKey(password, salt) {
   return key;
 }
 
-// Decrypts the encrypted EOS key with wallet password
-function decrypt(encrypted, password, salt) {
+// Decrypts the encrypted EOS private key with the derived key
+function decryptWithKey(encrypted, key) {
   try {
     const encryptedData = JSON.stringify(Object.assign(JSON.parse(encrypted), { mode: 'gcm' }));
-    return sjcl.decrypt(deriveKey(password, salt), encryptedData);
+    return sjcl.decrypt(key, encryptedData);
   } catch (err) {
     // console.error('Decryption Error:', err);
     return '';
   }
 }
 
-// Encrypts the EOS private key with wallet password
+// Decrypts the encrypted EOS private key with wallet password, and salt
+function decrypt(encrypted, password, salt) {
+  return decryptWithKey(encrypted, deriveKey(password, salt));
+}
+
+// Encrypts the EOS private key with wallet password, and salt
 function encrypt(unencrypted, password, salt) {
-  const p = { iter: 1000, salt };
-  const { key } = sjcl.misc.cachedPbkdf2(password, { iter: 1000, salt });
-  const encrypted = JSON.parse(sjcl.encrypt(deriveKey(password, salt), unencrypted, { mode: 'gcm' }));
-  return JSON.stringify(encrypted);
+  return encryptWithKey(unencrypted, deriveKey(password, salt));
 }
 
 module.exports = {
   decrypt,
+  decryptWithKey,
   deriveKey,
   encrypt,
 };
