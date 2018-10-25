@@ -1,18 +1,22 @@
-const APIM_CONTRACT_NAME = 'manager.apim';
 const INSTR_CONTRACT_NAME = 'instr.ore';
 const INSTR_TABLE_NAME = 'tokens';
 
-const ecc = require('eosjs-ecc');
-
 /* Private */
+// NOTE: if the endTime is 0, the instrument is valid forever
 function isActive(instrument) {
   const startTime = instrument.start_time;
   const endTime = instrument.end_time;
   const currentTime = Math.floor(Date.now() / 1000);
-  return (currentTime > startTime && currentTime < endTime);
+  return (currentTime > startTime && (currentTime < endTime || endTime == 0));
 }
 
-/* Public */
+function hasCategory(instrument, category) {
+  if (instrument.instrument.instrument_class === category) {
+    return true;
+  }
+  return false;
+}
+
 async function getInstruments(params) {
   // Returns instruments indexed by owner/instrumentTemplate/instrumentClass
   // Returns all instruments by default
@@ -50,6 +54,7 @@ async function getInstruments(params) {
   return results.rows;
 }
 
+/* Public */
 async function getAllInstruments() {
   // Returns all the instruments
   const instruments = await getInstruments.bind(this)({
@@ -73,13 +78,6 @@ function getRight(instrument, rightName) {
     return undefined;
   });
   return right;
-}
-
-function hasCategory(instrument, category) {
-  if (instrument.instrument.instrument_class === category) {
-    return true;
-  }
-  return false;
 }
 
 async function findInstruments(oreAccountName, activeOnly = true, category = undefined, rightName = undefined) {
@@ -111,52 +109,8 @@ async function findInstruments(oreAccountName, activeOnly = true, category = und
   return instruments;
 }
 
-async function createOfferInstrument(oreAccountName, offerData, confirm = false) {
-  // Create an offer
-  const options = {
-    authorization: `${oreAccountName}@active`,
-  };
-  const contract = await this.eos.contract(APIM_CONTRACT_NAME, options);
-  if (confirm) {
-    return this.awaitTransaction(() => contract.publishapi(oreAccountName, offerData.issuer, offerData.security_type,
-      offerData.mutability, offerData.api_params, offerData.additional_url_params,
-      offerData.parameter_rules, offerData.instrument_template, offerData.start_time,
-      offerData.end_time, offerData.override_offer_id, options));
-  }
-  contract.publishapi(oreAccountName, offerData.issuer, offerData.security_type,
-    offerData.mutability, offerData.api_params, offerData.additional_url_params,
-    offerData.parameter_rules, offerData.instrument_template, offerData.start_time,
-    offerData.end_time, offerData.override_offer_id, options);
-  return this;
-}
-
-async function createVoucherInstrument(creator, buyer, offerId, overrideVoucherId = 0, offerTemplate = '', confirm = false) {
-  // Exercise an offer to get a voucher
-  // overrideVoucherId is passed in to specify the voucher id for the new voucher. If its value is 0, then the voucher id is auto generated
-  // either offerTemplate or offerId could be passed in to get a voucher for that offer.
-  if (offerId === 0 && offerTemplate === '') {
-    throw new Error('Either pass in a valid offer id or a valid offer template');
-  }
-  const options = {
-    authorization: `${creator}@active`,
-  };
-  const contract = await this.eos.contract(APIM_CONTRACT_NAME, options);
-  if (confirm) {
-    return this.awaitTransaction(() => contract.licenseapi(creator, buyer, offerId, offerTemplate, overrideVoucherId, options));
-  }
-  contract.licenseapi(creator, buyer, offerId, offerTemplate, overrideVoucherId, options);
-  return this;
-}
-
-async function signVoucher(apiVoucherId) {
-  return ecc.sign(apiVoucherId.toString(), this.config.keyProvider[0]);
-}
-
 module.exports = {
   getRight,
   getAllInstruments,
   findInstruments,
-  createOfferInstrument,
-  createVoucherInstrument,
-  signVoucher,
 };

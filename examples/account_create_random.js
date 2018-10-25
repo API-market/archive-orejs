@@ -7,7 +7,7 @@ const BigNumber = require('bignumber.js');
 const ecc = require('eosjs-ecc');
 const {
   crypto,
-} = require('../index');
+} = require('./index');
 
 let options;
 let balance;
@@ -16,7 +16,7 @@ let orejs;
 
 async function connectAs(accountName, accountKey) {
   // Reinitialize the orejs library, with permissions for the current account...
-  orejs = require('../index').orejs(accountName, accountKey);
+  orejs = require('./index').orejs(accountName, accountKey);
   console.log('Private Key:', accountKey);
   console.log('Public Key:', ecc.privateToPublic(accountKey));
   options = {
@@ -40,32 +40,30 @@ function instrumentFor(accountName, version = Math.random().toString()) {
   return {
     creator: process.env.ORE_OWNER_ACCOUNT_NAME,
     issuer: process.env.ORE_OFFER_ISSUER,
-    security_type: 'pass',
-    mutability: 1,
-    api_params: [{
+    api_voucher_license_price_in_cpu: '0.0000 CPU',
+    api_voucher_lifetime_in_seconds: 2592000,
+    api_voucher_start_date: 0,
+    api_voucher_end_date: 0,
+    api_voucher_valid_forever: 1,
+    api_voucher_mutability: 1,
+    api_voucher_security_type: 'permit',
+    right_params: [{
       right_name: 'apimarket.manager.licenseApi',
+      right_description: 'creates a voucher for cloud.hadron.imageRecognize',
+      right_price_in_cpu: '0.0000 CPU',
       api_name: 'cloud.hadron.imageRecognize',
-      api_description: 'image recognition',
-      api_price_in_cpu: '1.0000 CPU',
+      api_description: 'processes an image and returns list of objects found',
+      api_price_in_cpu: '0.0010 CPU',
+      api_payment_model: 'payPerCall',
+      api_additional_url_params: '',
     }],
-    additional_url_params: [],
-    parameter_rules: [{
-      type: 'default',
-      values: [{
-        name: 'api_security_type',
-        value: 'permit',
-      }, {
-        name: 'api_payment_model',
-        value: 'pay per call',
-      }, {
-        name: 'license_price_in_cpu',
-        value: '0.0000 CPU',
-      }],
-    }],
-    instrument_template: `cloud.hadron.contest-2018-07- ${Math.floor(Date.now() / 1000)}`,
-    start_time: 0,
-    end_time: 0,
-    override_offer_id: 0,
+    api_voucher_parameter_rules: [],
+    offer_mutability: 2,
+    offer_security_type: 'pass',
+    offer_template: 'cloud.hadron.imageRecognize-v10',
+    offer_start_time: 0,
+    offer_end_time: 0,
+    offer_override_id: 0,
   };
 }
 
@@ -93,7 +91,7 @@ function delay(ms = 1000) {
 
   const ownerPublicKey = ecc.privateToPublic(process.env.ORE_OWNER_ACCOUNT_KEY);
   const activePublicKey = ecc.privateToPublic(process.env.ORE_OWNER_ACCOUNT_ACTIVE_KEY);
-  const account = await orejs.createOreAccount(process.env.WALLET_PASSWORD, activePublicKey);
+  const account = await orejs.createOreAccount(process.env.WALLET_PASSWORD, process.env.USER_ACCOUNT_ENCRYPTION_SALT, activePublicKey);
   console.log('Account Created:', account);
 
   // // Get the newly created EOS account...
@@ -132,11 +130,11 @@ function delay(ms = 1000) {
   await orejs.approveCpu(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, amount, 'approve transfer');
   await logBalances(account.oreAccountName);
 
-  // ///////////////////////
-  // // Publish an API... //
-  // ///////////////////////
+  /////////////////////////
+  // Publish an API...  //
+  ///////////////////////
 
-  await connectAs(account.oreAccountName, crypto.decrypt(account.privateKey, 'password'));
+  await connectAs(account.oreAccountName, crypto.decrypt(account.privateKey, process.env.WALLET_PASSWORD, process.env.USER_ACCOUNT_ENCRYPTION_SALT));
 
   logInstrumentCount();
 
@@ -153,9 +151,9 @@ function delay(ms = 1000) {
 
   logInstrumentCount();
 
-  // /////////////////////
-  // License an API... //
-  // /////////////////////
+  // //////////////////////
+  // License an API...  //
+  // ////////////////////
 
   const voucherTx = await orejs.createVoucherInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, offer.id, 0, '', false);
 
@@ -166,11 +164,11 @@ function delay(ms = 1000) {
 
   logInstrumentCount();
 
-  // //////////////////
+  //////////////////
   // Call the API... //
-  // //////////////////
+  ///////////////////
 
-  await connectAs(account.oreAccountName, crypto.decrypt(account.authVerifierPrivateKey, 'password'));
+  await connectAs(account.oreAccountName, crypto.decrypt(account.authVerifierPrivateKey, process.env.WALLET_PASSWORD, process.env.USER_ACCOUNT_ENCRYPTION_SALT));
 
   const actions = await orejs.eos.getActions(account.oreAccountName);
   const [right] = voucher.instrument.rights;

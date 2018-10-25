@@ -3,6 +3,7 @@ const {
 } = require('eosjs-keygen');
 
 const ACCOUNT_NAME_MAX_LENGTH = 12;
+const BASE = 31; // Base 31 allows us to leave out '.', as it's used for account scope
 
 /* Private */
 
@@ -42,7 +43,7 @@ function newAccountTransaction(name, ownerPublicKey, activePublicKey, options = 
 function eosBase32(base32String) {
   // NOTE: Returns valid EOS base32, which is different than the standard JS base32 implementation
   return base32String
-    .replace(/0/g, '.')
+    .replace(/0/g, 'v')
     .replace(/6/g, 'w')
     .replace(/7/g, 'x')
     .replace(/8/g, 'y')
@@ -51,12 +52,12 @@ function eosBase32(base32String) {
 
 function timestampEosBase32() {
   // NOTE: Returns a UNIX timestamp, that is EOS base32 encoded
-  return eosBase32(Date.now().toString(32));
+  return eosBase32(Date.now().toString(BASE));
 }
 
 function randomEosBase32() {
   // NOTE: Returns a random string, that is EOS base32 encoded
-  return eosBase32(Math.random().toString(32).substr(2));
+  return eosBase32(Math.random().toString(BASE).substr(2));
 }
 
 function generateAccountName() {
@@ -66,12 +67,12 @@ function generateAccountName() {
   return (timestampEosBase32() + randomEosBase32()).substr(0, 12);
 }
 
-async function encryptKeys(keys, password) {
+async function encryptKeys(keys, password, salt) {
   const encryptedKeys = keys;
-  const encryptedWalletPassword = this.encrypt(keys.masterPrivateKey, password).toString();
+  const encryptedWalletPassword = this.encrypt(keys.masterPrivateKey, password, salt).toString();
   encryptedKeys.masterPrivateKey = encryptedWalletPassword;
-  encryptedKeys.privateKeys.owner = this.encrypt(keys.privateKeys.owner, password).toString();
-  encryptedKeys.privateKeys.active = this.encrypt(keys.privateKeys.active, password).toString();
+  encryptedKeys.privateKeys.owner = this.encrypt(keys.privateKeys.owner, password, salt).toString();
+  encryptedKeys.privateKeys.active = this.encrypt(keys.privateKeys.active, password, salt).toString();
   return encryptedKeys;
 }
 
@@ -120,8 +121,7 @@ async function appendPermission(oreAccountName, keys, permName, parent = 'active
   return perms;
 }
 
-async function addAuthVerifierPermission(oreAccountName, keys) {
-  const permName = 'authverifier';
+async function addAuthPermission(oreAccountName, keys, permName, code, type) {
   const perms = await appendPermission.bind(this)(oreAccountName, keys, permName);
   await this.eos.transaction((tr) => {
     perms.forEach((perm) => {
@@ -137,8 +137,8 @@ async function addAuthVerifierPermission(oreAccountName, keys) {
 
     tr.linkauth({
       account: oreAccountName,
-      code: 'token.ore',
-      type: 'approve',
+      code,
+      type, // action
       requirement: permName,
     }, {
       authorization: `${oreAccountName}@owner`,
@@ -146,10 +146,10 @@ async function addAuthVerifierPermission(oreAccountName, keys) {
   });
 }
 
-async function generateVerifierAuthKeys(oreAccountName) {
-  const verifierAuthKeys = await Keygen.generateMasterKeys();
-  await addAuthVerifierPermission.bind(this)(oreAccountName, [verifierAuthKeys.publicKeys.active]);
-  return verifierAuthKeys;
+async function generateAuthKeys(oreAccountName, permName, code, action) {
+  const authKeys = await Keygen.generateMasterKeys();
+  await addAuthPermission.bind(this)(oreAccountName, [authKeys.publicKeys.active], permName, code, action);
+  return authKeys;
 }
 
 async function createOreAccountWithKeys(activePublicKey, ownerPublicKey, options = {}, confirm = false) {
@@ -182,14 +182,14 @@ async function generateOreAccountAndKeys(ownerPublicKey, options = {}) {
   };
 }
 
-async function generateOreAccountAndEncryptedKeys(password, ownerPublicKey, options = {}) {
+async function generateOreAccountAndEncryptedKeys(password, salt, ownerPublicKey, options = {}) {
   const {
     keys,
     oreAccountName,
     transaction,
   } = await generateOreAccountAndKeys.bind(this)(ownerPublicKey, options);
 
-  const encryptedKeys = await encryptKeys.bind(this)(keys, password);
+  const encryptedKeys = await encryptKeys.bind(this)(keys, password, salt);
   return {
     encryptedKeys,
     oreAccountName,
@@ -199,13 +199,13 @@ async function generateOreAccountAndEncryptedKeys(password, ownerPublicKey, opti
 
 /* Public */
 
-async function createOreAccount(password, ownerPublicKey, options = {}) {
+async function createOreAccount(password, salt, ownerPublicKey, options = {}) {
   const {
     encryptedKeys,
     oreAccountName,
     transaction,
-  } = await generateOreAccountAndEncryptedKeys.bind(this)(password, ownerPublicKey, options);
-  const verifierAuthKeys = await generateVerifierAuthKeys.bind(this)(oreAccountName);
+  } = await generateOreAccountAndEncryptedKeys.bind(this)(password, salt, ownerPublicKey, options);
+  const verifierAuthKeys = await generateAuthKeys.bind(this)(oreAccountName, 'authverifier', 'token.ore', 'approve');
 
   return {
     verifierAuthKey: verifierAuthKeys.privateKeys.active,

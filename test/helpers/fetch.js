@@ -9,7 +9,7 @@ function mock(body, status = 200) {
   return [
     JSON.stringify(body),
     {
-      status
+      status,
     },
   ];
 }
@@ -20,7 +20,7 @@ function mockAccount(account = {}) {
     cpu_limit: {
       available: 12342451,
       max: 12342451,
-      used: 0
+      used: 0,
     },
     cpu_weight: 10000,
     created: '2018-07-27T05:08:50.500',
@@ -30,35 +30,35 @@ function mockAccount(account = {}) {
     net_limit: {
       available: 64709992,
       max: 64709992,
-      used: 0
+      used: 0,
     },
     net_weight: 10000,
     permissions: [{
-        parent: 'owner',
-        perm_name: 'active',
-        required_auth: {
-          accounts: [],
-          keys: [{
-            key: 'EOS5QygD8vsKRXuVR8JMgLPjWwqzUyVGAJyvYaK7ffU4oPDmgwgqX',
-            weight: 1
-          }],
-          threshold: 1,
-          waits: [],
-        },
+      parent: 'owner',
+      perm_name: 'active',
+      required_auth: {
+        accounts: [],
+        keys: [{
+          key: 'EOS5QygD8vsKRXuVR8JMgLPjWwqzUyVGAJyvYaK7ffU4oPDmgwgqX',
+          weight: 1,
+        }],
+        threshold: 1,
+        waits: [],
       },
-      {
-        parent: '',
-        perm_name: 'owner',
-        required_auth: {
-          accounts: [],
-          keys: [{
-            key: 'EOS7xvHh4RwHJhMYXQE8r3d6AkVpxYUQEiopQi5jM1q1JYRyJZZzX',
-            weight: 1
-          }],
-          threshold: 1,
-          waits: [],
-        },
+    },
+    {
+      parent: '',
+      perm_name: 'owner',
+      required_auth: {
+        accounts: [],
+        keys: [{
+          key: 'EOS7xvHh4RwHJhMYXQE8r3d6AkVpxYUQEiopQi5jM1q1JYRyJZZzX',
+          weight: 1,
+        }],
+        threshold: 1,
+        waits: [],
       },
+    },
     ],
     privileged: false,
     ram_quota: 8150,

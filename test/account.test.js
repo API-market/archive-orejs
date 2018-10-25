@@ -1,3 +1,4 @@
+/* global USER_ACCOUNT_ENCRYPTION_SALT:true */
 /* global WALLET_PASSWORD:true */
 /* global ORE_OWNER_ACCOUNT_KEY:true */
 /* global ORE_NETWORK_URI:true */
@@ -37,7 +38,7 @@ describe('account', () => {
     });
 
     test('returns a new account', async () => {
-      const account = await orejs.createOreAccount(WALLET_PASSWORD, ORE_OWNER_ACCOUNT_KEY);
+      const account = await orejs.createOreAccount(WALLET_PASSWORD, USER_ACCOUNT_ENCRYPTION_SALT, ORE_OWNER_ACCOUNT_KEY);
       expect(spyTransaction).toHaveBeenNthCalledWith(2, expect.any(Function));
       expect(spyAccount).toHaveBeenCalledWith(expect.any(String));
       expect(spyInfo).toHaveBeenCalledWith({});
@@ -45,12 +46,12 @@ describe('account', () => {
       expect(account).toEqual({
         verifierAuthKey: expect.any(String),
         verifierAuthPublicKey: expect.any(String),
-        oreAccountName: expect.stringMatching(/[a-z1-5\.]{12}/),
+        oreAccountName: expect.stringMatching(/[a-z1-5]{12}/),
         privateKey: expect.any(String),
         publicKey: expect.any(String),
-        transaction: transaction,
+        transaction,
       });
-      expect(ecc.privateToPublic(orejs.decrypt(account.privateKey, WALLET_PASSWORD))).toEqual(account.publicKey);
+      expect(ecc.privateToPublic(orejs.decrypt(account.privateKey, WALLET_PASSWORD, USER_ACCOUNT_ENCRYPTION_SALT))).toEqual(account.publicKey);
       expect(ecc.privateToPublic(account.verifierAuthKey)).toEqual(account.verifierAuthPublicKey);
     });
   });
@@ -58,7 +59,7 @@ describe('account', () => {
   describe('eosBase32', () => {
     test('encodes correctly', async () => {
       const accountName = await orejs.eosBase32('abcde.067899');
-      expect(accountName).toEqual('abcde..wxyzz');
+      expect(accountName).toEqual('abcde.vwxyzz');
     });
   });
 });
