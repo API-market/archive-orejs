@@ -20,23 +20,6 @@ describe('token', () => {
     orejs = constructOrejs();
   });
 
-  describe('getHeadBlock', () => {
-    let block;
-
-    beforeEach(() => {
-      block = mockBlock();
-
-      fetch.resetMocks();
-      fetch.mockResponses(mockInfo(), block);
-    });
-
-    test('returns the latest block', async () => {
-      const blockNum = await orejs.getHeadBlock();
-      expectFetch(`${ORE_NETWORK_URI}/v1/chain/get_info`, `${ORE_NETWORK_URI}/v1/chain/get_block`);
-      expect(JSON.stringify(blockNum)).toEqual(block[0]);
-    });
-  });
-
   describe('awaitTransaction', () => {
     let transaction;
     let info;
@@ -57,7 +40,7 @@ describe('token', () => {
         return transaction;
       }, 10, 10);
       expect(spyInfo).toHaveBeenCalledWith({});
-      expect(spyBlock).toHaveBeenCalledWith(block.block_num);
+      expect(spyBlock).toHaveBeenCalledWith(block.block_num + 1);
     });
 
     describe('when the transaction is not found', () => {
