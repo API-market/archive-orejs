@@ -28,7 +28,7 @@ function hasTransaction(block, transactionId) {
 // NOTE: Use this to await for transactions to be added to a block
 // Useful, when committing sequential transactions with inter-dependencies
 // NOTE: This does NOT confirm that the transaction is irreversible, aka finalized
-function awaitTransaction(func, blocksToCheck = 10, checkInterval = 400) {
+function awaitTransaction(func, blocksToCheck = 12, checkInterval = 400) {
   return new Promise(async (resolve, reject) => {
     // check the current head block num...
     const preCommitInfo = await this.eos.getInfo({});
