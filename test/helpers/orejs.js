@@ -8,6 +8,7 @@ const {
 const {
   mockAccount,
   mockBlock,
+  mockError,
   mockInfo,
   mockTransaction,
 } = require('./fetch');
@@ -65,6 +66,20 @@ function mockGetBlock(_orejs = undefined, _block = {}) {
   return getBlock;
 }
 
+function mockGetBlockError(_orejs = undefined) {
+  const mockupBlock = jest.fn();
+
+  const getBlock = mockError();
+
+  mockupBlock.mockImplementation(() => {
+    throw getBlock;
+  });
+  const orejs = _orejs || constructOrejs();
+  orejs.eos.getBlock = mockupBlock;
+
+  return getBlock;
+}
+
 function mockGetInfo(_orejs = undefined, _info = {}) {
   const mockupInfo = jest.fn();
 
@@ -94,6 +109,7 @@ module.exports = {
   mockContract,
   mockGetAccount,
   mockGetBlock,
+  mockGetBlockError,
   mockGetInfo,
   mockGetTransaction,
 };

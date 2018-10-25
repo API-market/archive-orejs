@@ -97,6 +97,20 @@ function mockBlock(block = {}) {
   }]);
 }
 
+function mockError(error = {}) {
+  return new Error({
+    code: 500,
+    message: 'Internal Service Error',
+    error: {
+      code: 3100002,
+      name: 'unknown_block_exception',
+      what: 'Unknown block',
+      details: [],
+      ...error,
+    },
+  });
+}
+
 function mockInfo(info = {}) {
   return mock([{
     server_version: '75635168',
@@ -173,6 +187,7 @@ module.exports = {
   mock,
   mockAccount,
   mockBlock,
+  mockError,
   mockInfo,
   mockInstrument,
   mockInstruments,

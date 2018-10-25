@@ -26,9 +26,12 @@ function hasTransaction(block, transactionId) {
 }
 
 // NOTE: Use this to await for transactions to be added to a block
-// Useful, when committing sequential transactions with inter-dependencies
+// NOTE: Useful, when committing sequential transactions with inter-dependencies
 // NOTE: This does NOT confirm that the transaction is irreversible, aka finalized
-function awaitTransaction(func, blocksToCheck = 12, checkInterval = 400) {
+// NOTE: blocksToCheck = the number of blocks to check, after committing the transaction, before giving up
+// NOTE: checkInterval = the time between block checks in MS
+// NOTE: getBlockAttempts = the number of failed attempts at retrieving a particular block, before giving up
+function awaitTransaction(func, blocksToCheck = 12, checkInterval = 400, getBlockAttempts = 3) {
   return new Promise(async (resolve, reject) => {
     // check the current head block num...
     const preCommitInfo = await this.eos.getInfo({});
@@ -38,14 +41,22 @@ function awaitTransaction(func, blocksToCheck = 12, checkInterval = 400) {
     // keep checking for the transaction in future blocks...
     let blockNumToCheck = preCommitHeadBlockNum + 1;
     let blockToCheck;
+    let getBlockAttempt = 1;
     const intConfirm = setInterval(async () => {
-      blockToCheck = await this.eos.getBlock(blockNumToCheck);
-      if (blockToCheck) {
+      try {
+        blockToCheck = await this.eos.getBlock(blockNumToCheck);
         if (hasTransaction(blockToCheck, transaction.transaction_id)) {
           clearInterval(intConfirm);
           resolve(transaction);
         }
+        getBlockAttempt = 1;
         blockNumToCheck += 1;
+      } catch (error) {
+        if (getBlockAttempt >= getBlockAttempts) {
+          clearInterval(intConfirm);
+          reject(new Error(`Await Transaction Failure: Failure to find a block, after ${getBlockAttempt} attempts to check block ${blockNumToCheck}.`));
+        }
+        getBlockAttempt += 1;
       }
       if (blockNumToCheck > preCommitHeadBlockNum + blocksToCheck) {
         clearInterval(intConfirm);

@@ -10,6 +10,7 @@ const {
   mockGetAccount,
   mockGetInfo,
   mockGetBlock,
+  mockGetBlockError,
   mockGetTransaction,
 } = require('./helpers/orejs');
 
@@ -56,7 +57,24 @@ describe('token', () => {
           await setTimeout(() => true, 10);
           return transaction;
         }, 2, 10);
-        expect(result).rejects.toThrow();
+        await expect(result).rejects.toThrow(/Await Transaction Timeout/);
+      });
+    });
+
+    describe('when the block is not found', () => {
+      beforeAll(() => {
+        jest.clearAllMocks();
+        transaction = mockGetTransaction(orejs);
+        info = mockGetInfo(orejs);
+        block = mockGetBlockError(orejs);
+      });
+
+      test('throws an error with the block number', async () => {
+        const result = orejs.awaitTransaction(async () => {
+          await setTimeout(() => true, 10);
+          return transaction;
+        }, 10, 10);
+        await expect(result).rejects.toThrow(/Await Transaction Failure/);
       });
     });
   });
