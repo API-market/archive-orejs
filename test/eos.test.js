@@ -10,6 +10,7 @@ const {
   mockGetAccount,
   mockGetInfo,
   mockGetBlock,
+  mockGetBlockError,
   mockGetTransaction,
 } = require('./helpers/orejs');
 
@@ -18,23 +19,6 @@ describe('token', () => {
 
   beforeAll(() => {
     orejs = constructOrejs();
-  });
-
-  describe('getHeadBlock', () => {
-    let block;
-
-    beforeEach(() => {
-      block = mockBlock();
-
-      fetch.resetMocks();
-      fetch.mockResponses(mockInfo(), block);
-    });
-
-    test('returns the latest block', async () => {
-      const blockNum = await orejs.getHeadBlock();
-      expectFetch(`${ORE_NETWORK_URI}/v1/chain/get_info`, `${ORE_NETWORK_URI}/v1/chain/get_block`);
-      expect(JSON.stringify(blockNum)).toEqual(block[0]);
-    });
   });
 
   describe('awaitTransaction', () => {
@@ -57,7 +41,7 @@ describe('token', () => {
         return transaction;
       }, 10, 10);
       expect(spyInfo).toHaveBeenCalledWith({});
-      expect(spyBlock).toHaveBeenCalledWith(block.block_num);
+      expect(spyBlock).toHaveBeenCalledWith(block.block_num + 1);
     });
 
     describe('when the transaction is not found', () => {
@@ -73,7 +57,24 @@ describe('token', () => {
           await setTimeout(() => true, 10);
           return transaction;
         }, 2, 10);
-        expect(result).rejects.toThrow();
+        await expect(result).rejects.toThrow(/Await Transaction Timeout/);
+      });
+    });
+
+    describe('when the block is not found', () => {
+      beforeAll(() => {
+        jest.clearAllMocks();
+        transaction = mockGetTransaction(orejs);
+        info = mockGetInfo(orejs);
+        block = mockGetBlockError(orejs);
+      });
+
+      test('throws an error with the block number', async () => {
+        const result = orejs.awaitTransaction(async () => {
+          await setTimeout(() => true, 10);
+          return transaction;
+        }, 10, 10);
+        await expect(result).rejects.toThrow(/Await Transaction Failure/);
       });
     });
   });

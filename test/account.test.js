@@ -42,7 +42,7 @@ describe('account', () => {
       expect(spyTransaction).toHaveBeenNthCalledWith(2, expect.any(Function));
       expect(spyAccount).toHaveBeenCalledWith(expect.any(String));
       expect(spyInfo).toHaveBeenCalledWith({});
-      expect(spyBlock).toHaveBeenCalledWith(block.block_num);
+      expect(spyBlock).toHaveBeenCalledWith(block.block_num + 1);
       expect(account).toEqual({
         verifierAuthKey: expect.any(String),
         verifierAuthPublicKey: expect.any(String),
