@@ -16,27 +16,68 @@ function newAccountTransaction(name, ownerPublicKey, activePublicKey, options = 
     ...options,
   };
 
-  return this.eos.transaction((tr) => {
-    tr.newaccount({
-      creator: this.config.orePayerAccountName,
-      name,
-      owner: ownerPublicKey,
-      active: activePublicKey,
-    });
-
-    tr.buyrambytes({
-      payer: this.config.orePayerAccountName,
-      receiver: name,
-      bytes: option.bytes,
-    });
-
-    tr.delegatebw({
-      from: this.config.orePayerAccountName,
-      receiver: name,
-      stake_net_quantity: `${option.stakedNet}.0000 SYS`,
-      stake_cpu_quantity: `${option.stakedCpu}.0000 SYS`,
-      transfer: option.transfer,
-    });
+  return this.eos.transact({
+    actions: [{
+      account: 'eosio',
+      name: 'newaccount',
+      authorization: [{
+        actor: this.config.orePayerAccountName,
+        permission: 'active',
+      }],
+      data: {
+        creator: this.config.orePayerAccountName,
+        name,
+        owner: {
+          threshold: 1,
+          keys: [{
+            key: ownerPublicKey,
+            weight: 1,
+          }],
+          accounts: [],
+          waits: [],
+        },
+        active: {
+          threshold: 1,
+          keys: [{
+            key: activePublicKey,
+            weight: 1,
+          }],
+          accounts: [],
+          waits: [],
+        },
+      },
+    },
+    {
+      account: 'eosio',
+      name: 'buyrambytes',
+      authorization: [{
+        actor: this.config.orePayerAccountName,
+        permission: 'active',
+      }],
+      data: {
+        payer: this.config.orePayerAccountName,
+        receiver: name,
+        bytes: option.bytes,
+      },
+    },
+    {
+      account: 'eosio',
+      name: 'delegatebw',
+      authorization: [{
+        actor: this.config.orePayerAccountName,
+        permission: 'active',
+      }],
+      data: {
+        from: this.config.orePayerAccountName,
+        receiver: name,
+        stake_net_quantity: `${option.stakedNet}.0000 SYS`,
+        stake_cpu_quantity: `${option.stakedCpu}.0000 SYS`,
+        transfer: option.transfer,
+      },
+    }],
+  }, {
+    blocksBehind: 3,
+    expireSeconds: 30,
   });
 }
 
@@ -77,7 +118,7 @@ async function encryptKeys(keys, password, salt) {
 }
 
 async function getAccountPermissions(oreAccountName) {
-  const account = await this.eos.getAccount(oreAccountName);
+  const account = await this.eos.get_account(oreAccountName);
   const {
     permissions,
   } = account;
@@ -123,26 +164,42 @@ async function appendPermission(oreAccountName, keys, permName, parent = 'active
 
 async function addAuthPermission(oreAccountName, keys, permName, code, type) {
   const perms = await appendPermission.bind(this)(oreAccountName, keys, permName);
-  await this.eos.transaction((tr) => {
-    perms.forEach((perm) => {
-      tr.updateauth({
+  const actions = perms.map((perm) => {
+    return {
+      account: 'eosio',
+      name: 'updateauth',
+      authorization: [{
+        actor: this.config.orePayerAccountName,
+        permission: 'active',
+      }],
+      data: {
         account: oreAccountName,
         permission: perm.perm_name,
         parent: perm.parent,
         auth: perm.required_auth,
-      }, {
-        authorization: `${oreAccountName}@owner`,
-      });
-    });
+      },
+    };
+  });
 
-    tr.linkauth({
-      account: oreAccountName,
+  actions.push({
+    account: 'eosio',
+    name: 'linkauth',
+    authorization: [{
+      actor: this.config.orePayerAccountName,
+      permission: 'active',
+    }],
+    data: {
       code,
-      type, // action
+      type,
       requirement: permName,
-    }, {
-      authorization: `${oreAccountName}@owner`,
-    });
+    },
+  });
+
+  await this.eos.transact({
+    actions,
+  }, {
+    blocksBehind: 3,
+    expireSeconds: 30,
   });
 }
 

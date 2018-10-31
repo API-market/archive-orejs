@@ -5,7 +5,7 @@ async function createOfferInstrument(oreAccountName, offerData, confirm = false)
   const options = {
     authorization: `${oreAccountName}@active`,
   };
-  const contract = await this.eos.contract(APIM_CONTRACT_NAME, options);
+  const contract = await this.eos.getContract(APIM_CONTRACT_NAME, options);
 
   if (confirm) {
     return this.awaitTransaction(() => contract.publishapi(oreAccountName, offerData.issuer, offerData.api_voucher_license_price_in_cpu,

@@ -12,7 +12,7 @@ async function createVoucherInstrument(creator, buyer, offerId, overrideVoucherI
   const options = {
     authorization: `${creator}@active`,
   };
-  const contract = await this.eos.contract(APIM_CONTRACT_NAME, options);
+  const contract = await this.eos.getContract(APIM_CONTRACT_NAME, options);
   if (confirm) {
     return this.awaitTransaction(() => contract.licenseapi(creator, buyer, offerId, offerTemplate, overrideVoucherId, options));
   }

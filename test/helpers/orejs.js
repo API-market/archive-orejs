@@ -37,7 +37,7 @@ function mockContract() {
 
   mockupContract.mockReturnValue(contract);
   const orejs = constructOrejs();
-  orejs.eos.contract = mockupContract;
+  orejs.eos.getContract = mockupContract;
 
   return contract;
 }

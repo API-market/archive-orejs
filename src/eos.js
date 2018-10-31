@@ -12,7 +12,8 @@ function contractOptions(accountName, permission = 'active') {
 
 // Transform account names from base32 to their numeric representations
 function tableKey(oreAccountName) {
-  return new BigNumber(this.eos.format.encodeName(oreAccountName, false));
+  //return new BigNumber(this.eos.format.encodeName(oreAccountName, false));
+  return oreAccountName;
 }
 
 function hasTransaction(block, transactionId) {
@@ -34,7 +35,7 @@ function hasTransaction(block, transactionId) {
 function awaitTransaction(func, blocksToCheck = 12, checkInterval = 400, getBlockAttempts = 5) {
   return new Promise(async (resolve, reject) => {
     // check the current head block num...
-    const preCommitInfo = await this.eos.getInfo({});
+    const preCommitInfo = await this.eos.rpc.get_info({});
     const preCommitHeadBlockNum = preCommitInfo.head_block_num;
     // make the transaction...
     const transaction = await func();
@@ -44,7 +45,7 @@ function awaitTransaction(func, blocksToCheck = 12, checkInterval = 400, getBloc
     let getBlockAttempt = 1;
     const intConfirm = setInterval(async () => {
       try {
-        blockToCheck = await this.eos.getBlock(blockNumToCheck);
+        blockToCheck = await this.eos.get_block(blockNumToCheck);
         if (hasTransaction(blockToCheck, transaction.transaction_id)) {
           clearInterval(intConfirm);
           resolve(transaction);
@@ -68,7 +69,7 @@ function awaitTransaction(func, blocksToCheck = 12, checkInterval = 400, getBloc
 
 async function contract(contractName, accountName, permission = 'active') {
   const options = contractOptions(accountName, permission);
-  const contract = await this.eos.contract(contractName, options);
+  const contract = await this.eos.getContract(contractName, options);
   return {
     contract,
     options,
@@ -77,7 +78,7 @@ async function contract(contractName, accountName, permission = 'active') {
 
 // Find one row in a table
 async function findOne(contractName, tableName, tableKey) {
-  const results = await this.eos.getTableRows({
+  const results = await this.eos.rpc.get_table_rows({
     code: contractName.toString(),
     json: true,
     limit: 1,
@@ -101,13 +102,13 @@ async function getAllTableRows(params, key_field = 'id', json = true) {
     scope: params.scope || params.code,
     limit: params.limit || limit,
   };
-  results = await this.eos.getTableRows(parameters);
+  results = await this.eos.rpc.get_table_rows(parameters);
   return results.rows;
 }
 
 // check if the publickey belongs to the account provided
 async function checkPubKeytoAccount(account, publicKey) {
-  const keyaccounts = await this.eos.getKeyAccounts(publicKey);
+  const keyaccounts = await this.eos.history_get_key_accounts(publicKey);
   const accounts = await keyaccounts.account_names;
 
   if (accounts.includes(account)) {

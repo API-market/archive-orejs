@@ -20,7 +20,7 @@ async function getInstrumentsByRight(instrumentList, rightName) {
 
 async function getCallStats(instrumentId, rightName) {
   // calls the usagelog contract to get the total number of calls against a particular right
-  const result = await this.eos.getTableRows({
+  const result = await this.eos.rpc.get_table_rows({
     code: INSTR_USAGE_CONTRACT_NAME,
     json: true,
     scope: instrumentId,

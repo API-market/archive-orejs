@@ -43,7 +43,7 @@ async function approveTransfer(fromAccountName, toAccountName, tokenAmount, cont
 // cleos get table token.ore test1.apim allowances
 async function getApprovedAccount(accountName, contractName) {
   // Returns all the accounts approved by the approving account
-  const approvedAccounts = await this.eos.getTableRows({
+  const approvedAccounts = await this.eos.rpc.get_table_rows({
     code: contractName,
     json: true,
     scope: accountName,
@@ -68,7 +68,7 @@ async function getApprovedAmount(fromAccount, toAccount, tokenSymbol, contractNa
 
 // cleos get currency balance cpu.ore test1.apim CPU
 async function getBalance(accountName, tokenSymbol, contractName) {
-  const balance = await this.eos.getCurrencyBalance(contractName, accountName, tokenSymbol);
+  const balance = await this.eos.rpc.get_currency_balance(contractName, accountName, tokenSymbol);
   if (balance && balance[0]) {
     return parseFloat(balance[0].split(tokenSymbol)[0]);
   }

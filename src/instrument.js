@@ -50,7 +50,7 @@ async function getInstruments(params) {
     key_type: keyType || 'i64',
     index_position: index || 1,
   };
-  results = await this.eos.getTableRows(parameters);
+  results = await this.eos.rpc.get_table_rows(parameters);
   return results.rows;
 }
 
