@@ -9,6 +9,7 @@ const {
 const {
   constructOrejs,
   mockContract,
+  mockGetCurrency,
 } = require('../helpers/orejs');
 
 describe('ore', () => {
@@ -25,7 +26,7 @@ describe('ore', () => {
       oreBalance = 30;
 
       fetch.resetMocks();
-      fetch.mockResponses(mock([`${oreBalance}.0000 ORE`]));
+      mockGetCurrency(`${oreBalance}.0000 ORE`);
     });
 
     test('returns the ore balance', async () => {
@@ -45,7 +46,7 @@ describe('ore', () => {
       oreBalance = 10;
       memo = 'approve ORE transfer';
       fetch.resetMocks();
-      fetch.mockResponses(mock([`${oreBalance}.0000 ORE`]));
+      mockGetCurrency(orejs, `${oreBalance}.0000 ORE`);
     });
 
     describe('when authorized', () => {

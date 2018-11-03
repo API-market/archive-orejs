@@ -10,6 +10,7 @@ const {
 const {
   constructOrejs,
   mockContract,
+  mockGetCurrency,
 } = require('../helpers/orejs');
 
 describe('cpu', () => {
@@ -26,7 +27,7 @@ describe('cpu', () => {
       cpuBalance = 30;
 
       fetch.resetMocks();
-      fetch.mockResponses(mock([`${cpuBalance}.0000 CPU`]));
+      mockGetCurrency(orejs, `${cpuBalance}.0000 CPU`);
     });
 
     test('returns the cpu balance', async () => {

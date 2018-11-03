@@ -93,6 +93,18 @@ function mockGetBlockError(_orejs = undefined) {
   return getBlock;
 }
 
+function mockGetCurrency(_orejs = undefined, _currency = '1.0000 CPU') {
+  const mockupCurrency = jest.fn();
+
+  const getCurrency = _currency;
+
+  mockupCurrency.mockReturnValue(getCurrency);
+  const orejs = _orejs || constructOrejs();
+  orejs.eos.rpc.get_currency_balance = mockupCurrency;
+
+  return getCurrency;
+}
+
 function mockGetInfo(_orejs = undefined, _info = {}) {
   const mockupInfo = jest.fn();
 
@@ -124,6 +136,7 @@ module.exports = {
   mockGetAccount,
   mockGetBlock,
   mockGetBlockError,
+  mockGetCurrency,
   mockGetInfo,
   mockGetTransaction,
 };
