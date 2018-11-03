@@ -7,6 +7,7 @@ const {
 } = require('../../src');
 const {
   mockAccount,
+  mockAbi,
   mockBlock,
   mockError,
   mockInfo,
@@ -42,6 +43,18 @@ function mockContract() {
   return contract;
 }
 
+function mockGetAbi(_orejs = undefined) {
+  const mockupAbi = jest.fn();
+
+  const getAbi = mockAbi();
+
+  mockupAbi.mockReturnValue(getAbi);
+  const orejs = _orejs || constructOrejs();
+  orejs.eos.rpc.get_raw_code_and_abi = mockupAbi;
+
+  return getAbi;
+}
+
 function mockGetAccount(_orejs = undefined, _account = {}) {
   const mockupAccount = jest.fn();
 
@@ -49,7 +62,7 @@ function mockGetAccount(_orejs = undefined, _account = {}) {
 
   mockupAccount.mockReturnValue(getAccount);
   const orejs = _orejs || constructOrejs();
-  orejs.eos.getAccount = mockupAccount;
+  orejs.eos.rpc.get_account = mockupAccount;
 
   return getAccount;
 }
@@ -61,7 +74,7 @@ function mockGetBlock(_orejs = undefined, _block = {}) {
 
   mockupBlock.mockReturnValue(getBlock);
   const orejs = _orejs || constructOrejs();
-  orejs.eos.getBlock = mockupBlock;
+  orejs.eos.rpc.get_block = mockupBlock;
 
   return getBlock;
 }
@@ -75,7 +88,7 @@ function mockGetBlockError(_orejs = undefined) {
     throw getBlock;
   });
   const orejs = _orejs || constructOrejs();
-  orejs.eos.getBlock = mockupBlock;
+  orejs.eos.rpc.get_block = mockupBlock;
 
   return getBlock;
 }
@@ -87,7 +100,7 @@ function mockGetInfo(_orejs = undefined, _info = {}) {
 
   mockupInfo.mockReturnValue(getInfo);
   const orejs = _orejs || constructOrejs();
-  orejs.eos.getInfo = mockupInfo;
+  orejs.eos.rpc.get_info = mockupInfo;
 
   return getInfo;
 }
@@ -99,7 +112,7 @@ function mockGetTransaction(_orejs = undefined, _transaction = {}) {
 
   mockupTransaction.mockReturnValue(transaction);
   const orejs = _orejs || constructOrejs();
-  orejs.eos.transaction = mockupTransaction;
+  orejs.eos.rpc.transaction = mockupTransaction;
 
   return transaction;
 }
@@ -107,6 +120,7 @@ function mockGetTransaction(_orejs = undefined, _transaction = {}) {
 module.exports = {
   constructOrejs,
   mockContract,
+  mockGetAbi,
   mockGetAccount,
   mockGetBlock,
   mockGetBlockError,

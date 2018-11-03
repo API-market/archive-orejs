@@ -31,8 +31,8 @@ describe('token', () => {
       transaction = mockGetTransaction(orejs);
       info = mockGetInfo(orejs);
       block = mockGetBlock(orejs, { block_num: info.head_block_num, transactions: [{ trx: { id: transaction.transaction_id } }] });
-      spyInfo = jest.spyOn(orejs.eos, 'getInfo');
-      spyBlock = jest.spyOn(orejs.eos, 'getBlock');
+      spyInfo = jest.spyOn(orejs.eos.rpc, 'get_info');
+      spyBlock = jest.spyOn(orejs.eos.rpc, 'get_block');
     });
 
     test('returns the transaction', async () => {
@@ -117,22 +117,6 @@ describe('token', () => {
         const hasTransaction = orejs.hasTransaction(block, transactionId);
         expect(hasTransaction).toEqual(false);
       });
-    });
-  });
-
-  describe('tableKey', () => {
-    let encodedAccountName;
-
-    beforeAll(() => {
-      encodedAccountName = orejs.tableKey(ORE_TESTA_ACCOUNT_NAME);
-    });
-
-    test('returns a number', () => {
-      expect(encodedAccountName.toString()).toEqual('14605613949550624768');
-    });
-
-    test('returns a BigNumber', () => {
-      expect(encodedAccountName.plus(1).toString()).toEqual('14605613949550624769');
     });
   });
 });

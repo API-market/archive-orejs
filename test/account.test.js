@@ -5,6 +5,7 @@
 const ecc = require('eosjs-ecc');
 const {
   constructOrejs,
+  mockGetAbi,
   mockGetAccount,
   mockGetInfo,
   mockGetBlock,
@@ -27,14 +28,15 @@ describe('account', () => {
     let info;
     let block;
     beforeEach(() => {
+      mockGetAbi(orejs);
       mockGetAccount(orejs);
       transaction = mockGetTransaction(orejs);
       info = mockGetInfo(orejs);
       block = mockGetBlock(orejs, { block_num: info.head_block_num, transactions: [{ trx: { id: transaction.transaction_id } }] });
-      spyTransaction = jest.spyOn(orejs.eos, 'transaction');
-      spyAccount = jest.spyOn(orejs.eos, 'getAccount');
-      spyInfo = jest.spyOn(orejs.eos, 'getInfo');
-      spyBlock = jest.spyOn(orejs.eos, 'getBlock');
+      spyTransaction = jest.spyOn(orejs.eos.rpc, 'transaction');
+      spyAccount = jest.spyOn(orejs.eos.rpc, 'get_account');
+      spyInfo = jest.spyOn(orejs.eos.rpc, 'get_info');
+      spyBlock = jest.spyOn(orejs.eos.rpc, 'get_block');
     });
 
     test('returns a new account', async () => {
