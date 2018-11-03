@@ -67,7 +67,7 @@ function instrumentFor(accountName, version = Math.random().toString()) {
   };
 }
 
-async function logInstrumentCount(tableKey) {
+async function logInstrumentCount() {
   const instruments = await orejs.getAllInstruments();
 
   console.log('Instruments Count:', instruments.length);

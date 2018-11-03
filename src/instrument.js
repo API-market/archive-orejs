@@ -85,12 +85,10 @@ async function findInstruments(oreAccountName, activeOnly = true, category = und
   // It gets all the instruments owned by a user using secondary index on the owner key
   // Note: this requires an index on the rights collection (to filter right names)
 
-  const tableKey = this.tableKey(oreAccountName);
   let instruments = await getInstruments.bind(this)({
     code: 'instr.ore',
     table: 'tokens',
-    lower_bound: tableKey.toString(),
-    upper_bound: tableKey.plus(1).toString(),
+    lower_bound: oreAccountName,
     key_name: 'owner',
   });
 

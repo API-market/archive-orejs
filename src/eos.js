@@ -10,12 +10,6 @@ function contractOptions(accountName, permission = 'active') {
 
 /* Public */
 
-// Transform account names from base32 to their numeric representations
-function tableKey(oreAccountName) {
-  //return new BigNumber(this.eos.format.encodeName(oreAccountName, false));
-  return oreAccountName;
-}
-
 function hasTransaction(block, transactionId) {
   if (block.transactions) {
     const result = block.transactions.find(transaction => transaction.trx.id === transactionId);
@@ -76,20 +70,6 @@ async function contract(contractName, accountName, permission = 'active') {
   };
 }
 
-// Find one row in a table
-async function findOne(contractName, tableName, tableKey) {
-  const results = await this.eos.rpc.get_table_rows({
-    code: contractName.toString(),
-    json: true,
-    limit: 1,
-    lower_bound: tableKey.toString(),
-    scope: contractName.toString(),
-    table: tableName.toString(),
-    upper_bound: tableKey.plus(1).toString(),
-  });
-  return results.rows[0];
-}
-
 async function getAllTableRows(params, key_field = 'id', json = true) {
   let results = [];
   const lowerBound = 0;
@@ -120,9 +100,7 @@ async function checkPubKeytoAccount(account, publicKey) {
 module.exports = {
   awaitTransaction,
   contract,
-  findOne,
   getAllTableRows,
   hasTransaction,
-  tableKey,
   checkPubKeytoAccount,
 };
