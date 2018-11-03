@@ -164,22 +164,20 @@ async function appendPermission(oreAccountName, keys, permName, parent = 'active
 
 async function addAuthPermission(oreAccountName, keys, permName, code, type) {
   const perms = await appendPermission.bind(this)(oreAccountName, keys, permName);
-  const actions = perms.map((perm) => {
-    return {
-      account: 'eosio',
-      name: 'updateauth',
-      authorization: [{
-        actor: this.config.orePayerAccountName,
-        permission: 'active',
-      }],
-      data: {
-        account: oreAccountName,
-        permission: perm.perm_name,
-        parent: perm.parent,
-        auth: perm.required_auth,
-      },
-    };
-  });
+  const actions = perms.map(perm => ({
+    account: 'eosio',
+    name: 'updateauth',
+    authorization: [{
+      actor: this.config.orePayerAccountName,
+      permission: 'active',
+    }],
+    data: {
+      account: oreAccountName,
+      permission: perm.perm_name,
+      parent: perm.parent,
+      auth: perm.required_auth,
+    },
+  }));
 
   actions.push({
     account: 'eosio',
