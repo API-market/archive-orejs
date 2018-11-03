@@ -6,7 +6,7 @@ module.exports = {
   roots: [
     '<rootDir>/src',
     '<rootDir>/test',
-  ], // Required to find __mocks__ in test dir
+  ],
   setupFiles: [
     './test/setup.js',
   ],
