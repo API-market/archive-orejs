@@ -139,8 +139,6 @@ function delay(ms = 1000) {
   // Publish an API...  //
   ///////////////////////
 
-  await connectAs(account.oreAccountName, crypto.decrypt(account.privateKey, process.env.WALLET_PASSWORD, process.env.USER_ACCOUNT_ENCRYPTION_SALT));
-
   logInstrumentCount();
 
   const instrument = instrumentFor(account.oreAccountName);
@@ -159,6 +157,8 @@ function delay(ms = 1000) {
   // //////////////////////
   // License an API...  //
   // ////////////////////
+
+  await connectAs(account.oreAccountName, crypto.decrypt(account.privateKey, process.env.WALLET_PASSWORD, process.env.USER_ACCOUNT_ENCRYPTION_SALT));
 
   const voucherTx = await orejs.createVoucherInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, offer.id, 0, '', false);
 
