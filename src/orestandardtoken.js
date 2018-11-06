@@ -38,14 +38,14 @@ function issueToken(toAccountName, tokenAmount, ownerAccountName, contractName, 
 }
 
 // cleos push action cpu.ore approve '[""]
-function approveTransfer(fromAccountName, toAccountName, tokenAmount, contractName, memo = '') {
+function approveTransfer(fromAccountName, toAccountName, tokenAmount, contractName, memo = '', permission = 'active') {
   // Appprove some account to spend on behalf of approving account
   return this.transact([{
     account: contractName,
     name: 'approve',
     authorization: [{
       actor: fromAccountName,
-      permission: 'active',
+      permission,
     }],
     data: {
       from: fromAccountName,

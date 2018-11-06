@@ -92,9 +92,9 @@ function delay(ms = 1000) {
 
   connectAs(process.env.ORE_OWNER_ACCOUNT_NAME, process.env.ORE_OWNER_ACCOUNT_KEY, process.env.ORE_PAYER_ACCOUNT_KEY);
 
-  // /////////////////////////
+  // ////////////////////////
   // Create the account... //
-  // /////////////////////////
+  // ////////////////////////
 
   const activePublicKey = ecc.privateToPublic(process.env.ORE_PAYER_ACCOUNT_KEY);
   const account = await orejs.createOreAccount(process.env.WALLET_PASSWORD, process.env.USER_ACCOUNT_ENCRYPTION_SALT, activePublicKey);
@@ -104,9 +104,9 @@ function delay(ms = 1000) {
   contents = await orejs.eos.rpc.get_account(account.oreAccountName);
   console.log('Account Contents:', contents);
 
-  // /////////////////////////////////////
+  // //////////////////////////////////////
   // Give the new account some tokens... //
-  // ///////////////////////////////////////
+  // //////////////////////////////////////
 
   await connectAs(process.env.ORE_OWNER_ACCOUNT, process.env.ORE_OWNER_ACCOUNT_KEY);
 
@@ -124,8 +124,6 @@ function delay(ms = 1000) {
 
   await logBalances(account.oreAccountName);
 
-  // await connectAs(process.env.ORE_ORE_ACCOUNT_NAME, process.env.ORE_ORE_ACCOUNT_KEY)
-
   const debug = await orejs.findInstruments(account.oreAccountName);
 
   // console.log('transfer', amount, 'ORE to', account.oreAccountName);
@@ -135,9 +133,9 @@ function delay(ms = 1000) {
   await orejs.approveCpu(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, amount, 'approve transfer');
   await logBalances(account.oreAccountName);
 
-  /////////////////////////
+  // /////////////////////
   // Publish an API...  //
-  ///////////////////////
+  // /////////////////////
 
   logInstrumentCount();
 
@@ -154,11 +152,9 @@ function delay(ms = 1000) {
 
   logInstrumentCount();
 
-  // //////////////////////
+  // /////////////////////
   // License an API...  //
-  // ////////////////////
-
-  await connectAs(account.oreAccountName, crypto.decrypt(account.privateKey, process.env.WALLET_PASSWORD, process.env.USER_ACCOUNT_ENCRYPTION_SALT));
+  // /////////////////////
 
   const voucherTx = await orejs.createVoucherInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, offer.id, 0, '', false);
 
@@ -169,23 +165,23 @@ function delay(ms = 1000) {
 
   logInstrumentCount();
 
-  //////////////////
+  // //////////////////
   // Call the API... //
-  ///////////////////
+  // //////////////////
 
-  await connectAs(account.oreAccountName, crypto.decrypt(account.authVerifierPrivateKey, process.env.WALLET_PASSWORD, process.env.USER_ACCOUNT_ENCRYPTION_SALT));
+  //await connectAs(account.oreAccountName, crypto.decrypt(account.privateKey, process.env.WALLET_PASSWORD, process.env.USER_ACCOUNT_ENCRYPTION_SALT));
+  await connectAs(account.oreAccountName, account.verifierAuthKey);
 
-  const actions = await orejs.eos.getActions(account.oreAccountName);
   const [right] = voucher.instrument.rights;
   // works only against local chain for now. New contract structure with "memo" not on staging yet
   await orejs.approveCpu(account.oreAccountName, 'ore.verifier', right.price_in_cpu, 'approve verifier', 'authverifier');
 
-  // // //////////////////////
-  // // Get Usage Stats... //
-  // // //////////////////////
+  // /////////////////////
+  // Get Usage Stats... //
+  // /////////////////////
 
   const rightName = voucher.instrument.rights[0].right_name;
-  const instrumentStats = await orejs.getApiCallStats(voucher.id, rightName);
+  const instrumentStats = await orejs.getCallStats(voucher.id, rightName);
   console.log('Instrument Stats:', instrumentStats);
   const rightStats = await orejs.getRightStats(rightName, account.oreAccountName);
   console.log('Right Stats:', rightStats);

@@ -13,7 +13,7 @@ function createVoucherInstrument(creator, buyer, offer_id, override_voucher_id =
     account: APIM_CONTRACT_NAME,
     name: 'licenseapi',
     authorization: [{
-      actor: buyer,
+      actor: creator,
       permission: 'active',
     }],
     data: {
