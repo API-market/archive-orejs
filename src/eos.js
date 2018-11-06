@@ -31,7 +31,7 @@ function awaitTransaction(func, blocksToCheck = 12, checkInterval = 400, getBloc
     let getBlockAttempt = 1;
     const intConfirm = setInterval(async () => {
       try {
-        blockToCheck = await this.eos.get_block(blockNumToCheck);
+        blockToCheck = await this.eos.rpc.get_block(blockNumToCheck);
         if (hasTransaction(blockToCheck, transaction.transaction_id)) {
           clearInterval(intConfirm);
           resolve(transaction);
