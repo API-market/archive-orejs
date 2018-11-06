@@ -27,12 +27,11 @@ describe('ore', () => {
       oreBalance = 30;
 
       fetch.resetMocks();
-      mockGetCurrency(`${oreBalance}.0000 ORE`);
+      mockGetCurrency(orejs, `${oreBalance}.0000 ORE`);
     });
 
-    xit('returns the ore balance', async () => {
+    it('returns the ore balance', async () => {
       oreBalance = await orejs.getOreBalance(ORE_TESTA_ACCOUNT_NAME);
-      expectFetch(`${ORE_NETWORK_URI}/v1/chain/get_currency_balance`);
       expect(oreBalance).toEqual(oreBalance);
     });
   });
