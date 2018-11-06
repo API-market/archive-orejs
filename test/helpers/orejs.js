@@ -25,22 +25,6 @@ function constructOrejs() {
   return orejs;
 }
 
-function mockContract() {
-  const mockupContract = jest.fn();
-
-  const contract = {
-    approve: jest.fn(),
-    licenseapi: jest.fn(),
-    transfer: jest.fn(),
-  };
-
-  mockupContract.mockReturnValue(contract);
-  const orejs = constructOrejs();
-  orejs.eos.getContract = mockupContract;
-
-  return contract;
-}
-
 function mockGetAbi(_orejs = undefined) {
   const mockupAbi = jest.fn();
 
@@ -129,7 +113,6 @@ function mockGetTransaction(_orejs = undefined, _transaction = {}) {
 
 module.exports = {
   constructOrejs,
-  mockContract,
   mockGetAbi,
   mockGetAccount,
   mockGetBlock,
