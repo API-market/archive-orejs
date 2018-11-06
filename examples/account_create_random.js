@@ -141,11 +141,7 @@ function delay(ms = 1000) {
 
   const instrument = instrumentFor(process.env.ORE_OFFER_ISSUER);
 
-  await delay(3000);
-
-  const offerTx = await orejs.createOfferInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, instrument);
-
-  await delay(3000);
+  const offerTx = await orejs.createOfferInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, instrument, true);
 
   const [offer] = await orejs.findInstruments(process.env.ORE_OFFER_ISSUER);
   console.log('Offer:', offer, offer.instrument.rights);
@@ -156,9 +152,7 @@ function delay(ms = 1000) {
   // License an API...  //
   // /////////////////////
 
-  const voucherTx = await orejs.createVoucherInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, offer.id, 0, '', false);
-
-  await delay(3000);
+  const voucherTx = await orejs.createVoucherInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, offer.id, 0, '', true);
 
   const [voucher] = await orejs.findInstruments(account.oreAccountName, true);
   console.log('Voucher:', voucher, voucher.instrument.rights);
