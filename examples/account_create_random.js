@@ -39,7 +39,7 @@ async function logBalances(account = undefined) {
 function instrumentFor(accountName, version = Math.random().toString()) {
   return {
     creator: process.env.ORE_OWNER_ACCOUNT_NAME,
-    issuer: process.env.ORE_OFFER_ISSUER,
+    issuer: accountName,
     api_voucher_license_price_in_cpu: '0.0000 CPU',
     api_voucher_lifetime_in_seconds: 2592000,
     api_voucher_start_date: 0,
@@ -139,7 +139,7 @@ function delay(ms = 1000) {
 
   logInstrumentCount();
 
-  const instrument = instrumentFor(account.oreAccountName);
+  const instrument = instrumentFor(process.env.ORE_OFFER_ISSUER);
 
   await delay(3000);
 
