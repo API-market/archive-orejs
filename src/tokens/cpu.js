@@ -5,10 +5,6 @@ const TOKEN_SYMBOL = 'CPU';
 let amount;
 /* Public */
 
-function cpuContract(accountName) {
-  return this.contract(CONTRACT_NAME, accountName);
-}
-
 function issueCpu(toAccountName, cpuAmount, memo = '') {
   amount = this.getAmount(cpuAmount, TOKEN_SYMBOL);
   return this.issueToken(toAccountName, amount, ORE_CPU_ACCOUNT_NAME, CONTRACT_NAME, memo);
@@ -45,7 +41,6 @@ function transferCpufrom(approvedAccountName, fromAccountName, toAccountName, cp
 module.exports = {
   issueCpu,
   approveCpu,
-  cpuContract,
   getCpuBalance,
   getApprovedCpuBalance,
   transferCpu,

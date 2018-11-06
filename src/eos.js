@@ -1,12 +1,4 @@
 const BigNumber = require('bignumber.js');
-const ecc = require('eosjs-ecc');
-/* Private */
-
-function contractOptions(accountName, permission = 'active') {
-  return {
-    authorization: `${accountName}@${permission}`,
-  };
-}
 
 /* Public */
 
@@ -61,15 +53,6 @@ function awaitTransaction(func, blocksToCheck = 12, checkInterval = 400, getBloc
   });
 }
 
-async function contract(contractName, accountName, permission = 'active') {
-  const options = contractOptions(accountName, permission);
-  const contract = await this.eos.getContract(contractName, options);
-  return {
-    contract,
-    options,
-  };
-}
-
 async function getAllTableRows(params, key_field = 'id', json = true) {
   let results = [];
   const lowerBound = 0;
@@ -97,10 +80,17 @@ async function checkPubKeytoAccount(account, publicKey) {
   return false;
 }
 
+function transact(actions, blocksBehind = 3, expireSeconds = 30) {
+  return this.eos.transact({ actions }, {
+    blocksBehind,
+    expireSeconds,
+  });
+}
+
 module.exports = {
   awaitTransaction,
-  contract,
   getAllTableRows,
   hasTransaction,
   checkPubKeytoAccount,
+  transact,
 };

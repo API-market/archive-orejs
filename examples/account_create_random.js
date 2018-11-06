@@ -22,8 +22,8 @@ async function connectAs(accountName, accountKey) {
   options = {
     authorization: `${accountName}@active`,
   };
-  cpuContract = await orejs.eos.contract('token.ore', options);
-  instrContract = await orejs.eos.contract('manager.apim', options);
+  cpuContract = await orejs.eos.getContract('token.ore', options);
+  instrContract = await orejs.eos.getContract('manager.apim', options);
 }
 
 async function logBalances(account = undefined) {
@@ -83,26 +83,32 @@ function delay(ms = 1000) {
 
 
 (async function () {
-  connectAs(process.env.ORE_PAYER_ACCOUNT_NAME, process.env.ORE_PAYER_ACCOUNT_KEY);
+  orejs = require('./index').orejs();
+
+  // Grab the current chain id...
+  const info = await orejs.eos.rpc.get_info({});
+  console.log('Connecting to chain:', info.chain_id, '...');
+  process.env.CHAIN_ID = info.chain_id;
+
+  connectAs(process.env.ORE_OWNER_ACCOUNT_NAME, process.env.ORE_OWNER_ACCOUNT_KEY, process.env.ORE_PAYER_ACCOUNT_KEY);
 
   // /////////////////////////
   // Create the account... //
   // /////////////////////////
 
-  const ownerPublicKey = ecc.privateToPublic(process.env.ORE_OWNER_ACCOUNT_KEY);
-  const activePublicKey = ecc.privateToPublic(process.env.ORE_OWNER_ACCOUNT_ACTIVE_KEY);
+  const activePublicKey = ecc.privateToPublic(process.env.ORE_PAYER_ACCOUNT_KEY);
   const account = await orejs.createOreAccount(process.env.WALLET_PASSWORD, process.env.USER_ACCOUNT_ENCRYPTION_SALT, activePublicKey);
   console.log('Account Created:', account);
 
   // // Get the newly created EOS account...
-  contents = await orejs.eos.getAccount(account.oreAccountName);
+  contents = await orejs.eos.rpc.get_account(account.oreAccountName);
   console.log('Account Contents:', contents);
 
   // /////////////////////////////////////
   // Give the new account some tokens... //
   // ///////////////////////////////////////
 
-  await connectAs(process.env.ORE_OWNER_ACCOUNT, process.env.ORE_OWNER_ACCOUNT_ACTIVE_KEY);
+  await connectAs(process.env.ORE_OWNER_ACCOUNT, process.env.ORE_OWNER_ACCOUNT_KEY);
 
   await logBalances();
 
@@ -112,7 +118,7 @@ function delay(ms = 1000) {
 
   await logBalances();
 
-  await connectAs(process.env.ORE_OWNER_ACCOUNT_NAME, process.env.ORE_OWNER_ACCOUNT_ACTIVE_KEY);
+  await connectAs(process.env.ORE_OWNER_ACCOUNT_NAME, process.env.ORE_OWNER_ACCOUNT_KEY);
   console.log('Transfering', amount, 'CPU from', process.env.ORE_OWNER_ACCOUNT_NAME, 'to', account.oreAccountName);
   await orejs.transferCpu(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, amount);
 
@@ -121,7 +127,6 @@ function delay(ms = 1000) {
   // await connectAs(process.env.ORE_ORE_ACCOUNT_NAME, process.env.ORE_ORE_ACCOUNT_KEY)
 
   const debug = await orejs.findInstruments(account.oreAccountName);
-  console.log('DEBUG:', debug);
 
   // console.log('transfer', amount, 'ORE to', account.oreAccountName);
   await orejs.transferOre(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, amount);
