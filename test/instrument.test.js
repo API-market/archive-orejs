@@ -61,25 +61,25 @@ describe('instrument', () => {
       fetch.mockResponses(instrumentMocks);
     });
 
-    test('returns all active instruments for account', async () => {
+    xit('returns all active instruments for account', async () => {
       const instruments = await orejs.findInstruments(ORE_TESTA_ACCOUNT_NAME);
       expectFetch(`${ORE_NETWORK_URI}/v1/chain/get_table_rows`);
       expect(instruments).toEqual([JSON.parse(instrumentMocks[0]).rows[0], JSON.parse(instrumentMocks[0]).rows[1], JSON.parse(instrumentMocks[0]).rows[3]]);
     });
 
-    test('returns all instruments', async () => {
+    xit('returns all instruments', async () => {
       const instruments = await orejs.findInstruments(ORE_TESTA_ACCOUNT_NAME, false);
       expectFetch(`${ORE_NETWORK_URI}/v1/chain/get_table_rows`);
       expect(instruments).toEqual([JSON.parse(instrumentMocks[0]).rows[0], JSON.parse(instrumentMocks[0]).rows[1], JSON.parse(instrumentMocks[0]).rows[2], JSON.parse(instrumentMocks[0]).rows[3]]);
     });
 
-    test('filters by category', async () => {
+    xit('filters by category', async () => {
       const instruments = await orejs.findInstruments(ORE_TESTA_ACCOUNT_NAME, true, 'apimarket.uncategorized');
       expectFetch(`${ORE_NETWORK_URI}/v1/chain/get_table_rows`);
       expect(instruments).toEqual([JSON.parse(instrumentMocks[0]).rows[1], JSON.parse(instrumentMocks[0]).rows[3]]);
     });
 
-    test('filters by right', async () => {
+    xit('filters by right', async () => {
       const instruments = await orejs.findInstruments(ORE_TESTA_ACCOUNT_NAME, true, 'apimarket.uncategorized', 'apimarket.nobody.licenseApi');
       expectFetch(`${ORE_NETWORK_URI}/v1/chain/get_table_rows`);
       expect(instruments).toEqual([JSON.parse(instrumentMocks[0]).rows[1]]);
@@ -113,7 +113,7 @@ describe('instrument', () => {
         });
       });
 
-      test('returns the correct right', async () => {
+      it('returns the correct right', async () => {
         const right = await orejs.getRight(instrument, rightName);
         expect(right).toEqual(instrument.instrument.rights[1]);
       });
@@ -135,7 +135,7 @@ describe('instrument', () => {
         });
       });
 
-      test('returns nothing', async () => {
+      it('returns nothing', async () => {
         const right = await orejs.getRight(instrument, rightName);
         expect(right).toEqual(undefined);
       });

@@ -14,402 +14,420 @@ function mock(body, status = 200) {
   ];
 }
 
-function mockAbi(abi = {}) {
-  return {
-    version: 'eosio::abi/1.0',
-    types: [],
-    structs: [{
-      name: 'args',
-      base: '',
-      fields: [{
-        name: 'name',
-        type: 'string',
-      }, {
-        name: 'value',
-        type: 'string',
-      },
-      ],
-    }, {
-      name: 'endpoint_url',
-      base: '',
-      fields: [{
-        name: 'base_right',
-        type: 'string',
-      }, {
-        name: 'url',
-        type: 'string',
-      }, {
-        name: 'method',
-        type: 'string',
-      }, {
-        name: 'matches_params',
-        type: 'args[]',
-      }, {
-        name: 'token_life_span',
-        type: 'uint64',
-      }, {
-        name: 'is_default',
-        type: 'bool',
-      },
-      ],
-    }, {
-      name: 'right_reg',
-      base: '',
-      fields: [{
-        name: 'id',
-        type: 'uint64',
-      }, {
-        name: 'right_name',
-        type: 'string',
-      }, {
-        name: 'owner',
-        type: 'name',
-      }, {
-        name: 'urls',
-        type: 'endpoint_url[]',
-      }, {
-        name: 'issuer_whitelist',
-        type: 'name[]',
-      },
-      ],
-    }, {
-      name: 'param_type',
-      base: '',
-      fields: [{
-        name: 'type',
-        type: 'string',
-      }, {
-        name: 'values',
-        type: 'args[]',
-      },
-      ],
-    }, {
-      name: 'params',
-      base: '',
-      fields: [{
-        name: 'params',
-        type: 'args[]',
-      },
-      ],
-    }, {
-      name: 'right',
-      base: '',
-      fields: [{
-        name: 'right_name',
-        type: 'string',
-      }, {
-        name: 'description',
-        type: 'string',
-      }, {
-        name: 'price_in_cpu',
-        type: 'string',
-      }, {
-        name: 'additional_url_params',
-        type: 'params[]',
-      },
-      ],
-    }, {
-      name: 'instrument_data',
-      base: '',
-      fields: [{
-        name: 'issuer',
-        type: 'name',
-      }, {
-        name: 'instrument_class',
-        type: 'string',
-      }, {
-        name: 'description',
-        type: 'string',
-      }, {
-        name: 'instrument_template',
-        type: 'string',
-      }, {
-        name: 'security_type',
-        type: 'string',
-      }, {
-        name: 'parameter_rules',
-        type: 'param_type[]',
-      }, {
-        name: 'rights',
-        type: 'right[]',
-      }, {
-        name: 'parent_instrument_id',
-        type: 'uint64',
-      }, {
-        name: 'data',
-        type: 'args[]',
-      }, {
-        name: 'mutability',
-        type: 'uint8',
-      },
-      ],
-    }, {
-      name: 'token',
-      base: '',
-      fields: [{
-        name: 'id',
-        type: 'uint64',
-      }, {
-        name: 'owner',
-        type: 'name',
-      }, {
-        name: 'minted_by',
-        type: 'name',
-      }, {
-        name: 'minted_at',
-        type: 'uint64',
-      }, {
-        name: 'instrument',
-        type: 'instrument_data',
-      }, {
-        name: 'revoked',
-        type: 'bool',
-      }, {
-        name: 'start_time',
-        type: 'uint64',
-      }, {
-        name: 'end_time',
-        type: 'uint64',
-      }, {
-        name: 'template_hash',
-        type: 'uint64',
-      }, {
-        name: 'class_hash',
-        type: 'uint64',
-      },
-      ],
-    }, {
-      name: 'accountdata',
-      base: '',
-      fields: [{
-        name: 'owner',
-        type: 'name',
-      }, {
-        name: 'balance',
-        type: 'uint64',
-      }, {
-        name: 'instruments',
-        type: 'uint64[]',
-      },
-      ],
-    }, {
-      name: 'account',
-      base: '',
-      fields: [{
-        name: 'balance',
-        type: 'asset',
-      },
-      ],
-    }, {
-      name: 'currencystat',
-      base: '',
-      fields: [{
-        name: 'supply',
-        type: 'asset',
-      }, {
-        name: 'max_supply',
-        type: 'asset',
-      }, {
-        name: 'issuer',
-        type: 'name',
-      },
-      ],
-    }, {
-      name: 'mint',
-      base: '',
-      fields: [{
-        name: 'minter',
-        type: 'name',
-      }, {
-        name: 'owner',
-        type: 'name',
-      }, {
-        name: 'instrument',
-        type: 'instrument_data',
-      }, {
-        name: 'start_time',
-        type: 'uint64',
-      }, {
-        name: 'end_time',
-        type: 'uint64',
-      }, {
-        name: 'instrumentId',
-        type: 'uint64',
-      },
-      ],
-    }, {
-      name: 'update',
-      base: '',
-      fields: [{
-        name: 'updater',
-        type: 'name',
-      }, {
-        name: 'instrument_template',
-        type: 'string',
-      }, {
-        name: 'instrument',
-        type: 'instrument_data',
-      }, {
-        name: 'instrument_id',
-        type: 'uint64',
-      }, {
-        name: 'start_time',
-        type: 'uint64',
-      }, {
-        name: 'end_time',
-        type: 'uint64',
-      },
-      ],
-    }, {
-      name: 'transfer',
-      base: '',
-      fields: [{
-        name: 'sender',
-        type: 'name',
-      }, {
-        name: 'to',
-        type: 'name',
-      }, {
-        name: 'token_id',
-        type: 'uint64',
-      },
-      ],
-    }, {
-      name: 'revoke',
-      base: '',
-      fields: [{
-        name: 'revoker',
-        type: 'name',
-      }, {
-        name: 'token_id',
-        type: 'uint64',
-      },
-      ],
-    }, {
-      name: 'burn',
-      base: '',
-      fields: [{
-        name: 'burner',
-        type: 'name',
-      }, {
-        name: 'token_id',
-        type: 'uint64',
-      },
-      ],
-    }, {
-      name: 'create',
-      base: '',
-      fields: [{
-        name: 'issuer',
-        type: 'name',
-      }, {
-        name: 'maximum_supply',
-        type: 'asset',
-      },
-      ],
-    }, {
-      name: 'issue',
-      base: '',
-      fields: [{
-        name: 'to',
-        type: 'name',
-      }, {
-        name: 'quantity',
-        type: 'asset',
-      }, {
-        name: 'memo',
-        type: 'string',
-      },
-      ],
-    },
+function mockAbi(_code = undefined, _abi = undefined) {
+  const code = _code || '';
+  const abi = _abi || `{
+    "version": "eosio::abi/1.0",
+    "types": [],
+    "structs": [{
+        "name": "args",
+        "base": "",
+        "fields": [{
+            "name": "name",
+            "type": "string"
+          },{
+            "name": "value",
+            "type": "string"
+          }
+        ]
+      },{
+        "name": "endpoint_url",
+        "base": "",
+        "fields": [{
+            "name": "base_right",
+            "type": "string"
+          },{
+            "name": "url",
+            "type": "string"
+          },{
+            "name": "method",
+            "type": "string"
+          },{
+            "name": "matches_params",
+            "type": "args[]"
+          },{
+            "name": "token_life_span",
+            "type": "uint64"
+          },{
+            "name": "is_default",
+            "type": "bool"
+          }
+        ]
+      },{
+        "name": "right_reg",
+        "base": "",
+        "fields": [{
+            "name": "id",
+            "type": "uint64"
+          },{
+            "name": "right_name",
+            "type": "string"
+          },{
+            "name": "owner",
+            "type": "name"
+          },{
+            "name": "urls",
+            "type": "endpoint_url[]"
+          },{
+            "name": "issuer_whitelist",
+            "type": "name[]"
+          }
+        ]
+      },{
+        "name": "param_type",
+        "base": "",
+        "fields": [{
+            "name": "type",
+            "type": "string"
+          },{
+            "name": "values",
+            "type": "args[]"
+          }
+        ]
+      },{
+        "name": "params",
+        "base": "",
+        "fields": [{
+            "name": "params",
+            "type": "args[]"
+          }
+        ]
+      },{
+        "name": "right",
+        "base": "",
+        "fields": [{
+            "name": "right_name",
+            "type": "string"
+          },{
+            "name": "description",
+            "type": "string"
+          },{
+            "name": "price_in_cpu",
+            "type": "string"
+          },{
+            "name": "additional_url_params",
+            "type": "params[]"
+          }
+        ]
+      },{
+        "name": "instrument_data",
+        "base": "",
+        "fields": [{
+            "name": "issuer",
+            "type": "name"
+          },{
+            "name": "instrument_class",
+            "type": "string"
+          },{
+            "name": "description",
+            "type": "string"
+          },{
+            "name": "instrument_template",
+            "type": "string"
+          },{
+            "name": "security_type",
+            "type": "string"
+          },{
+            "name": "parameter_rules",
+            "type": "param_type[]"
+          },{
+            "name": "rights",
+            "type": "right[]"
+          },{
+            "name": "parent_instrument_id",
+            "type": "uint64"
+          },{
+            "name": "data",
+            "type": "args[]"
+          },{
+            "name": "mutability",
+            "type": "uint8"
+          }
+        ]
+      },{
+        "name": "token",
+        "base": "",
+        "fields": [{
+            "name": "id",
+            "type": "uint64"
+          },{
+            "name": "owner",
+            "type": "name"
+          },{
+            "name": "minted_by",
+            "type": "name"
+          },{
+            "name": "minted_at",
+            "type": "uint64"
+          },{
+            "name": "instrument",
+            "type": "instrument_data"
+          },{
+            "name": "revoked",
+            "type": "bool"
+          },{
+            "name": "start_time",
+            "type": "uint64"
+          },{
+            "name": "end_time",
+            "type": "uint64"
+          },{
+            "name": "template_hash",
+            "type": "uint64"
+          },{
+            "name": "class_hash",
+            "type": "uint64"
+          }
+        ]
+      },{
+        "name": "accountdata",
+        "base": "",
+        "fields": [{
+            "name": "owner",
+            "type": "name"
+          },{
+            "name": "balance",
+            "type": "uint64"
+          },{
+            "name": "instruments",
+            "type": "uint64[]"
+          }
+        ]
+      },{
+        "name": "account",
+        "base": "",
+        "fields": [{
+            "name": "balance",
+            "type": "asset"
+          }
+        ]
+      },{
+        "name": "currencystat",
+        "base": "",
+        "fields": [{
+            "name": "supply",
+            "type": "asset"
+          },{
+            "name": "max_supply",
+            "type": "asset"
+          },{
+            "name": "issuer",
+            "type": "name"
+          }
+        ]
+      },{
+        "name": "right_param",
+        "base": "",
+        "fields": [{
+            "name": "right_name",
+            "type": "string"
+          },{
+            "name": "urls",
+            "type": "endpoint_url[]"
+          },{
+            "name": "whitelist",
+            "type": "name[]"
+          }
+        ]
+      },{
+        "name": "offer_data",
+        "base": "",
+        "fields": [{
+            "name": "id",
+            "type": "uint64"
+          },{
+            "name": "name",
+            "type": "string"
+          },{
+            "name": "rights",
+            "type": "right_param[]"
+          }
+        ]
+      },{
+        "name": "offer_params",
+        "base": "",
+        "fields": [{
+            "name": "right_name",
+            "type": "string"
+          },{
+            "name": "right_description",
+            "type": "string"
+          },{
+            "name": "right_price_in_cpu",
+            "type": "string"
+          },{
+            "name": "api_name",
+            "type": "string"
+          },{
+            "name": "api_description",
+            "type": "string"
+          },{
+            "name": "api_price_in_cpu",
+            "type": "string"
+          },{
+            "name": "api_payment_model",
+            "type": "string"
+          },{
+            "name": "api_additional_url_params",
+            "type": "string"
+          }
+        ]
+      },{
+        "name": "publishapi",
+        "base": "",
+        "fields": [{
+            "name": "creator",
+            "type": "name"
+          },{
+            "name": "issuer",
+            "type": "name"
+          },{
+            "name": "api_voucher_license_price_in_cpu",
+            "type": "string"
+          },{
+            "name": "api_voucher_lifetime_in_seconds",
+            "type": "string"
+          },{
+            "name": "api_voucher_start_date",
+            "type": "string"
+          },{
+            "name": "api_voucher_end_date",
+            "type": "string"
+          },{
+            "name": "api_voucher_valid_forever",
+            "type": "uint8"
+          },{
+            "name": "api_voucher_mutability",
+            "type": "uint8"
+          },{
+            "name": "api_voucher_security_type",
+            "type": "string"
+          },{
+            "name": "right_params",
+            "type": "offer_params[]"
+          },{
+            "name": "api_voucher_parameter_rules",
+            "type": "param_type[]"
+          },{
+            "name": "offer_mutability",
+            "type": "uint8"
+          },{
+            "name": "offer_security_type",
+            "type": "string"
+          },{
+            "name": "offer_template",
+            "type": "string"
+          },{
+            "name": "offer_start_time",
+            "type": "uint64"
+          },{
+            "name": "offer_end_time",
+            "type": "uint64"
+          },{
+            "name": "offer_override_id",
+            "type": "uint64"
+          }
+        ]
+      },{
+        "name": "licenseapi",
+        "base": "",
+        "fields": [{
+            "name": "creator",
+            "type": "name"
+          },{
+            "name": "buyer",
+            "type": "name"
+          },{
+            "name": "offer_id",
+            "type": "uint64"
+          },{
+            "name": "offer_template",
+            "type": "string"
+          },{
+            "name": "override_voucher_id",
+            "type": "uint64"
+          }
+        ]
+      }
     ],
-    actions: [{
-      name: 'mint',
-      type: 'mint',
-      ricardian_contract: '',
-    }, {
-      name: 'update',
-      type: 'update',
-      ricardian_contract: '',
-    }, {
-      name: 'transfer',
-      type: 'transfer',
-      ricardian_contract: '',
-    }, {
-      name: 'revoke',
-      type: 'revoke',
-      ricardian_contract: '',
-    }, {
-      name: 'burn',
-      type: 'burn',
-      ricardian_contract: '',
-    }, {
-      name: 'create',
-      type: 'create',
-      ricardian_contract: '',
-    }, {
-      name: 'issue',
-      type: 'issue',
-      ricardian_contract: '',
-    },
+    "actions": [{
+        "name": "publishapi",
+        "type": "publishapi",
+        "ricardian_contract": ""
+      },{
+        "name": "licenseapi",
+        "type": "licenseapi",
+        "ricardian_contract": ""
+      }
     ],
-    tables: [{
-      name: 'rights',
-      index_type: 'i64',
-      key_names: [
-        'id',
-      ],
-      key_types: [
-        'uint64',
-      ],
-      type: 'right_reg',
-    }, {
-      name: 'tokens',
-      index_type: 'i64',
-      key_names: [
-        'id',
-      ],
-      key_types: [
-        'uint64',
-      ],
-      type: 'token',
-    }, {
-      name: 'account',
-      index_type: 'i64',
-      key_names: [
-        'owner',
-      ],
-      key_types: [
-        'name',
-      ],
-      type: 'accountdata',
-    }, {
-      name: 'accounts',
-      index_type: 'i64',
-      key_names: [
-        'balance',
-      ],
-      key_types: [
-        'asset',
-      ],
-      type: 'account',
-    }, {
-      name: 'stat',
-      index_type: 'i64',
-      key_names: [
-        'supply',
-      ],
-      key_types: [
-        'asset',
-      ],
-      type: 'currencystat',
-    },
+    "tables": [{
+        "name": "rights",
+        "index_type": "i64",
+        "key_names": [
+          "id"
+        ],
+        "key_types": [
+          "uint64"
+        ],
+        "type": "right_reg"
+      },{
+        "name": "tokens",
+        "index_type": "i64",
+        "key_names": [
+          "id"
+        ],
+        "key_types": [
+          "uint64"
+        ],
+        "type": "token"
+      },{
+        "name": "account",
+        "index_type": "i64",
+        "key_names": [
+          "owner"
+        ],
+        "key_types": [
+          "name"
+        ],
+        "type": "accountdata"
+      },{
+        "name": "accounts",
+        "index_type": "i64",
+        "key_names": [
+          "balance"
+        ],
+        "key_types": [
+          "asset"
+        ],
+        "type": "account"
+      },{
+        "name": "stat",
+        "index_type": "i64",
+        "key_names": [
+          "supply"
+        ],
+        "key_types": [
+          "asset"
+        ],
+        "type": "currencystat"
+      },{
+        "name": "offersdata",
+        "index_type": "i64",
+        "key_names": [
+          "id"
+        ],
+        "key_types": [
+          "uint64"
+        ],
+        "type": "offer_data"
+      }
     ],
-    ricardian_clauses: [],
-    error_messages: [],
-    abi_extensions: [],
-    variants: [],
-  };
+    "ricardian_clauses": [],
+    "error_messages": [],
+    "abi_extensions": [],
+    "variants": []
+  }`;
+  return { code, abi };
 }
 
 function mockAccount(account = {}) {

@@ -15,8 +15,6 @@ const {
 } = require('./fetch');
 
 function constructOrejs() {
-  fetch.mockResponses(mockInfo());
-
   const orejs = new Orejs({
     httpEndpoint: ORE_NETWORK_URI,
     keyProvider: [ORE_OWNER_ACCOUNT_KEY],
