@@ -6,11 +6,17 @@ const {
   mock,
   mockInfo,
 } = require('../helpers/fetch');
+
+const {
+  mockAction,
+  mockOptions,
+} = require('../helpers/eos');
+
 const {
   constructOrejs,
   mockGetBlock,
-  mockGetCurrency,
   mockGetInfo,
+  mockGetTransaction,
 } = require('../helpers/orejs');
 
 describe('ore', () => {
@@ -27,7 +33,8 @@ describe('ore', () => {
       oreBalance = 30;
 
       fetch.resetMocks();
-      mockGetCurrency(orejs, `${oreBalance}.0000 ORE`);
+      fetch.mockResponses(mock([`${oreBalance}.0000 ORE`]));
+      orejs = constructOrejs({ fetch });
     });
 
     it('returns the ore balance', async () => {
@@ -39,22 +46,25 @@ describe('ore', () => {
   describe('approveOre', () => {
     let oreBalance;
     let memo;
+    let spyTransaction;
+    let transaction;
 
     beforeEach(() => {
       oreBalance = 10;
       memo = 'approve ORE transfer';
       fetch.resetMocks();
-      mockGetCurrency(orejs, `${oreBalance}.0000 ORE`);
+      fetch.mockResponses(mock([`${oreBalance}.0000 ORE`]));
+      orejs = constructOrejs({ fetch });
+      transaction = mockGetTransaction(orejs);
+      spyTransaction = jest.spyOn(orejs.eos, 'transact');
     });
 
     describe('when authorized', () => {
-      xit('returns', async () => {
+      it('returns', async () => {
         mockGetInfo(orejs);
         mockGetBlock(orejs);
         const result = await orejs.approveOre(ORE_OWNER_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, oreBalance, memo);
-        expect(contract.approve).toHaveBeenCalledWith(ORE_OWNER_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, `${oreBalance}.0000 ORE`, memo, {
-          authorization: `${ORE_OWNER_ACCOUNT_NAME}@active`,
-        });
+        expect(spyTransaction).toHaveBeenCalledWith({ actions: [mockAction({ account: 'token.ore', name: 'approve' })] }, mockOptions());
       });
     });
 
@@ -72,17 +82,19 @@ describe('ore', () => {
 
   describe('transferOre', () => {
     let oreBalance;
+    let spyTransaction;
+    let transaction;
 
     beforeEach(() => {
       oreBalance = 10;
+      transaction = mockGetTransaction(orejs);
+      spyTransaction = jest.spyOn(orejs.eos, 'transact');
     });
 
     describe('when authorized', () => {
-      xit('returns', async () => {
+      it('returns', async () => {
         const result = await orejs.transferOre(ORE_OWNER_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, oreBalance);
-        expect(contract.transfer).toHaveBeenCalledWith(ORE_OWNER_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, `${oreBalance}.0000 ORE`, '', {
-          authorization: `${ORE_OWNER_ACCOUNT_NAME}@active`,
-        });
+        expect(spyTransaction).toHaveBeenCalledWith({ actions: [mockAction({ account: 'token.ore', name: 'transfer' })] }, mockOptions());
       });
     });
 

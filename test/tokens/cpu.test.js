@@ -7,11 +7,17 @@ const {
   mock,
   mockInfo,
 } = require('../helpers/fetch');
+
+const {
+  mockAction,
+  mockOptions,
+} = require('../helpers/eos');
+
 const {
   constructOrejs,
   mockGetBlock,
   mockGetInfo,
-  mockGetCurrency,
+  mockGetTransaction,
 } = require('../helpers/orejs');
 
 describe('cpu', () => {
@@ -28,10 +34,11 @@ describe('cpu', () => {
       cpuBalance = 30;
 
       fetch.resetMocks();
-      mockGetCurrency(orejs, `${cpuBalance}.0000 CPU`);
+      fetch.mockResponses(mock([`${cpuBalance}.0000 CPU`]));
+      orejs = constructOrejs({ fetch });
     });
 
-    xit('returns the cpu balance', async () => {
+    it('returns the cpu balance', async () => {
       cpuBalance = await orejs.getCpuBalance(ORE_TESTA_ACCOUNT_NAME);
       expectFetch(`${ORE_NETWORK_URI}/v1/chain/get_currency_balance`);
       expect(cpuBalance).toEqual(cpuBalance);
@@ -41,22 +48,25 @@ describe('cpu', () => {
   describe('approveCpu', () => {
     let cpuBalance;
     let memo;
+    let spyTransaction;
+    let transaction;
 
     beforeEach(() => {
       memo = 'approve CPU transfer';
       cpuBalance = 10;
       fetch.resetMocks();
       fetch.mockResponses(mock([`${cpuBalance}.0000 CPU`]));
+      orejs = constructOrejs({ fetch });
+      transaction = mockGetTransaction(orejs);
+      spyTransaction = jest.spyOn(orejs.eos, 'transact');
     });
 
     describe('when authorized', () => {
-      xit('returns', async () => {
+      it('returns', async () => {
         mockGetInfo(orejs);
         mockGetBlock(orejs);
         const result = await orejs.approveCpu(ORE_OWNER_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, cpuBalance, memo);
-        expect(contract.approve).toHaveBeenCalledWith(ORE_OWNER_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, `${cpuBalance}.0000 CPU`, memo, {
-          authorization: `${ORE_OWNER_ACCOUNT_NAME}@active`,
-        });
+        expect(spyTransaction).toHaveBeenCalledWith({ actions: [mockAction({ account: 'token.ore', name: 'approve' })] }, mockOptions());
       });
     });
 
@@ -73,6 +83,8 @@ describe('cpu', () => {
   describe('getApprovedCpuBalance', () => {
     let cpuBalance;
     let memo;
+    let spyTransaction;
+    let transaction;
 
     beforeEach(() => {
       cpuBalance = 10;
@@ -89,9 +101,10 @@ describe('cpu', () => {
           }],
         }));
         orejs = constructOrejs({ fetch });
+        transaction = mockGetTransaction(orejs);
       });
 
-      xit('returns', async () => {
+      it('returns', async () => {
         mockGetInfo(orejs);
         mockGetBlock(orejs);
         await orejs.approveCpu(ORE_OWNER_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, cpuBalance, memo);
@@ -120,17 +133,19 @@ describe('cpu', () => {
 
   describe('transferCpu', () => {
     let cpuBalance;
+    let spyTransaction;
+    let transaction;
 
     beforeEach(() => {
       cpuBalance = 10;
+      transaction = mockGetTransaction(orejs);
+      spyTransaction = jest.spyOn(orejs.eos, 'transact');
     });
 
     describe('when authorized', () => {
-      xit('returns', async () => {
+      it('returns', async () => {
         const result = await orejs.transferCpu(ORE_OWNER_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, cpuBalance);
-        expect(contract.transfer).toHaveBeenCalledWith(ORE_OWNER_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, `${cpuBalance}.0000 CPU`, '', {
-          authorization: `${ORE_OWNER_ACCOUNT_NAME}@active`,
-        });
+        expect(spyTransaction).toHaveBeenCalledWith({ actions: [mockAction({ account: 'token.ore', name: 'transfer' })] }, mockOptions());
       });
     });
 
