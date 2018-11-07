@@ -34,15 +34,15 @@ describe('account', () => {
       transaction = mockGetTransaction(orejs);
       info = mockGetInfo(orejs);
       block = mockGetBlock(orejs, { block_num: info.head_block_num, transactions: [{ trx: { id: transaction.transaction_id } }] });
-      spyTransaction = jest.spyOn(orejs.eos.rpc, 'transaction');
+      spyTransaction = jest.spyOn(orejs.eos, 'transact');
       spyAccount = jest.spyOn(orejs.eos.rpc, 'get_account');
       spyInfo = jest.spyOn(orejs.eos.rpc, 'get_info');
       spyBlock = jest.spyOn(orejs.eos.rpc, 'get_block');
     });
 
-    xit('returns a new account', async () => {
+    it('returns a new account', async () => {
       const account = await orejs.createOreAccount(WALLET_PASSWORD, USER_ACCOUNT_ENCRYPTION_SALT, ORE_OWNER_ACCOUNT_KEY);
-      expect(spyTransaction).toHaveBeenNthCalledWith(2, expect.any(Function));
+      expect(spyTransaction).toHaveBeenNthCalledWith(2, expect.any(Object), {blocksBehind: 3, expireSeconds: 30});
       expect(spyAccount).toHaveBeenCalledWith(expect.any(String));
       expect(spyInfo).toHaveBeenCalledWith({});
       expect(spyBlock).toHaveBeenCalledWith(block.block_num + 1);

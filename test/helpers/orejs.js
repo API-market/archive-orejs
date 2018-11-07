@@ -9,6 +9,7 @@ const {
   mockAccount,
   mockAbi,
   mockBlock,
+  mockCode,
   mockError,
   mockInfo,
   mockTransaction,
@@ -29,7 +30,7 @@ function constructOrejs(config) {
 function mockGetAbi(_orejs = undefined) {
   const mockupAbi = jest.fn();
 
-  const getAbi = mockAbi();
+  const getAbi = { code: mockCode(), abi: JSON.parse(mockAbi()) };
 
   mockupAbi.mockReturnValue(getAbi);
   const orejs = _orejs || constructOrejs();
@@ -103,13 +104,13 @@ function mockGetInfo(_orejs = undefined, _info = {}) {
 function mockGetTransaction(_orejs = undefined, _transaction = {}) {
   const mockupTransaction = jest.fn();
 
-  const transaction = mockTransaction(_transaction);
+  const getTransaction = mockTransaction(_transaction);
 
-  mockupTransaction.mockReturnValue(transaction);
+  mockupTransaction.mockReturnValue(getTransaction);
   const orejs = _orejs || constructOrejs();
-  orejs.eos.rpc.transaction = mockupTransaction;
+  orejs.eos.transact = mockupTransaction;
 
-  return transaction;
+  return getTransaction;
 }
 
 module.exports = {

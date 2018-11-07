@@ -74,7 +74,6 @@ function newAccountTransaction(name, ownerPublicKey, activePublicKey, options = 
       transfer: option.transfer,
     },
   }];
-
   return this.transact(actions);
 }
 

@@ -14,9 +14,8 @@ function mock(body, status = 200) {
   ];
 }
 
-function mockAbi(_code = undefined, _abi = undefined) {
-  const code = _code || '';
-  const abi = _abi || `{
+function mockAbi() {
+  return `{
     "version": "eosio::abi/1.0",
     "types": [],
     "structs": [{
@@ -427,7 +426,6 @@ function mockAbi(_code = undefined, _abi = undefined) {
     "abi_extensions": [],
     "variants": []
   }`;
-  return { code, abi };
 }
 
 function mockAccount(account = {}) {
@@ -511,6 +509,10 @@ function mockBlock(block = {}) {
     ref_block_prefix: 625850777,
     ...block,
   }]);
+}
+
+function mockCode() {
+  return '';
 }
 
 function mockError(error = {}) {
@@ -604,6 +606,7 @@ module.exports = {
   mockAbi,
   mockAccount,
   mockBlock,
+  mockCode,
   mockError,
   mockInfo,
   mockInstrument,
