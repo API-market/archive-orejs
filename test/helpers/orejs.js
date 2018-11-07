@@ -14,12 +14,13 @@ const {
   mockTransaction,
 } = require('./fetch');
 
-function constructOrejs() {
+function constructOrejs(config) {
   const orejs = new Orejs({
     httpEndpoint: ORE_NETWORK_URI,
     keyProvider: [ORE_OWNER_ACCOUNT_KEY],
     orePayerAccountName: ORE_PAYER_ACCOUNT_NAME,
     sign: true,
+    ...config,
   });
 
   return orejs;
