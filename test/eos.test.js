@@ -26,6 +26,7 @@ describe('eos', () => {
     let block;
     let spyInfo;
     let spyBlock;
+    
     beforeAll(() => {
       transaction = mockGetTransaction(orejs);
       info = mockGetInfo(orejs);

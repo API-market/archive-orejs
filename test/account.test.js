@@ -27,6 +27,7 @@ describe('account', () => {
     let transaction;
     let info;
     let block;
+
     beforeEach(() => {
       mockGetAbi(orejs);
       mockGetAccount(orejs);

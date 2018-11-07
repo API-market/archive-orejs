@@ -88,6 +88,7 @@ describe('cpu', () => {
             quantity: '10.0000 CPU',
           }],
         }));
+        orejs = constructOrejs({ fetch });
       });
 
       xit('returns', async () => {
@@ -107,9 +108,10 @@ describe('cpu', () => {
             quantity: '0.0000 CPU',
           }],
         }));
+        orejs = constructOrejs({ fetch });
       });
 
-      xit('returns', async () => {
+      it('returns', async () => {
         const approveAmount = await orejs.getApprovedCpuBalance(ORE_OWNER_ACCOUNT_NAME, ORE_TESTB_ACCOUNT_NAME);
         expect(approveAmount).toEqual('0.0000 CPU');
       });

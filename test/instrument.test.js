@@ -59,27 +59,28 @@ describe('instrument', () => {
 
       fetch.resetMocks();
       fetch.mockResponses(instrumentMocks);
+      orejs = constructOrejs({ fetch });
     });
 
-    xit('returns all active instruments for account', async () => {
+    it('returns all active instruments for account', async () => {
       const instruments = await orejs.findInstruments(ORE_TESTA_ACCOUNT_NAME);
       expectFetch(`${ORE_NETWORK_URI}/v1/chain/get_table_rows`);
       expect(instruments).toEqual([JSON.parse(instrumentMocks[0]).rows[0], JSON.parse(instrumentMocks[0]).rows[1], JSON.parse(instrumentMocks[0]).rows[3]]);
     });
 
-    xit('returns all instruments', async () => {
+    it('returns all instruments', async () => {
       const instruments = await orejs.findInstruments(ORE_TESTA_ACCOUNT_NAME, false);
       expectFetch(`${ORE_NETWORK_URI}/v1/chain/get_table_rows`);
       expect(instruments).toEqual([JSON.parse(instrumentMocks[0]).rows[0], JSON.parse(instrumentMocks[0]).rows[1], JSON.parse(instrumentMocks[0]).rows[2], JSON.parse(instrumentMocks[0]).rows[3]]);
     });
 
-    xit('filters by category', async () => {
+    it('filters by category', async () => {
       const instruments = await orejs.findInstruments(ORE_TESTA_ACCOUNT_NAME, true, 'apimarket.uncategorized');
       expectFetch(`${ORE_NETWORK_URI}/v1/chain/get_table_rows`);
       expect(instruments).toEqual([JSON.parse(instrumentMocks[0]).rows[1], JSON.parse(instrumentMocks[0]).rows[3]]);
     });
 
-    xit('filters by right', async () => {
+    it('filters by right', async () => {
       const instruments = await orejs.findInstruments(ORE_TESTA_ACCOUNT_NAME, true, 'apimarket.uncategorized', 'apimarket.nobody.licenseApi');
       expectFetch(`${ORE_NETWORK_URI}/v1/chain/get_table_rows`);
       expect(instruments).toEqual([JSON.parse(instrumentMocks[0]).rows[1]]);

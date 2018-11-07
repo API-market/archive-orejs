@@ -37,9 +37,10 @@ describe('usagelog', () => {
         mock({ rows: [{ right_name: rightName, total_cpu: `${totalCpu}.0000 CPU`, total_count: totalCount }] }),
         mock({ rows: [{ right_name: rightName, total_cpu: `${totalCpu}.0000 CPU`, total_count: totalCount }] }),
       );
+      orejs = constructOrejs({ fetch });
     });
 
-    xit('returns summed stats', async () => {
+    it('returns summed stats', async () => {
       const stats = await orejs.getRightStats(rightName, ORE_TESTA_ACCOUNT_NAME);
       expectFetch(`${ORE_NETWORK_URI}/v1/chain/get_table_rows`, `${ORE_NETWORK_URI}/v1/chain/get_table_rows`, `${ORE_NETWORK_URI}/v1/chain/get_table_rows`);
       expect(stats).toEqual({ totalCpuUsage: totalCpu * 2, totalCalls: totalCount * 2 });
