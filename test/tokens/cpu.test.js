@@ -72,8 +72,7 @@ describe('cpu', () => {
 
     describe('when unauthorized', () => {
       xit('throws', () => {
-        contract.approve.mockImplementationOnce(() => Promise.reject(new Error('unauthorized')));
-
+        // contract.approve.mockImplementationOnce(() => Promise.reject(new Error('unauthorized')));
         const result = orejs.approveCpu(ORE_TESTA_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, cpuBalance);
         expect(result).rejects.toThrow(/unauthorized/);
       });

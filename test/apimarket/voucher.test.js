@@ -1,8 +1,13 @@
 const {
+  mockAction,
+  mockOptions,
+} = require('../helpers/eos');
+
+const {
   constructOrejs,
-  mockGetAbi,
   mockGetBlock,
   mockGetInfo,
+  mockGetTransaction,
 } = require('../helpers/orejs');
 
 describe('voucher', () => {
@@ -17,19 +22,22 @@ describe('voucher', () => {
     let offerTemplate;
     let overrideVoucherId;
     let options;
+    let spyTransaction;
+    let transaction;
 
     beforeEach(() => {
       offerId = 1;
       offerTemplate = '';
       overrideVoucherId = 0;
+      transaction = mockGetTransaction(orejs);
+      spyTransaction = jest.spyOn(orejs.eos, 'transact');
     });
 
-    xit('returns', async () => {
+    it('returns', async () => {
       mockGetInfo(orejs);
       mockGetBlock(orejs);
-      mockGetAbi(orejs);
       await orejs.createVoucherInstrument(ORE_OWNER_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, offerId);
-      //expect(contract.licenseapi).toHaveBeenCalledWith(ORE_OWNER_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, offerId, offerTemplate, overrideVoucherId, options);
+      expect(spyTransaction).toHaveBeenCalledWith({ actions: [mockAction({ account: 'manager.apim', name: 'licenseapi' })] }, mockOptions());
     });
   });
 
