@@ -3,6 +3,12 @@
 /* global ORE_OWNER_ACCOUNT_KEY:true */
 /* global ORE_NETWORK_URI:true */
 const ecc = require('eosjs-ecc');
+
+const {
+  mockAction,
+  mockOptions,
+} = require('./helpers/eos');
+
 const {
   constructOrejs,
   mockGetAccount,
@@ -26,20 +32,28 @@ describe('account', () => {
     let transaction;
     let info;
     let block;
+
     beforeEach(() => {
       mockGetAccount(orejs);
       transaction = mockGetTransaction(orejs);
       info = mockGetInfo(orejs);
       block = mockGetBlock(orejs, { block_num: info.head_block_num, transactions: [{ trx: { id: transaction.transaction_id } }] });
-      spyTransaction = jest.spyOn(orejs.eos, 'transaction');
-      spyAccount = jest.spyOn(orejs.eos, 'getAccount');
-      spyInfo = jest.spyOn(orejs.eos, 'getInfo');
-      spyBlock = jest.spyOn(orejs.eos, 'getBlock');
+      spyTransaction = jest.spyOn(orejs.eos, 'transact');
+      spyAccount = jest.spyOn(orejs.eos.rpc, 'get_account');
+      spyInfo = jest.spyOn(orejs.eos.rpc, 'get_info');
+      spyBlock = jest.spyOn(orejs.eos.rpc, 'get_block');
     });
 
-    test('returns a new account', async () => {
+    it('returns a new account', async () => {
       const account = await orejs.createOreAccount(WALLET_PASSWORD, USER_ACCOUNT_ENCRYPTION_SALT, ORE_OWNER_ACCOUNT_KEY);
-      expect(spyTransaction).toHaveBeenNthCalledWith(2, expect.any(Function));
+      expect(spyTransaction).toHaveBeenNthCalledWith(2, {
+        actions: [
+          mockAction({ account: 'eosio' }),
+          mockAction({ account: 'eosio' }),
+          mockAction({ account: 'eosio' }),
+          mockAction({ account: 'eosio' }),
+        ],
+      }, mockOptions());
       expect(spyAccount).toHaveBeenCalledWith(expect.any(String));
       expect(spyInfo).toHaveBeenCalledWith({});
       expect(spyBlock).toHaveBeenCalledWith(block.block_num + 1);
@@ -57,7 +71,7 @@ describe('account', () => {
   });
 
   describe('eosBase32', () => {
-    test('encodes correctly', async () => {
+    it('encodes correctly', async () => {
       const accountName = await orejs.eosBase32('abcde.067899');
       expect(accountName).toEqual('abcde.vwxyzz');
     });

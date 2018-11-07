@@ -7,39 +7,36 @@ const {
 } = require('../../src');
 const {
   mockAccount,
+  mockAbi,
   mockBlock,
+  mockCode,
   mockError,
   mockInfo,
   mockTransaction,
 } = require('./fetch');
 
-function constructOrejs() {
-  fetch.mockResponses(mockInfo());
-
+function constructOrejs(config) {
   const orejs = new Orejs({
     httpEndpoint: ORE_NETWORK_URI,
     keyProvider: [ORE_OWNER_ACCOUNT_KEY],
     orePayerAccountName: ORE_PAYER_ACCOUNT_NAME,
     sign: true,
+    ...config,
   });
 
   return orejs;
 }
 
-function mockContract() {
-  const mockupContract = jest.fn();
+function mockGetAbi(_orejs = undefined) {
+  const mockupAbi = jest.fn();
 
-  const contract = {
-    approve: jest.fn(),
-    licenseapi: jest.fn(),
-    transfer: jest.fn(),
-  };
+  const getAbi = { code: mockCode(), abi: JSON.parse(mockAbi()) };
 
-  mockupContract.mockReturnValue(contract);
-  const orejs = constructOrejs();
-  orejs.eos.contract = mockupContract;
+  mockupAbi.mockReturnValue(getAbi);
+  const orejs = _orejs || constructOrejs();
+  orejs.eos.rpc.get_raw_code_and_abi = mockupAbi;
 
-  return contract;
+  return getAbi;
 }
 
 function mockGetAccount(_orejs = undefined, _account = {}) {
@@ -49,7 +46,7 @@ function mockGetAccount(_orejs = undefined, _account = {}) {
 
   mockupAccount.mockReturnValue(getAccount);
   const orejs = _orejs || constructOrejs();
-  orejs.eos.getAccount = mockupAccount;
+  orejs.eos.rpc.get_account = mockupAccount;
 
   return getAccount;
 }
@@ -61,7 +58,7 @@ function mockGetBlock(_orejs = undefined, _block = {}) {
 
   mockupBlock.mockReturnValue(getBlock);
   const orejs = _orejs || constructOrejs();
-  orejs.eos.getBlock = mockupBlock;
+  orejs.eos.rpc.get_block = mockupBlock;
 
   return getBlock;
 }
@@ -75,9 +72,21 @@ function mockGetBlockError(_orejs = undefined) {
     throw getBlock;
   });
   const orejs = _orejs || constructOrejs();
-  orejs.eos.getBlock = mockupBlock;
+  orejs.eos.rpc.get_block = mockupBlock;
 
   return getBlock;
+}
+
+function mockGetCurrency(_orejs = undefined, _currency = '1.0000 CPU') {
+  const mockupCurrency = jest.fn();
+
+  const getCurrency = _currency;
+
+  mockupCurrency.mockReturnValue(getCurrency);
+  const orejs = _orejs || constructOrejs();
+  orejs.eos.rpc.get_currency_balance = mockupCurrency;
+
+  return getCurrency;
 }
 
 function mockGetInfo(_orejs = undefined, _info = {}) {
@@ -87,7 +96,7 @@ function mockGetInfo(_orejs = undefined, _info = {}) {
 
   mockupInfo.mockReturnValue(getInfo);
   const orejs = _orejs || constructOrejs();
-  orejs.eos.getInfo = mockupInfo;
+  orejs.eos.rpc.get_info = mockupInfo;
 
   return getInfo;
 }
@@ -95,21 +104,22 @@ function mockGetInfo(_orejs = undefined, _info = {}) {
 function mockGetTransaction(_orejs = undefined, _transaction = {}) {
   const mockupTransaction = jest.fn();
 
-  const transaction = mockTransaction(_transaction);
+  const getTransaction = mockTransaction(_transaction);
 
-  mockupTransaction.mockReturnValue(transaction);
+  mockupTransaction.mockReturnValue(getTransaction);
   const orejs = _orejs || constructOrejs();
-  orejs.eos.transaction = mockupTransaction;
+  orejs.eos.transact = mockupTransaction;
 
-  return transaction;
+  return getTransaction;
 }
 
 module.exports = {
   constructOrejs,
-  mockContract,
+  mockGetAbi,
   mockGetAccount,
   mockGetBlock,
   mockGetBlockError,
+  mockGetCurrency,
   mockGetInfo,
   mockGetTransaction,
 };

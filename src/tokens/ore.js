@@ -4,10 +4,6 @@ const TOKEN_SYMBOL = 'ORE';
 let amount;
 /* Public */
 
-function oreContract(accountName) {
-  return this.contract(CONTRACT_NAME, accountName);
-}
-
 function issueOre(toAccountName, oreAmount, memo = '') {
   amount = this.getAmount(oreAmount, TOKEN_SYMBOL);
   return this.issueToken(toAccountName, amount, ORE_ORE_ACCOUNT_NAME, CONTRACT_NAME, memo);
@@ -39,7 +35,6 @@ function transferOrefrom(approvedAccountName, fromAccountName, toAccountName, or
 module.exports = {
   issueOre,
   approveOre,
-  oreContract,
   getOreBalance,
   transferOre,
   transferOrefrom,

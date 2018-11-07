@@ -1,7 +1,6 @@
 /* global ORE_TESTA_ACCOUNT_NAME:true */
 /* global ORE_NETWORK_URI:true */
 const {
-  expectFetch,
   mockBlock,
   mockInfo,
 } = require('./helpers/fetch');
@@ -14,7 +13,7 @@ const {
   mockGetTransaction,
 } = require('./helpers/orejs');
 
-describe('token', () => {
+describe('eos', () => {
   let orejs;
 
   beforeAll(() => {
@@ -27,15 +26,16 @@ describe('token', () => {
     let block;
     let spyInfo;
     let spyBlock;
+    
     beforeAll(() => {
       transaction = mockGetTransaction(orejs);
       info = mockGetInfo(orejs);
       block = mockGetBlock(orejs, { block_num: info.head_block_num, transactions: [{ trx: { id: transaction.transaction_id } }] });
-      spyInfo = jest.spyOn(orejs.eos, 'getInfo');
-      spyBlock = jest.spyOn(orejs.eos, 'getBlock');
+      spyInfo = jest.spyOn(orejs.eos.rpc, 'get_info');
+      spyBlock = jest.spyOn(orejs.eos.rpc, 'get_block');
     });
 
-    test('returns the transaction', async () => {
+    it('returns the transaction', async () => {
       await orejs.awaitTransaction(async () => {
         await setTimeout(() => true, 10);
         return transaction;
@@ -52,7 +52,7 @@ describe('token', () => {
         block = mockGetBlock(orejs, { block_num: info.head_block_num, transactions: [{ trx: { id: transaction.transaction_id + 1 } }] });
       });
 
-      test('throws an error with the block number', async () => {
+      it('throws an error with the block number', async () => {
         const result = orejs.awaitTransaction(async () => {
           await setTimeout(() => true, 10);
           return transaction;
@@ -69,7 +69,7 @@ describe('token', () => {
         block = mockGetBlockError(orejs);
       });
 
-      test('throws an error with the block number', async () => {
+      it('throws an error with the block number', async () => {
         const result = orejs.awaitTransaction(async () => {
           await setTimeout(() => true, 10);
           return transaction;
@@ -100,7 +100,7 @@ describe('token', () => {
         };
       });
 
-      test('returns true', () => {
+      it('returns true', () => {
         const hasTransaction = orejs.hasTransaction(block, transactionId);
         expect(hasTransaction).toEqual(true);
       });
@@ -113,26 +113,10 @@ describe('token', () => {
         };
       });
 
-      test('returns false', () => {
+      it('returns false', () => {
         const hasTransaction = orejs.hasTransaction(block, transactionId);
         expect(hasTransaction).toEqual(false);
       });
-    });
-  });
-
-  describe('tableKey', () => {
-    let encodedAccountName;
-
-    beforeAll(() => {
-      encodedAccountName = orejs.tableKey(ORE_TESTA_ACCOUNT_NAME);
-    });
-
-    test('returns a number', () => {
-      expect(encodedAccountName.toString()).toEqual('14605613949550624768');
-    });
-
-    test('returns a BigNumber', () => {
-      expect(encodedAccountName.plus(1).toString()).toEqual('14605613949550624769');
     });
   });
 });

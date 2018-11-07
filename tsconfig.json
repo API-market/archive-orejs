@@ -1,20 +1,25 @@
 {
   "compilerOptions": {
     "allowJs": true,
+    "alwaysStrict": true,
+    "downlevelIteration": true,
     "lib": [
-      "es2017"
+      "es2017",
+      "dom"
     ],
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "noImplicitAny": true,
     "outDir": "dist",
     "sourceMap": true,
     "target": "es5",
-    "types":[]
   },
-  "include": [
-    "./src/**/*"
-  ],
   "exclude": [
     "dist",
-    "node_modules",
-    "tmp"
+    "node_modules"
+  ],
+  "include": [
+    "./src/**/*.js",
+    "./src/**/*.ts"
   ]
 }

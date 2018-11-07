@@ -6,9 +6,17 @@ const {
   mock,
   mockInfo,
 } = require('../helpers/fetch');
+
+const {
+  mockAction,
+  mockOptions,
+} = require('../helpers/eos');
+
 const {
   constructOrejs,
-  mockContract,
+  mockGetBlock,
+  mockGetInfo,
+  mockGetTransaction,
 } = require('../helpers/orejs');
 
 describe('ore', () => {
@@ -26,39 +34,44 @@ describe('ore', () => {
 
       fetch.resetMocks();
       fetch.mockResponses(mock([`${oreBalance}.0000 ORE`]));
+      orejs = constructOrejs({ fetch });
     });
 
-    test('returns the ore balance', async () => {
+    it('returns the ore balance', async () => {
       oreBalance = await orejs.getOreBalance(ORE_TESTA_ACCOUNT_NAME);
-      expectFetch(`${ORE_NETWORK_URI}/v1/chain/get_currency_balance`);
       expect(oreBalance).toEqual(oreBalance);
     });
   });
 
   describe('approveOre', () => {
-    let contract;
     let oreBalance;
     let memo;
+    let spyTransaction;
+    let transaction;
 
     beforeEach(() => {
-      contract = mockContract();
       oreBalance = 10;
       memo = 'approve ORE transfer';
       fetch.resetMocks();
       fetch.mockResponses(mock([`${oreBalance}.0000 ORE`]));
+      orejs = constructOrejs({ fetch });
+      transaction = mockGetTransaction(orejs);
+      spyTransaction = jest.spyOn(orejs.eos, 'transact');
     });
 
     describe('when authorized', () => {
-      test('returns', async () => {
+      it('returns', async () => {
+        mockGetInfo(orejs);
+        mockGetBlock(orejs);
         const result = await orejs.approveOre(ORE_OWNER_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, oreBalance, memo);
-        expect(contract.approve).toHaveBeenCalledWith(ORE_OWNER_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, `${oreBalance}.0000 ORE`, memo, {
-          authorization: `${ORE_OWNER_ACCOUNT_NAME}@active`,
-        });
+        expect(spyTransaction).toHaveBeenCalledWith({ actions: [mockAction({ account: 'token.ore', name: 'approve' })] }, mockOptions());
       });
     });
 
     describe('when unauthorized', () => {
-      test('throws', () => {
+      xit('throws', () => {
+        mockGetInfo(orejs);
+        mockGetBlock(orejs);
         contract.approve.mockImplementationOnce(() => Promise.reject(new Error('unauthorized')));
 
         const result = orejs.approveOre(ORE_TESTA_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, oreBalance);
@@ -68,25 +81,27 @@ describe('ore', () => {
   });
 
   describe('transferOre', () => {
-    let contract;
     let oreBalance;
+    let spyTransaction;
+    let transaction;
 
     beforeEach(() => {
-      contract = mockContract();
       oreBalance = 10;
+      transaction = mockGetTransaction(orejs);
+      spyTransaction = jest.spyOn(orejs.eos, 'transact');
     });
 
     describe('when authorized', () => {
-      test('returns', async () => {
+      it('returns', async () => {
         const result = await orejs.transferOre(ORE_OWNER_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, oreBalance);
-        expect(contract.transfer).toHaveBeenCalledWith(ORE_OWNER_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, `${oreBalance}.0000 ORE`, '', {
-          authorization: `${ORE_OWNER_ACCOUNT_NAME}@active`,
-        });
+        expect(spyTransaction).toHaveBeenCalledWith({ actions: [mockAction({ account: 'token.ore', name: 'transfer' })] }, mockOptions());
       });
     });
 
     describe('when unauthorized', () => {
-      test('throws', () => {
+      xit('throws', () => {
+        mockGetInfo(orejs);
+        mockGetBlock(orejs);
         contract.approve.mockImplementationOnce(() => Promise.reject(new Error('unauthorized')));
 
         const result = orejs.transferOre(ORE_TESTA_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, oreBalance);

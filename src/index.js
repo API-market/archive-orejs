@@ -1,4 +1,6 @@
-const Eos = require('eosjs');
+const fetch = require('node-fetch');
+const eosjs = require('eosjs');
+const { TextDecoder, TextEncoder } = require('text-encoding');
 const accounts = require('./accounts');
 const cpu = require('./tokens/cpu');
 const crypto = require('./modules/crypto');
@@ -31,7 +33,9 @@ class Orejs {
 
   constructEos(config) {
     this.config = config;
-    this.eos = Object.assign(Eos.modules, Eos(this.config));
+    const rpc = new eosjs.JsonRpc(config.httpEndpoint, { fetch: config.fetch || fetch });
+    const signatureProvider = new eosjs.JsSignatureProvider(config.keyProvider);
+    this.eos = new eosjs.Api({ chainId: config.chainId, rpc, signatureProvider, textEncoder: new TextEncoder(), textDecoder: new TextDecoder() });
   }
 }
 

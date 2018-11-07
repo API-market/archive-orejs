@@ -2,22 +2,32 @@ const APIM_CONTRACT_NAME = 'manager.apim';
 
 const ecc = require('eosjs-ecc');
 
-async function createVoucherInstrument(creator, buyer, offerId, overrideVoucherId = 0, offerTemplate = '', confirm = false) {
+function createVoucherInstrument(creator, buyer, offer_id, override_voucher_id = 0, offer_template = '', confirm = false) {
   // Exercise an offer to get a voucher
   // overrideVoucherId is passed in to specify the voucher id for the new voucher. If its value is 0, then the voucher id is auto generated
   // either offerTemplate or offerId could be passed in to get a voucher for that offer.
-  if (offerId === 0 && offerTemplate === '') {
+  if (offer_id === 0 && offer_template === '') {
     throw new Error('Either pass in a valid offer id or a valid offer template');
   }
-  const options = {
-    authorization: `${creator}@active`,
-  };
-  const contract = await this.eos.contract(APIM_CONTRACT_NAME, options);
+  const actions = [{
+    account: APIM_CONTRACT_NAME,
+    name: 'licenseapi',
+    authorization: [{
+      actor: creator,
+      permission: 'active',
+    }],
+    data: {
+      creator,
+      buyer,
+      offer_id,
+      offer_template,
+      override_voucher_id
+    }
+  }];
   if (confirm) {
-    return this.awaitTransaction(() => contract.licenseapi(creator, buyer, offerId, offerTemplate, overrideVoucherId, options));
+    return this.awaitTransaction(() => this.transact(actions));
   }
-  contract.licenseapi(creator, buyer, offerId, offerTemplate, overrideVoucherId, options);
-  return this;
+  return this.transact(actions);
 }
 
 async function signVoucher(voucherId) {

@@ -21,29 +21,45 @@ function getAmount(tokenAmount, tokenSymbol) {
   }
 }
 
-async function issueToken(toAccountName, tokenAmount, ownerAccountName, contractName, memo = '') {
-  const {
-    contract,
-    options,
-  } = await this.contract(contractName, ownerAccountName);
-  await contract.issue(toAccountName, tokenAmount.toString(), memo, options);
+function issueToken(toAccountName, tokenAmount, ownerAccountName, contractName, memo = '') {
+  return this.transact([{
+    account: contractName,
+    name: 'issue',
+    authorization: [{
+      actor: ownerAccountName,
+      permission: 'active',
+    }],
+    data: {
+      to: toAccountName,
+      quantity: tokenAmount,
+      memo,
+    },
+  }]);
 }
 
 // cleos push action cpu.ore approve '[""]
-async function approveTransfer(fromAccountName, toAccountName, tokenAmount, contractName, memo = '', permission = 'active') {
+function approveTransfer(fromAccountName, toAccountName, tokenAmount, contractName, memo = '', permission = 'active') {
   // Appprove some account to spend on behalf of approving account
-  const {
-    contract,
-    options,
-  } = await this.contract(contractName, fromAccountName, permission);
-
-  await contract.approve(fromAccountName, toAccountName, tokenAmount.toString(), memo, options);
+  return this.transact([{
+    account: contractName,
+    name: 'approve',
+    authorization: [{
+      actor: fromAccountName,
+      permission,
+    }],
+    data: {
+      from: fromAccountName,
+      to: toAccountName,
+      quantity: tokenAmount,
+      memo,
+    },
+  }]);
 }
 
 // cleos get table token.ore test1.apim allowances
 async function getApprovedAccount(accountName, contractName) {
   // Returns all the accounts approved by the approving account
-  const approvedAccounts = await this.eos.getTableRows({
+  const approvedAccounts = await this.eos.rpc.get_table_rows({
     code: contractName,
     json: true,
     scope: accountName,
@@ -68,7 +84,7 @@ async function getApprovedAmount(fromAccount, toAccount, tokenSymbol, contractNa
 
 // cleos get currency balance cpu.ore test1.apim CPU
 async function getBalance(accountName, tokenSymbol, contractName) {
-  const balance = await this.eos.getCurrencyBalance(contractName, accountName, tokenSymbol);
+  const balance = await this.eos.rpc.get_currency_balance(contractName, accountName, tokenSymbol);
   if (balance && balance[0]) {
     return parseFloat(balance[0].split(tokenSymbol)[0]);
   }
@@ -76,23 +92,41 @@ async function getBalance(accountName, tokenSymbol, contractName) {
 }
 
 // cleos push action cpu.ore transfer '["test1.apim", "test2.apim", "10.0000 CPU", "memo"]' -p test1.apim
-async function transferToken(fromAccountName, toAccountName, tokenAmount, contractName, memo = '') {
-  // Standard token transfer
-  const {
-    contract,
-    options,
-  } = await this.contract(contractName, fromAccountName);
-  await contract.transfer(fromAccountName, toAccountName, tokenAmount.toString(), memo, options);
+function transferToken(fromAccountName, toAccountName, tokenAmount, contractName, memo = '') {
+  return this.transact([{
+    account: contractName,
+    name: 'transfer',
+    authorization: [{
+      actor: fromAccountName,
+      permission: 'active',
+    }],
+    data: {
+      from: fromAccountName,
+      to: toAccountName,
+      quantity: tokenAmount,
+      memo,
+    },
+  }]);
 }
 
 // cleos push action cpu.ore transferFrom '["app.apim", "test1.apim", "test2.apim", "10.0000 CPU"]' -p app.apim
-async function transferFrom(approvedAccountName, fromAccountName, toAccountName, tokenAmount, contractName, memo = '') {
+function transferFrom(approvedAccountName, fromAccountName, toAccountName, tokenAmount, contractName, memo = '') {
   // Standard token transfer
-  const {
-    contract,
-    options,
-  } = await this.contract(contractName, approvedAccountName);
-  await contract.transferFrom(approvedAccountName, fromAccountName, toAccountName, tokenAmount.toString(), memo, options);
+  return this.transact([{
+    account: contractName,
+    name: 'transferFrom',
+    authorization: [{
+      actor: approvedAccountName,
+      permission: 'active',
+    }],
+    data: {
+      sender: approvedAccountName,
+      from: fromAccountName,
+      to: toAccountName,
+      quantity: tokenAmount,
+      memo,
+    },
+  }]);
 }
 
 module.exports = {
