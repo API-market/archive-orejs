@@ -3,9 +3,14 @@
 /* global ORE_OWNER_ACCOUNT_KEY:true */
 /* global ORE_NETWORK_URI:true */
 const ecc = require('eosjs-ecc');
+
+const {
+  mockAction,
+  mockOptions,
+} = require('./helpers/eos');
+
 const {
   constructOrejs,
-  mockGetAbi,
   mockGetAccount,
   mockGetInfo,
   mockGetBlock,
@@ -29,7 +34,6 @@ describe('account', () => {
     let block;
 
     beforeEach(() => {
-      mockGetAbi(orejs);
       mockGetAccount(orejs);
       transaction = mockGetTransaction(orejs);
       info = mockGetInfo(orejs);
@@ -42,7 +46,14 @@ describe('account', () => {
 
     it('returns a new account', async () => {
       const account = await orejs.createOreAccount(WALLET_PASSWORD, USER_ACCOUNT_ENCRYPTION_SALT, ORE_OWNER_ACCOUNT_KEY);
-      expect(spyTransaction).toHaveBeenNthCalledWith(2, expect.any(Object), {blocksBehind: 3, expireSeconds: 30});
+      expect(spyTransaction).toHaveBeenNthCalledWith(2, {
+        actions: [
+          mockAction({ account: 'eosio' }),
+          mockAction({ account: 'eosio' }),
+          mockAction({ account: 'eosio' }),
+          mockAction({ account: 'eosio' }),
+        ],
+      }, mockOptions());
       expect(spyAccount).toHaveBeenCalledWith(expect.any(String));
       expect(spyInfo).toHaveBeenCalledWith({});
       expect(spyBlock).toHaveBeenCalledWith(block.block_num + 1);
