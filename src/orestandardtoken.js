@@ -21,6 +21,21 @@ function getAmount(tokenAmount, tokenSymbol) {
   }
 }
 
+function createToken(toAccountName, ownerAccountName, tokenAmount, contractName) {
+  return this.transact([{
+    account: contractName,
+    name: 'create',
+    authorization: [{
+      actor: ownerAccountName,
+      permission: 'active',
+    }],
+    data: {
+      issuer: toAccountName,
+      maximum_supply: tokenAmount,
+    },
+  }]);
+}
+
 function issueToken(toAccountName, tokenAmount, ownerAccountName, contractName, memo = '') {
   return this.transact([{
     account: contractName,
@@ -91,6 +106,21 @@ async function getBalance(accountName, tokenSymbol, contractName) {
   return parseFloat(0.0000);
 }
 
+function retireToken(ownerAccountName, tokenAmount, contractName, memo = '') {
+  return this.transact([{
+    account: contractName,
+    name: 'retire',
+    authorization: [{
+      actor: ownerAccountName,
+      permission: 'active',
+    }],
+    data: {
+      quantity: tokenAmount,
+      memo,
+    },
+  }]);
+}
+
 // cleos push action cpu.ore transfer '["test1.apim", "test2.apim", "10.0000 CPU", "memo"]' -p test1.apim
 function transferToken(fromAccountName, toAccountName, tokenAmount, contractName, memo = '') {
   return this.transact([{
@@ -131,11 +161,13 @@ function transferFrom(approvedAccountName, fromAccountName, toAccountName, token
 
 module.exports = {
   approveTransfer,
+  createToken,
   getAmount,
   getApprovedAccount,
   getApprovedAmount,
   getBalance,
   issueToken,
+  retireToken,
   transferToken,
   transferFrom,
 };
