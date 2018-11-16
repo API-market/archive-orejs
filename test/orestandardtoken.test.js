@@ -1,6 +1,9 @@
 /* global ORE_NETWORK_URI:true */
 /* global ORE_OWNER_ACCOUNT_NAME:true */
 /* global ORE_TESTA_ACCOUNT_NAME:true */
+const ORE_TOKEN_CONTRACT = 'token.ore';
+const TOKEN_SYMBOL = 'LUME';
+
 const {
   expectFetch,
   mock,
@@ -33,12 +36,12 @@ describe('ore', () => {
       oreBalance = 30;
 
       fetch.resetMocks();
-      fetch.mockResponses(mock([`${oreBalance}.0000 ORE`]));
+      fetch.mockResponses(mock([`${oreBalance}.0000 ${TOKEN_SYMBOL}`]));
       orejs = constructOrejs({ fetch });
     });
 
     it('returns the ore balance', async () => {
-      oreBalance = await orejs.getBalance(ORE_TESTA_ACCOUNT_NAME, 'ORE', 'token.ore');
+      oreBalance = await orejs.getBalance(ORE_TESTA_ACCOUNT_NAME, TOKEN_SYMBOL, ORE_TOKEN_CONTRACT);
       expect(oreBalance).toEqual(oreBalance);
     });
   });
@@ -51,9 +54,9 @@ describe('ore', () => {
 
     beforeEach(() => {
       oreBalance = 10;
-      memo = 'approve ORE transfer';
+      memo = `approve ${TOKEN_SYMBOL} transfer`;
       fetch.resetMocks();
-      fetch.mockResponses(mock([`${oreBalance}.0000 ORE`]));
+      fetch.mockResponses(mock([`${oreBalance}.0000 ${TOKEN_SYMBOL}`]));
       orejs = constructOrejs({ fetch });
       transaction = mockGetTransaction(orejs);
       spyTransaction = jest.spyOn(orejs.eos, 'transact');
@@ -63,8 +66,8 @@ describe('ore', () => {
       it('returns', async () => {
         mockGetInfo(orejs);
         mockGetBlock(orejs);
-        const result = await orejs.approveTransfer(ORE_OWNER_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, oreBalance, 'token.ore', memo);
-        expect(spyTransaction).toHaveBeenCalledWith({ actions: [mockAction({ account: 'token.ore', name: 'approve' })] }, mockOptions());
+        const result = await orejs.approveTransfer(ORE_OWNER_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, oreBalance, ORE_TOKEN_CONTRACT, memo);
+        expect(spyTransaction).toHaveBeenCalledWith({ actions: [mockAction({ account: ORE_TOKEN_CONTRACT, name: 'approve' })] }, mockOptions());
       });
     });
   });
@@ -82,8 +85,8 @@ describe('ore', () => {
 
     describe('when authorized', () => {
       it('returns', async () => {
-        const result = await orejs.transferToken(ORE_OWNER_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, oreBalance, 'token.ore');
-        expect(spyTransaction).toHaveBeenCalledWith({ actions: [mockAction({ account: 'token.ore', name: 'transfer' })] }, mockOptions());
+        const result = await orejs.transferToken(ORE_OWNER_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, oreBalance, ORE_TOKEN_CONTRACT);
+        expect(spyTransaction).toHaveBeenCalledWith({ actions: [mockAction({ account: ORE_TOKEN_CONTRACT, name: 'transfer' })] }, mockOptions());
       });
     });
   });
