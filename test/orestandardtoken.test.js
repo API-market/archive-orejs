@@ -72,6 +72,26 @@ describe('ore', () => {
     });
   });
 
+  describe('createToken', () => {
+    let oreBalance;
+    let spyTransaction;
+    let transaction;
+
+    beforeEach(() => {
+      oreBalance = 10;
+      orejs = constructOrejs({ fetch });
+      transaction = mockGetTransaction(orejs);
+      spyTransaction = jest.spyOn(orejs.eos, 'transact');
+    });
+
+    describe('when authorized', () => {
+      it('returns', async () => {
+        const result = await orejs.createToken(ORE_OWNER_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, oreBalance, ORE_TOKEN_CONTRACT);
+        expect(spyTransaction).toHaveBeenCalledWith({ actions: [mockAction({ account: ORE_TOKEN_CONTRACT, name: 'create' })] }, mockOptions());
+      });
+    });
+  });
+
   describe('transferToken', () => {
     let oreBalance;
     let spyTransaction;
@@ -87,6 +107,28 @@ describe('ore', () => {
       it('returns', async () => {
         const result = await orejs.transferToken(ORE_OWNER_ACCOUNT_NAME, ORE_TESTA_ACCOUNT_NAME, oreBalance, ORE_TOKEN_CONTRACT);
         expect(spyTransaction).toHaveBeenCalledWith({ actions: [mockAction({ account: ORE_TOKEN_CONTRACT, name: 'transfer' })] }, mockOptions());
+      });
+    });
+  });
+
+  describe('retireToken', () => {
+    let oreBalance;
+    let memo;
+    let spyTransaction;
+    let transaction;
+
+    beforeEach(() => {
+      oreBalance = 10;
+      memo = `retire ${TOKEN_SYMBOL}`;
+      orejs = constructOrejs({ fetch });
+      transaction = mockGetTransaction(orejs);
+      spyTransaction = jest.spyOn(orejs.eos, 'transact');
+    });
+
+    describe('when authorized', () => {
+      it('returns', async () => {
+        const result = await orejs.retireToken(ORE_TESTA_ACCOUNT_NAME, oreBalance, ORE_TOKEN_CONTRACT, memo);
+        expect(spyTransaction).toHaveBeenCalledWith({ actions: [mockAction({ account: ORE_TOKEN_CONTRACT, name: 'retire' })] }, mockOptions());
       });
     });
   });
