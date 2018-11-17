@@ -21,13 +21,28 @@ function getAmount(tokenAmount, tokenSymbol) {
   }
 }
 
-function issueToken(toAccountName, tokenAmount, ownerAccountName, contractName, memo = '') {
+function createToken(toAccountName, ownerAccountName, tokenAmount, contractName, permission = 'active') {
+  return this.transact([{
+    account: contractName,
+    name: 'create',
+    authorization: [{
+      actor: ownerAccountName,
+      permission,
+    }],
+    data: {
+      issuer: toAccountName,
+      maximum_supply: tokenAmount,
+    },
+  }]);
+}
+
+function issueToken(toAccountName, tokenAmount, ownerAccountName, contractName, memo = '', permission = 'active') {
   return this.transact([{
     account: contractName,
     name: 'issue',
     authorization: [{
       actor: ownerAccountName,
-      permission: 'active',
+      permission,
     }],
     data: {
       to: toAccountName,
@@ -91,14 +106,29 @@ async function getBalance(accountName, tokenSymbol, contractName) {
   return parseFloat(0.0000);
 }
 
+function retireToken(ownerAccountName, tokenAmount, contractName, memo = '', permission = 'active') {
+  return this.transact([{
+    account: contractName,
+    name: 'retire',
+    authorization: [{
+      actor: ownerAccountName,
+      permission,
+    }],
+    data: {
+      quantity: tokenAmount,
+      memo,
+    },
+  }]);
+}
+
 // cleos push action cpu.ore transfer '["test1.apim", "test2.apim", "10.0000 CPU", "memo"]' -p test1.apim
-function transferToken(fromAccountName, toAccountName, tokenAmount, contractName, memo = '') {
+function transferToken(fromAccountName, toAccountName, tokenAmount, contractName, memo = '', permission = 'active') {
   return this.transact([{
     account: contractName,
     name: 'transfer',
     authorization: [{
       actor: fromAccountName,
-      permission: 'active',
+      permission,
     }],
     data: {
       from: fromAccountName,
@@ -110,14 +140,14 @@ function transferToken(fromAccountName, toAccountName, tokenAmount, contractName
 }
 
 // cleos push action cpu.ore transferFrom '["app.apim", "test1.apim", "test2.apim", "10.0000 CPU"]' -p app.apim
-function transferFrom(approvedAccountName, fromAccountName, toAccountName, tokenAmount, contractName, memo = '') {
+function transferFrom(approvedAccountName, fromAccountName, toAccountName, tokenAmount, contractName, memo = '', permission = 'active') {
   // Standard token transfer
   return this.transact([{
     account: contractName,
     name: 'transferFrom',
     authorization: [{
       actor: approvedAccountName,
-      permission: 'active',
+      permission,
     }],
     data: {
       sender: approvedAccountName,
@@ -131,11 +161,13 @@ function transferFrom(approvedAccountName, fromAccountName, toAccountName, token
 
 module.exports = {
   approveTransfer,
+  createToken,
   getAmount,
   getApprovedAccount,
   getApprovedAmount,
   getBalance,
   issueToken,
+  retireToken,
   transferToken,
   transferFrom,
 };
