@@ -129,54 +129,6 @@ function delay(ms = 1000) {
   // console.log('transfer', amount, 'ORE to', account.oreAccountName);
   await orejs.transferOre(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, amount);
 
-  // works only against local chain for now. New contract structure with "memo" not on staging yet
   await orejs.approveCpu(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, amount, 'approve transfer');
   await logBalances(account.oreAccountName);
-
-  // /////////////////////
-  // Publish an API...  //
-  // /////////////////////
-
-  logInstrumentCount();
-
-  const instrument = instrumentFor(process.env.ORE_OFFER_ISSUER);
-
-  const offerTx = await orejs.createOfferInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, instrument, true);
-
-  const [offer] = await orejs.findInstruments(process.env.ORE_OFFER_ISSUER);
-  console.log('Offer:', offer, offer.instrument.rights);
-
-  logInstrumentCount();
-
-  // /////////////////////
-  // License an API...  //
-  // /////////////////////
-
-  const voucherTx = await orejs.createVoucherInstrument(process.env.ORE_OWNER_ACCOUNT_NAME, account.oreAccountName, offer.id, 0, '', [], '', true);
-
-  const [voucher] = await orejs.findInstruments(account.oreAccountName, true);
-  console.log('Voucher:', voucher, voucher.instrument.rights);
-
-  logInstrumentCount();
-
-  // //////////////////
-  // Call the API... //
-  // //////////////////
-
-  //await connectAs(account.oreAccountName, crypto.decrypt(account.privateKey, process.env.WALLET_PASSWORD, process.env.USER_ACCOUNT_ENCRYPTION_SALT));
-  await connectAs(account.oreAccountName, account.verifierAuthKey);
-
-  const [right] = voucher.instrument.rights;
-  // works only against local chain for now. New contract structure with "memo" not on staging yet
-  await orejs.approveCpu(account.oreAccountName, 'ore.verifier', right.price_in_cpu, 'approve verifier', 'authverifier');
-
-  // /////////////////////
-  // Get Usage Stats... //
-  // /////////////////////
-
-  const rightName = voucher.instrument.rights[0].right_name;
-  const instrumentStats = await orejs.getCallStats(voucher.id, rightName);
-  console.log('Instrument Stats:', instrumentStats);
-  const rightStats = await orejs.getRightStats(rightName, account.oreAccountName);
-  console.log('Right Stats:', rightStats);
 }());
